@@ -1,0 +1,21 @@
+name: bike-discount-crawler
+services:
+  redis:
+    container_name: database
+    image: redis:7.2-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=my-password
+      - REDIS_PORT=6379
+      - REDIS_DATABASES=16
+  app:
+    container_name: app
+    build: ./
+    ports:
+      - "3000:3000"
+    environment:
+      - REDIS_URL=''
+    depends_on:
+      - redis
