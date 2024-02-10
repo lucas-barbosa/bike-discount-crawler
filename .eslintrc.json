@@ -14,6 +14,11 @@
             "error",
             "always"
         ],
-        "no-extra-semi": "error"
+        "@typescript-eslint/semi": [
+            "error",
+            "always"
+        ],
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/strict-boolean-expressions": "off"
     }
 }
