@@ -19,6 +19,8 @@
             "always"
         ],
         "@typescript-eslint/explicit-function-return-type": "off",
-        "@typescript-eslint/strict-boolean-expressions": "off"
+        "@typescript-eslint/strict-boolean-expressions": "off",
+        "@typescript-eslint/return-await": "off",
+        "@typescript-eslint/promise-function-async": "off"
     }
 }
