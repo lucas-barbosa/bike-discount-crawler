@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "dev": "tsx ./src/index.ts",
+    "dev": "tsx -r dotenv/config ./src/index.ts",
     "lint": "eslint ./**/*.ts --quiet",
     "lint:fix": "yarn lint --fix"
   },
@@ -24,8 +24,10 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "dotenv": "^16.4.5",
     "puppeteer": "^22.0.0",
     "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2"
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "redis": "^4.6.13"
   }
 }
