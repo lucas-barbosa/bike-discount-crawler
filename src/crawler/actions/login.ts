@@ -8,7 +8,7 @@ export const login = async (email: string, password: string) => {
   await page.type('#passwort', password);
 
   await Promise.all([
-    page.click('#login--form [type=submit]'),
+    page.$eval('#login--form [type=submit]', x => { (x as HTMLButtonElement).click(); }),
     page.waitForNavigation({ waitUntil: 'networkidle2' })
   ]);
 

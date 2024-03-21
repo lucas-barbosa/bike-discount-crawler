@@ -17,7 +17,7 @@
         "./src/infrastructure/*"
       ],
       "@middlewares/*": [
-        "./src/middlewares/*"
+        "src/middlewares/*"
       ],
       "@usecases/*": [
         "./src/usecases/*"
