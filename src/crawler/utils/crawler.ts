@@ -32,8 +32,12 @@ export const importCookies = async (page: Page, cookies: string) => {
   }
 };
 
+export const getPropertyContent = async (page: Page, element: ElementHandle) => {
+  return (await page.evaluate(x => x.getAttribute('content'), element))?.trim() ?? '';
+};
+
 export const getTextNode = async (page: Page, element: ElementHandle) => {
-  return (await page.evaluate(x => x.textContent, element)) ?? '';
+  return (await page.evaluate(x => x.textContent, element))?.trim() ?? '';
 };
 
 export const getUrl = async (page: Page, element: ElementHandle) => {
