@@ -1,8 +1,5 @@
 import { listProducts } from '@crawler/actions/list-products';
 
-export const fetchProductList = async (categoryUrl: string, page: 1) => {
-  const result = await listProducts(categoryUrl, page);
-  console.log(result);
-  // TODO: enqueue each product
-  // TODO: enqueue some category with next page
+export const fetchProductList = async (categoryUrl: string, page: number = 1) => {
+  return await listProducts(categoryUrl, page);
 };
