@@ -39,7 +39,10 @@ export const listOverriedWeightCategories = async (req: Request, res: Response) 
 export const storeDeniedBrands = async (req: Request, res: Response) => {
   const { body } = req;
 
-  const items = body.items ?? [];
+  let items = body.items ?? [];
+  if (typeof items === 'string') items = items.split(/\r\n|[\r\n]/);
+  items = items.map((brand: string) => brand.toLowerCase());
+
   await saveDeniedBrands(items);
 
   return res.status(200).json({ items });

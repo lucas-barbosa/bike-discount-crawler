@@ -20,8 +20,8 @@ export const categoryWorker = () => {
   const worker = createWorker(QUEUE_NAME, async ({ data }: Job<Category>) => {
     console.log('STARTED fetching products', data);
     const result = await fetchProductList(data.categoryUrl, data.page);
-    if (result.productLinks.length) await enqueueProducts(result.productLinks);
-    if (result.hasNextPage) await enqueueNextCategoryPage(data);
+    if (result?.productLinks.length) await enqueueProducts(result.productLinks, data.categoryUrl);
+    if (result?.hasNextPage) await enqueueNextCategoryPage(data);
     console.log('FINISHED fetching products');
   });
   return worker;
@@ -44,8 +44,8 @@ const enqueueNextCategoryPage = async (params: Category) => {
   });
 };
 
-const enqueueProducts = async (productUrls: string[]) => {
-  await Promise.all(productUrls.map(url => enqueueProduct(url)));
+const enqueueProducts = async (productUrls: string[], categoryUrl: string) => {
+  await Promise.all(productUrls.map(url => enqueueProduct(url, categoryUrl)));
 };
 
 export const startCategoryQueue = () => {

@@ -5,7 +5,7 @@ import { loginIfRequired } from '@middlewares/login-if-required';
 import { Product } from 'src/types/Product';
 import { ProductVariation } from 'src/types/ProductVariation';
 
-export const getProduct = async (productUrl: string, language?: string): Promise<any> => {
+export const getProduct = async (productUrl: string, categoryUrl: string, language?: string): Promise<Product> => {
   const { page, browser } = await startCrawler();
 
   if (language) {
@@ -54,7 +54,8 @@ export const getProduct = async (productUrl: string, language?: string): Promise
     Number(price),
     title,
     sku,
-    productUrl
+    productUrl,
+    categoryUrl
   );
 
   product.attributes = attributes;
@@ -159,7 +160,7 @@ const getDimension = async (page: Page) => {
     }
   }
 
-  const dimensions = await page.$$('xpath/.//div[contains(@class,"tab-menu--product")]//li[strong[contains(translate(text(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "dimension:") or contains(translate(text(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "size:")]]');
+  const dimensions = await page.$$('xpath/.//div[contains(@class,"tab-menu--product")]//li[strong[contains(translate(text(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "dimension:") or contains(translate(text(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "dimensions:") or contains(translate(text(), "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz"), "size:")]]');
   const result = {
     length: '',
     width: '',
@@ -225,7 +226,7 @@ const getTitle = async (page: Page) => {
 const getWeight = async (page: Page) => {
   const element = await page.$$('xpath/.//meta[@itemprop="weight"]');
 
-  if (element.length) {
+  if (!element.length) {
     return {
       value: 0,
       unit: 'kg'
