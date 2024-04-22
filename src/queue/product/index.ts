@@ -2,6 +2,10 @@ import { type Job, type Queue } from 'bullmq';
 import { createQueue, createWorker } from '../client';
 import { fetchProduct } from '@usecases/fetch-product';
 import { validateProduct } from '@usecases/validate-product';
+import { enqueueStock } from '../stock';
+import { type Product } from 'src/types/Product';
+
+export type ProductFoundCallback = (stock: Product) => Promise<any>;
 
 interface ProductQueueItem {
   url: string
@@ -17,15 +21,22 @@ export const productQueue = () => {
   return queue;
 };
 
-export const productWorker = () => {
+export const productWorker = (onProductFound: ProductFoundCallback) => {
   const worker = createWorker(QUEUE_NAME, async ({ data }: Job<ProductQueueItem>) => {
     console.log('STARTED loading product', data);
     const result = await fetchProduct(data.url, data.categoryUrl, data.language);
     if (result) {
       await validateProduct(result);
-      console.log('Product: ', !result.invalid);
+      if (result.isValid) {
+        await enqueueStock(data.url);
+        await onProductFound(result);
+      }
+      console.log('Product: ', {
+        id: result.id,
+        sku: result.sku,
+        isValid: result.isValid
+      });
     }
-    console.log(result);
     console.log('FINISHED loading product');
   });
   return worker;
@@ -39,7 +50,7 @@ export const enqueueProduct = async (productUrl: string, categoryUrl: string, la
   });
 };
 
-export const startProductQueue = () => {
+export const startProductQueue = (onProductFound: ProductFoundCallback) => {
   productQueue();
-  productWorker();
+  productWorker(onProductFound);
 };

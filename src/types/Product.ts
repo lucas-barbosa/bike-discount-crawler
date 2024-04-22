@@ -80,4 +80,8 @@ export class Product {
   get isVariable() {
     return this.variations.length > 0;
   }
+
+  get isValid() {
+    return !this.invalid;
+  }
 }
