@@ -1,0 +1,37 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "baseUrl": "./", /* Specify the base directory to resolve non-relative module names. */
+    "outDir": "dist",
+    "rootDir": "src",
+    "paths": {
+      "@api/*": [
+        "./src/api/*"
+      ],
+      "@crawler/*": [
+        "./src/crawler/*"
+      ],
+      "@infrastructure/*": [
+        "./src/infrastructure/*"
+      ],
+      "@middlewares/*": [
+        "./src/middlewares/*"
+      ],
+      "@entities/*": [
+        "./src/types/*"
+      ],
+      "@usecases/*": [
+        "./src/usecases/*"
+      ],
+      "@utils/*": [
+        "./src/utils/*"
+      ],
+    }
+  },
+  "include": [
+    "./src/**/*"
+  ]
+}

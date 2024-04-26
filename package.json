@@ -1,33 +1,16 @@
 {
-  "name": "bike-discount-crawler",
   "version": "1.0.0",
-  "main": "index.js",
   "author": "Lucas Barbosa <barbosa.lucash@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsx -r dotenv/config ./src/index.ts",
-    "lint": "eslint ./**/*.ts --quiet",
-    "lint:fix": "yarn lint --fix"
+    "build": "lerna run build"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "devDependencies": {
-    "@types/node": "^20.11.16",
-    "@typescript-eslint/eslint-plugin": "^6.4.0",
-    "eslint": "^8.0.1",
-    "eslint-config-semistandard": "^17.0.0",
-    "eslint-config-standard": "^17.1.0",
-    "eslint-config-standard-with-typescript": "^43.0.1",
-    "eslint-plugin-import": "^2.25.2",
-    "eslint-plugin-n": "^15.0.0",
-    "eslint-plugin-promise": "^6.1.1",
+    "lerna": "^8.1.2",
     "tsx": "^4.7.0",
-    "typescript": "^5.3.3"
-  },
-  "dependencies": {
-    "dotenv": "^16.4.5",
-    "puppeteer": "^22.0.0",
-    "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2",
-    "redis": "^4.6.13"
+    "typescript": "^5.4.5"
   }
 }
