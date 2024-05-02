@@ -1,0 +1,18 @@
+{
+  "name": "@crawlers/base",
+  "packageManager": "yarn@4.1.1",
+  "main": "dist/",
+  "private": true,
+  "scripts": {
+    "build": "tsc && tsc-alias"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.16",
+    "tsc-alias": "^1.8.8",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "bullmq": "^5.4.6",
+    "redis": "^4.6.13"
+  }
+}

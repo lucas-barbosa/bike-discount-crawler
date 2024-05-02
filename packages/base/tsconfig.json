@@ -6,18 +6,20 @@
     "declarationMap": true,
     "baseUrl": "./", /* Specify the base directory to resolve non-relative module names. */
     "outDir": "dist",
+    "rootDir": "src",
     "paths": {
-      "#callbacks/*": ["./src/callbacks/*"],
-      "#crawlers/*": ["./src/crawlers/*"],
-      "#infrastructure/*": ["./src/infrastructure/*"],
-      "#publishers/*": ["./src/publishers/*"],
-      "#queue/*": ["./src/queue/*"]
+      "@entities/*": [
+        "./src/types/*"
+      ],
+      "@queue/*": [
+        "./src/queue/*"
+      ],
+      "@utils/*": [
+        "./src/utils/*"
+      ],
     }
   },
   "include": [
     "./src/**/*"
-  ],
-  "references": [
-    { "path": "../bike-discount" }
   ]
 }

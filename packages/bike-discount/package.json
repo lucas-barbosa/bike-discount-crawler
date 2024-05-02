@@ -21,6 +21,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "@crawlers/base": "workspace:^",
     "bullmq": "^5.4.6",
     "cheerio": "^1.0.0-rc.12",
     "dotenv": "^16.4.5",

@@ -1,10 +1,15 @@
-import express from 'express';
-import { router as bikeDiscountRoutes } from '@crawlers/bike-discount';
-const app = express();
+// import express from 'express';
+// import { router as bikeDiscountRoutes } from '@crawlers/bike-discount';
+// const app = express();
 
-app.get('/', (req, res) => res.send('Main Api running'));
-app.use('/bike-discount', bikeDiscountRoutes);
+import { initCrawlers } from './crawlers';
+import { initQueue } from './queue';
 
-app.listen(3000, () => {
-  console.log('Server running...');
-});
+// app.get('/', (req, res) => res.send('Main Api running'));
+// app.use('/bike-discount', bikeDiscountRoutes);
+
+// app.listen(3000, () => {
+//   console.log('Server running...');
+// });
+initQueue();
+initCrawlers();

@@ -5,7 +5,7 @@ import { validateProduct } from '@usecases/validate-product';
 import { enqueueStock } from '../stock';
 import { type Product } from '@entities/Product';
 
-export type ProductFoundCallback = (stock: Product) => Promise<any>;
+export type ProductFoundCallback = (product: Product) => Promise<any>;
 
 interface ProductQueueItem {
   url: string

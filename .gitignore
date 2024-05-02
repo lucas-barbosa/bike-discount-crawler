@@ -4,3 +4,7 @@ node_modules
 /dist
 .vscode/
 dist
+.yarn
+.turbo
+.nx
+tsconfig.tsbuildinfo

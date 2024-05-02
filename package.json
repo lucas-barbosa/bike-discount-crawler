@@ -2,14 +2,10 @@
   "version": "1.0.0",
   "author": "Lucas Barbosa <barbosa.lucash@gmail.com>",
   "license": "MIT",
-  "scripts": {
-    "build": "lerna run build"
-  },
   "workspaces": [
     "packages/*"
   ],
   "devDependencies": {
-    "lerna": "^8.1.2",
     "tsx": "^4.7.0",
     "typescript": "^5.4.5"
   }
