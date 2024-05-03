@@ -51,6 +51,7 @@ __metadata:
     "@types/express": "npm:^4.17.21"
     "@types/node": "npm:^20.12.7"
     axios: "npm:^1.6.8"
+    commander: "npm:^12.0.0"
     eslint: "npm:^8.0.1"
     eslint-config-crawlers: "workspace:^"
     express: "npm:^4.19.2"
@@ -82,6 +83,8 @@ __metadata:
     "@types/node": "npm:^20.11.16"
     bullmq: "npm:^5.4.6"
     cheerio: "npm:^1.0.0-rc.12"
+    commander: "npm:^12.0.0"
+    csv-parse: "npm:^5.5.5"
     dotenv: "npm:^16.4.5"
     eslint: "npm:^8.0.1"
     eslint-config-crawlers: "workspace:^"
@@ -1447,6 +1450,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"commander@npm:^12.0.0":
+  version: 12.0.0
+  resolution: "commander@npm:12.0.0"
+  checksum: 10c0/e51cac1d1d0aa1f76581981d2256a9249497e08f5a370bf63b0dfc7e76a647fc8cbc3ddd507928f2bdca6c514c83834e87e2687ace2fe2fc7cc7e631bf80f83d
+  languageName: node
+  linkType: hard
+
 "commander@npm:^9.0.0":
   version: 9.5.0
   resolution: "commander@npm:9.5.0"
@@ -1545,6 +1555,13 @@ __metadata:
   version: 6.1.0
   resolution: "css-what@npm:6.1.0"
   checksum: 10c0/a09f5a6b14ba8dcf57ae9a59474722e80f20406c53a61e9aedb0eedc693b135113ffe2983f4efc4b5065ae639442e9ae88df24941ef159c218b231011d733746
+  languageName: node
+  linkType: hard
+
+"csv-parse@npm:^5.5.5":
+  version: 5.5.5
+  resolution: "csv-parse@npm:5.5.5"
+  checksum: 10c0/717d8e66386cbeed9baea93f231efd3aff967a9b70c27f0c8bb19fa5a723d01b2d426b6728e8f1e5e26731ec4371a5f513e1a524344411735fc8d3848770409e
   languageName: node
   linkType: hard
 
