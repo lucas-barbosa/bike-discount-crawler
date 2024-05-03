@@ -1,15 +1,15 @@
-// import express from 'express';
-// import { router as bikeDiscountRoutes } from '@crawlers/bike-discount';
-// const app = express();
-
+import { api } from './api';
 import { initCrawlers } from './crawlers';
 import { initQueue } from './queue';
 
-// app.get('/', (req, res) => res.send('Main Api running'));
-// app.use('/bike-discount', bikeDiscountRoutes);
+const init = async () => {
+  initQueue();
+  await initCrawlers();
+  api.listen(3000, () => {
+    console.log('Server running...');
+  });
+};
 
-// app.listen(3000, () => {
-//   console.log('Server running...');
-// });
-initQueue();
-initCrawlers();
+init()
+  .then(() => { console.log('App initialized!', new Date()); })
+  .catch(err => { console.log('App failed!', err); });
