@@ -1,4 +1,4 @@
-import { ProductVariation } from "./ProductVariation";
+import { type ProductVariation } from './ProductVariation';
 
 export class ProductStock {
   availability: string = 'outofstock';
@@ -7,7 +7,7 @@ export class ProductStock {
   sku: string;
   variations: ProductVariation[] = [];
 
-  constructor(id: string, price: number, sku: string, availability: string) {
+  constructor (id: string, price: number, sku: string, availability: string) {
     this.id = id;
     this.price = price;
     this.sku = sku;

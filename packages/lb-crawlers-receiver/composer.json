@@ -1,0 +1,15 @@
+{
+    "name": "lucas-barbosa/lb-crawlers-receiver",
+    "autoload": {
+        "psr-4": {
+            "LucasBarbosa\\LbCrawlersReceiver\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Lucas Barbosa",
+            "email": "barbosa.lucash@gmail.com"
+        }
+    ],
+    "require": {}
+}

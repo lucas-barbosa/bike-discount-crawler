@@ -1,4 +1,4 @@
-import { ProductVariation } from "./ProductVariation";
+import { type ProductVariation } from './ProductVariation';
 
 export class Product {
   attributes: BikeDiscountAttribute[] = [];
@@ -20,7 +20,7 @@ export class Product {
   variations: ProductVariation[] = [];
   weight?: Weight;
 
-  constructor(id: string, price: number, title: string, sku: string, url: string, categoryUrl: string) {
+  constructor (id: string, price: number, title: string, sku: string, url: string, categoryUrl: string) {
     this.id = id;
     this.price = price;
     this.title = title;
@@ -29,11 +29,11 @@ export class Product {
     this.categoryUrl = categoryUrl;
   }
 
-  setInvalid() {
+  setInvalid () {
     this.invalid = true;
   }
 
-  getLargestSide() {
+  getLargestSide () {
     if (!this.dimensions) {
       return {
         value: 20,
@@ -46,16 +46,16 @@ export class Product {
       Number(this.dimensions.height),
       Number(this.dimensions.length),
       Number(this.dimensions.width)
-    ]    
+    ];
     const largestSide = Math.max(...sides);
 
     return {
       value: largestSide,
-      unit: unit
+      unit
     };
   }
 
-  getSize() {
+  getSize () {
     if (!this.dimensions) {
       return {
         value: 0,
@@ -68,20 +68,20 @@ export class Product {
       Number(this.dimensions.height),
       Number(this.dimensions.length),
       Number(this.dimensions.width)
-    ]    
+    ];
     const size = sides[0] + sides[1] + sides[2];
 
     return {
       value: size,
-      unit: unit
+      unit
     };
   }
 
-  get isVariable() {
+  get isVariable () {
     return this.variations.length > 0;
   }
 
-  get isValid() {
+  get isValid () {
     return !this.invalid;
   }
 }

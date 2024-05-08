@@ -8,3 +8,5 @@ dist
 .turbo
 .nx
 tsconfig.tsbuildinfo
+*.csv
+vendor

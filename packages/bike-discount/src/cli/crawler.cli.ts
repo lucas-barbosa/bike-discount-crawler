@@ -12,7 +12,15 @@ bikeDiscountCli.name('bike-discount')
   .version('1.0.0');
 
 const crawlerStockRequest = async (url: string, fileName?: string, withHeader = true) => {
-  const result = await fetchStock(url);
+  const result = await fetchStock(url)
+    .catch((err: any) => {
+      console.error(`Failed to retrieve ${url}!`, err);
+      return null;
+    });
+
+  if (!result) {
+    return;
+  }
 
   if (fileName) {
     const data = [
@@ -33,22 +41,23 @@ bikeDiscountCli.command('stock')
   .option('--csv', 'Export to CSV', false)
   .action(async (params) => {
     console.log('Crawler Product Stock');
+    const filename = params.csv ? `stock-${Date.now()}.csv` : undefined;
+
     if (params.url) {
-      const result = await fetchStock(params.url);
-      const filename = params.csv ? `stock-${result?.id}-${Date.now()}.csv` : undefined;
       await crawlerStockRequest(params.url, filename);
       return;
     }
 
     if (params.file) {
       let printHeader = true;
-      const filename = params.csv ? `stocks-${Date.now()}.csv` : undefined;
+      console.time('Processing CSV');
       const stream = createReadStream(params.file).pipe(parse());
 
       for await (const url of stream) {
         await crawlerStockRequest(url, filename, printHeader);
         printHeader = false;
       }
+      console.timeEnd('Processing CSV');
     }
   });
 
