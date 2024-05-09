@@ -12,7 +12,8 @@ export const publish = async (path: string, data: any) => {
     return request.post(`${listener.url}/${path}`, {
       data,
       version: '1.0',
-      sendAt: new Date()
+      sendAt: new Date(),
+      headers: { authorization_key: 'teste' }
     });
   });
 
