@@ -10,3 +10,4 @@ dist
 tsconfig.tsbuildinfo
 *.csv
 vendor
+*.zip

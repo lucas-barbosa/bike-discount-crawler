@@ -1,6 +1,7 @@
 import { type ProductVariation } from './ProductVariation';
 
 export class Product {
+  crawlerId: string = '';
   attributes: BikeDiscountAttribute[] = [];
   availability: string = 'outofstock';
   brand: string = '';

@@ -39,6 +39,7 @@ export const getProductStock = async (productUrl: string, dispose?: boolean, lan
     availability
   );
 
+  stock.crawlerId = 'BD';
   stock.variations = variations;
 
   if (dispose) await disposeCrawler(page, browser);

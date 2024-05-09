@@ -1,6 +1,7 @@
 import { type ProductVariation } from './ProductVariation';
 
 export class ProductStock {
+  crawlerId: string = '';
   availability: string = 'outofstock';
   id: string;
   price: number;

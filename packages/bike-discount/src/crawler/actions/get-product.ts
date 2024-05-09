@@ -45,6 +45,7 @@ export const getProduct = async (productUrl: string, categoryUrl: string, langua
   product.images = images;
   product.variations = stock.variations;
   product.weight = weight;
+  product.crawlerId = 'BD';
 
   await disposeCrawler(page, browser);
   return product;
