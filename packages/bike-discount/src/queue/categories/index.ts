@@ -34,7 +34,7 @@ export const categoriesWorker = (onCategoriesFound: CategoriesFoundCallback) => 
       console.log('Categories found');
       await onCategoriesFound({
         data: result,
-        uid: 'bike-discount'
+        crawlerId: 'BD'
       });
     }
     console.log('Categories worker finished');

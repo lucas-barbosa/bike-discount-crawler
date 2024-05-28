@@ -6,8 +6,9 @@ import { Command } from 'commander';
 import { createReadStream } from 'fs';
 import { type ProductStock } from '@entities/ProductStock';
 import { enqueueCategories } from 'src/queue/categories';
+import { getCategories } from '@infrastructure/categories';
 
-export const getBikeDiscountCli = (publish: (stock: ProductStock) => Promise<any>) => {
+export const getBikeDiscountCli = (publishStock: (stock: ProductStock) => Promise<any>, publishCategories: (categories: any) => Promise<any>) => {
   const bikeDiscountCli = new Command();
 
   bikeDiscountCli.name('bike-discount')
@@ -36,7 +37,7 @@ export const getBikeDiscountCli = (publish: (stock: ProductStock) => Promise<any
 
     if (sendToApi) {
       console.log('Publishing');
-      await publish(result);
+      await publishStock(result);
     }
     console.log(result);
   };
@@ -83,9 +84,19 @@ export const getBikeDiscountCli = (publish: (stock: ProductStock) => Promise<any
 
   bikeDiscountCli.command('categories')
     .description('Crawler Categories')
+    .option('-p, --publish', 'Publish to Listeners', false)
     .action(async (params) => {
       console.log('Crawler Categories');
-      await enqueueCategories();
+
+      if (params.publish) {
+        const categories = await getCategories();
+        await publishCategories({
+          data: categories,
+          crawlerId: 'BD'
+        });
+      } else {
+        await enqueueCategories();
+      }
       console.log('Categories enqueued');
     });
 
