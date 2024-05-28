@@ -1,12 +1,16 @@
 import { fetchCategories } from '@usecases/fetch-categories';
 import { createQueue, createWorker } from '../client';
+import { type Queue } from 'bullmq';
 
 const QUEUE_NAME = 'bike_discount.categories';
 
-export const categoriesQueue = async () => {
-  const queue = createQueue(QUEUE_NAME);
+export type CategoriesFoundCallback = (categories: any) => Promise<any>;
+
+let queue: Queue;
+export const categoriesQueue = async (enqueueInitial = false) => {
+  if (!queue) queue = createQueue(QUEUE_NAME);
   const existingJobs = await queue.getJobCountByTypes('waiting', 'delayed');
-  if (!existingJobs) {
+  if (!existingJobs && enqueueInitial) {
     await queue.add('find-categories', {}, {
       repeat: {
         every: 2629800000
@@ -15,14 +19,30 @@ export const categoriesQueue = async () => {
   }
 };
 
-export const categoriesWorker = () => {
+export const enqueueCategories = async () => {
+  console.log('Enqueuing categories');
+  await categoriesQueue(false);
+  await queue.add('find-categories', {});
+  console.log('Finished');
+};
+
+export const categoriesWorker = (onCategoriesFound: CategoriesFoundCallback) => {
   const worker = createWorker(QUEUE_NAME, async () => {
-    await fetchCategories();
+    console.log('Categories worker');
+    const result = await fetchCategories();
+    if (result) {
+      console.log('Categories found');
+      await onCategoriesFound({
+        data: result,
+        uid: 'bike-discount'
+      });
+    }
+    console.log('Categories worker finished');
   });
   return worker;
 };
 
-export const startCategoriesQueue = async () => {
-  await categoriesQueue();
-  categoriesWorker();
+export const startCategoriesQueue = async (onCategoriesFound: CategoriesFoundCallback) => {
+  await categoriesQueue(true);
+  categoriesWorker(onCategoriesFound);
 };

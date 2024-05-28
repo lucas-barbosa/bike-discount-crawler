@@ -5,6 +5,7 @@ import { fetchStock } from '@usecases/fetch-stock';
 import { Command } from 'commander';
 import { createReadStream } from 'fs';
 import { type ProductStock } from '@entities/ProductStock';
+import { enqueueCategories } from 'src/queue/categories';
 
 export const getBikeDiscountCli = (publish: (stock: ProductStock) => Promise<any>) => {
   const bikeDiscountCli = new Command();
@@ -78,6 +79,14 @@ export const getBikeDiscountCli = (publish: (stock: ProductStock) => Promise<any
       console.log('Crawler Product');
       const result = await fetchProduct(params.url, params.category, params.language);
       console.log(result);
+    });
+
+  bikeDiscountCli.command('categories')
+    .description('Crawler Categories')
+    .action(async (params) => {
+      console.log('Crawler Categories');
+      await enqueueCategories();
+      console.log('Categories enqueued');
     });
 
   return bikeDiscountCli;
