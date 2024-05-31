@@ -5,6 +5,7 @@ node_modules
 .vscode/
 dist
 .yarn
+!.yarn/releases/*
 .turbo
 .nx
 tsconfig.tsbuildinfo
