@@ -7,6 +7,7 @@ import { createReadStream } from 'fs';
 import { type ProductStock } from '@entities/ProductStock';
 import { enqueueCategories } from 'src/queue/categories';
 import { getCategories } from '@infrastructure/categories';
+import { enqueueStock } from '../queue/stock/index';
 
 export const getBikeDiscountCli = (publishStock: (stock: ProductStock) => Promise<any>, publishCategories: (categories: any) => Promise<any>) => {
   const bikeDiscountCli = new Command();
@@ -41,6 +42,22 @@ export const getBikeDiscountCli = (publishStock: (stock: ProductStock) => Promis
     }
     console.log(result);
   };
+
+  bikeDiscountCli.command('import')
+    .description('Command to import urls to crawler')
+    .option('-s, --stock <stock>', 'Stock File path')
+    .action(async (params) => {
+      console.log('Import File');
+
+      if (params.stock) {
+        const stream = createReadStream(params.stock).pipe(parse());
+        for await (const url of stream) {
+          await enqueueStock(url);
+        }
+      }
+
+      console.log('Finished');
+    });
 
   bikeDiscountCli.command('stock')
     .description('Crawler Product Stock')

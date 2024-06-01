@@ -31,13 +31,14 @@ export const stockWorker = (onStockFound: StockFoundCallback) => {
 };
 
 export const enqueueStock = async (productUrl: string) => {
+  stockQueue();
   await queue.add('stock', {
     url: productUrl
   }, {
     repeat: {
       every: 48 * 60 * 60 * 1000 // (hours * minutes * seconds * milliseconds)
     }
-  });
+  }).catch(err => { console.log(`An error happened: ${err.message}`); });
 };
 
 export const startStockQueue = (onStockFound: StockFoundCallback) => {
