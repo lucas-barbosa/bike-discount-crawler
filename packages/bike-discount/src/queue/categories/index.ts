@@ -17,6 +17,7 @@ export const categoriesQueue = async (enqueueInitial = false) => {
       }
     });
   }
+  return queue;
 };
 
 export const enqueueCategories = async () => {

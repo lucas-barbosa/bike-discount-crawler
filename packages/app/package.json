@@ -29,6 +29,7 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
+    "@bull-board/express": "^5.19.2",
     "@crawlers/base": "workspace:^",
     "@crawlers/bike-discount": "*",
     "axios": "^1.6.8",

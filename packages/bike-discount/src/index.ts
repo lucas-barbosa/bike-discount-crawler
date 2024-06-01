@@ -1,2 +1,2 @@
 export { router } from './api/app';
-export { initQueue } from './queue/init';
+export { initQueue, queues } from './queue/init';

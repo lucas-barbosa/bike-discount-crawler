@@ -1,7 +1,7 @@
 import { type CategoriesFoundCallback, startCategoriesQueue } from './categories';
 import { startCategoryQueue } from './category';
-import { type ProductFoundCallback, startProductQueue } from './product';
-import { type StockFoundCallback, startStockQueue } from './stock';
+import { type ProductFoundCallback, startProductQueue, productQueue } from './product';
+import { type StockFoundCallback, startStockQueue, stockQueue } from './stock';
 
 export interface QueueParams {
   onCategoriesFound: CategoriesFoundCallback
@@ -18,4 +18,11 @@ export const initQueue = async ({
   startStockQueue(onStockFound);
   startProductQueue(onProductFound);
   startCategoryQueue();
+};
+
+export const queues = () => {
+  return [
+    stockQueue(),
+    productQueue()
+  ];
 };
