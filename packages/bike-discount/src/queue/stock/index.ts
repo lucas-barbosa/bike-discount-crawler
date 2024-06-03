@@ -32,7 +32,7 @@ export const stockWorker = (onStockFound: StockFoundCallback) => {
 
 export const enqueueStock = async (productUrl: string) => {
   stockQueue();
-  await queue.add('stock', {
+  await queue.add(`stock:${productUrl}`, {
     url: productUrl
   }, {
     repeat: {

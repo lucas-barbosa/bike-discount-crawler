@@ -23,7 +23,7 @@ export const categoriesQueue = async (enqueueInitial = false) => {
 export const enqueueCategories = async () => {
   console.log('Enqueuing categories');
   await categoriesQueue(false);
-  await queue.add('find-categories', {});
+  await queue.add(`find-categories:${new Date().toISOString()}`, {});
   console.log('Finished');
 };
 

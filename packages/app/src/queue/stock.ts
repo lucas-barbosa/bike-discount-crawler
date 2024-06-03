@@ -21,7 +21,7 @@ export const stockWorker = () => {
 };
 
 export const enqueueStock = async (stock: ProductStock) => {
-  await queue.add('stock', stock);
+  await queue.add(`stock:${stock.crawlerId}-${stock.id}`, stock);
 };
 
 export const startStockQueue = () => {

@@ -43,7 +43,7 @@ export const productWorker = (onProductFound: ProductFoundCallback) => {
 };
 
 export const enqueueProduct = async (productUrl: string, categoryUrl: string, language?: string) => {
-  await queue.add('product', {
+  await queue.add(`product:${productUrl}:${language}`, {
     url: productUrl,
     categoryUrl,
     language
