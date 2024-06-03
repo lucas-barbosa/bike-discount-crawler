@@ -5,8 +5,8 @@ import { fetchStock } from '@usecases/fetch-stock';
 import { Command } from 'commander';
 import { createReadStream } from 'fs';
 import { type ProductStock } from '@entities/ProductStock';
-import { enqueueCategories } from 'src/queue/categories';
 import { getCategories } from '@infrastructure/categories';
+import { enqueueCategories } from '../queue/categories';
 import { enqueueStock } from '../queue/stock/index';
 
 export const getBikeDiscountCli = (publishStock: (stock: ProductStock) => Promise<any>, publishCategories: (categories: any) => Promise<any>) => {
