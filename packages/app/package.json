@@ -15,6 +15,9 @@
   },
   "scripts": {
     "build": "tsc && tsc-alias",
+    "cli": "node dist/src/cli",
+    "crawler": "node dist/src/cli crawler",
+    "crawler:bd": "node dist/src/cli crawler bike-discount",
     "dev": "tsx -r dotenv/config src/index.ts",
     "lint": "eslint ./**/*.ts --quiet"
   },
