@@ -14,17 +14,21 @@
     "url": "https://github.com/lucas-barbosa/bike-discount-crawler/issues"
   },
   "scripts": {
-    "build": "tsc && tsc-alias",
+    "build": "tsc && tsc-alias && cp -r ./src/api/views ./dist/src/api/views",
     "cli": "node dist/src/cli",
     "crawler": "node dist/src/cli crawler",
     "crawler:bd": "node dist/src/cli crawler bike-discount",
-    "dev": "tsx -r dotenv/config src/index.ts",
+    "dev": "tsx watch -r dotenv/config src/index.ts",
     "lint": "eslint ./**/*.ts --quiet"
   },
   "devDependencies": {
     "@types/axios": "^0.14.0",
+    "@types/connect-ensure-login": "^0",
     "@types/express": "^4.17.21",
+    "@types/express-session": "^1",
     "@types/node": "^20.12.7",
+    "@types/passport": "^0",
+    "@types/passport-local": "^1",
     "eslint": "^8.0.1",
     "eslint-config-crawlers": "workspace:^",
     "tsc-alias": "^1.8.8",
@@ -37,7 +41,12 @@
     "@crawlers/bike-discount": "*",
     "axios": "^1.6.8",
     "commander": "^12.0.0",
+    "connect-ensure-login": "^0.1.1",
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "install": "^0.13.0"
+    "express-session": "^1.18.0",
+    "install": "^0.13.0",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0"
   }
 }
