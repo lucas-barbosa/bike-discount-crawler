@@ -2,10 +2,12 @@
 
 namespace LucasBarbosa\LbCrawlersReceiver\Data;
 
-class CreateProduct {
+use LucasBarbosa\LbCrawlersReceiver\Utils\Utils;
+
+class BikeDiscountHelper {
 	// public static $IS_RUNNING = false;
-  // private array $taxonomies = [];
-	// private array $translatedAttributes = [];
+  private array $taxonomies = [];
+	private array $translatedAttributes = [];
   private string $stock = '';
   
   // public function setHooks() {
@@ -155,43 +157,47 @@ class CreateProduct {
 	// 	return $imageIds;
 	// }
 
-  // protected function addTaxonomyIfNotExists( $taxonomyLabel, $taxonomySlug, $values = array() ) {
-	// 	$attribute_id = $this->getAttributeTaxonomyId( $taxonomyLabel );
+  protected function addTaxonomyIfNotExists( $taxonomyLabel, $taxonomySlug, $values = array() ) {
+		$attribute_id = $this->getAttributeTaxonomyId( $taxonomyLabel );
 
-	// 	if ( ! is_wp_error( $attribute_id ) && $values ) {
-	// 		$taxonomy = wc_attribute_taxonomy_name_by_id( (int) $attribute_id );
+		if ( ! is_wp_error( $attribute_id ) && $values ) {
+			$taxonomy = wc_attribute_taxonomy_name_by_id( (int) $attribute_id );
 
-	// 		foreach ( $values as $item ) {
-	// 			$value = is_array( $item ) ? $item['value'] : $item;
-	// 			$itemId = ! empty( $item['id'] ) ? $item['id'] : $taxonomyLabel . ':' . $value;
+			foreach ( $values as $item ) {
+				$value = is_array( $item )
+          ? $item['value']
+          : $item;
+				$itemId = ! empty( $item['id'] )
+          ? $item['id']
+          : $taxonomyLabel . ':' . $value;
 
-	// 			if ( ! empty( $itemId ) && IdMapper::getTermId( $itemId ) ) {
-  //         continue;
-  //       }
+				if ( ! empty( $itemId ) && BikeDiscountIdMapper::getTermId( $itemId ) ) {
+          continue;
+        }
 
-	// 			$originalValue = $value;
+				$originalValue = $value;
 
-	// 			if ( is_array( $item ) && isset( $item['translated_value'] ) && ! empty( $item['translated_value'] ) ) {
-	// 				$value = $item['translated_value'];
-	// 			}
+				if ( is_array( $item ) && isset( $item['translated_value'] ) && ! empty( $item['translated_value'] ) ) {
+					$value = $item['translated_value'];
+				}
 
-  //       $term = term_exists( $value, $taxonomy );
+        $term = term_exists( $value, $taxonomy );
 
-	// 			if ( ! $term ) {
-	// 				$term = wp_insert_term( $value, $taxonomy );
-	// 			}
+				if ( ! $term ) {
+					$term = wp_insert_term( $value, $taxonomy );
+				}
 
-  //       if ( ! is_wp_error( $term ) && isset( $term['term_id'] ) && ! empty( $itemId ) ) {
-  //         IdMapper::setTermId( $term['term_id'], $itemId );
-	// 				do_action( 'lb_multi_language_translate_term', $term['term_id'], 'ingles', trim( $originalValue ), '', sanitize_title( $originalValue ) );
-  //       }        
-	// 		}
+        if ( ! is_wp_error( $term ) && isset( $term['term_id'] ) && ! empty( $itemId ) ) {
+          BikeDiscountIdMapper::setTermId( $term['term_id'], $itemId );
+					do_action( 'lb_multi_language_translate_term', $term['term_id'], 'ingles', trim( $originalValue ), '', sanitize_title( $originalValue ) );
+        }        
+			}
 
-  //     $this->taxonomies[ $taxonomySlug ] = $taxonomy;
-	// 	}
+      $this->taxonomies[ $taxonomySlug ] = $taxonomy;
+		}
 
-	// 	return $taxonomy;
-	// }
+		return $taxonomy;
+	}
 
 	// private function checkProductWasAddedManually( $product, $productId = '' ) {
 	// 	if ( empty($product) ) {
@@ -232,30 +238,29 @@ class CreateProduct {
 	// 	$this->deleteNonUsedVariations( $existentVariations, $syncedVariations );
 	// }
 
-	// public function createVariation( $i, $product, ProductVariationEntity $variation ) {
-	// 	$attributes = $this->getWoocommerceVariationAttributes( $variation );
+	public function createVariation( $i, $wc_product, $variation ) {
+		$attributes = $this->getWoocommerceVariationAttributes( $variation );
 
-	// 	$productVariation = $this->getWoocommerceVariation( $variation->getId(), $product, $attributes );
-	// 	$productVariation->set_parent_id( $product->get_id() );
+		$wc_variation = $this->getWoocommerceVariation( $variation['id'], $wc_product, $attributes );
+		$wc_variation->set_parent_id( $wc_product->get_id() );
 
-	// 	$variationSku = empty( $variation->getId() )
-	// 		? $product->get_sku() . '-' . (string)$i . time()
-	// 		: 'BD-' . $variation->getId();
+		$variationSku = empty( $variation['id'] )
+			? $wc_product->get_sku() . '-' . (string)$i . time()
+			: 'BD-' . $variation['id'];
 
-	// 	$productVariation->set_sku( $variationSku );
+		$wc_variation->set_sku( $variationSku );
 
-	// 	CrawlerPostMetaData::insert( $productVariation->get_id(), 'variation_id_' . $variation->getId(), $variation->getId() );
-	// 	$productVariation->set_attributes( $attributes );
+		CrawlerPostMetaData::insert( $wc_variation->get_id(), 'variation_id_' . $variation['id'], $variation['id'] );
+		$wc_variation->set_attributes( $attributes );
 
-	// 	$price = $variation->getPrice();
-	// 	$stock = $variation->getAvailability();
+		$price = $variation['price'];
+    $stock = $variation['availability'];
 
-	// 	$this->setPriceAndStock( $productVariation, $price, $stock );
+		$this->setPriceAndStock( $wc_variation, $price, $stock );
+		$this->saveProduct( $wc_variation, true, $price, $stock );
 
-	// 	$this->saveProduct( $productVariation, true, $price, $stock );
-
-	// 	return $productVariation->get_id();
-	// }
+		return $wc_variation->get_id();
+	}
 
 	// private function deleteNonUsedVariations( $existentVariations, $newVariations ) {
 	// 	if ( ! empty( $existentVariations ) ) {
@@ -280,100 +285,136 @@ class CreateProduct {
 	// 	}
 	// }
 
-  // private function getAttributeTaxonomyId( $taxonomyLabel ) {
-	// 	$id = $taxonomyLabel;
-	// 	$storedValue = empty( $id ) ? '' : get_option( 'bike_discount_attribute_' . $id, '' );
+  private function getAttributeTaxonomyId( $taxonomyLabel ) {
+    // TODO -> use custom table
+		$id = $taxonomyLabel;
+		$storedValue = empty( $id ) ? '' : BikeDiscountIdMapper::getAttributeId( $id );
 
-	// 	if ( ! empty( $storedValue ) ) {
-	// 		return $storedValue;
-	// 	}
+		if ( ! empty( $storedValue ) ) {
+			return $storedValue;
+		}
 
-	// 	$optionName = 'bike_discount_' . $taxonomyLabel;
-	// 	$attributeIdFromCache = get_option( $optionName, '' );
+		$optionName = 'bike_discount_' . $taxonomyLabel;
+		$attributeIdFromCache = get_option( $optionName, '' );
 
-	// 	if ( ! empty( $attributeIdFromCache ) && ! is_null( wc_get_attribute( $attributeIdFromCache ) ) ) {
-	// 		IdMapper::setAttributeId( $id, $attributeIdFromCache );
-	// 		return $attributeIdFromCache;
-	// 	}
+		if ( ! empty( $attributeIdFromCache ) && ! is_null( wc_get_attribute( $attributeIdFromCache ) ) ) {
+			BikeDiscountIdMapper::setAttributeId( $id, $attributeIdFromCache );
+			return $attributeIdFromCache;
+		}
 
-	// 	$attributeIdFromCache = get_option( 'sp' . $taxonomyLabel, '' );
+		$attributeIdFromCache = get_option( 'sp' . $taxonomyLabel, '' );
 
-	// 	if ( ! empty( $attributeIdFromCache ) && ! is_null( wc_get_attribute( $attributeIdFromCache ) ) ) {
-	// 		IdMapper::setAttributeId( $id, $attributeIdFromCache );
-	// 		return $attributeIdFromCache;
-	// 	}
+		if ( ! empty( $attributeIdFromCache ) && ! is_null( wc_get_attribute( $attributeIdFromCache ) ) ) {
+			BikeDiscountIdMapper::setAttributeId( $id, $attributeIdFromCache );
+			return $attributeIdFromCache;
+		}
 
-	// 	$translatedTaxonomyLabel = $taxonomyLabel === 'Model' ? 'Modelo' : Utils::translate( $taxonomyLabel, 'en', 'pt-BR', false, 'attribute', 'title' );
-	// 	$translatedTaxonomySlug = wc_attribute_taxonomy_name( wc_sanitize_taxonomy_name( stripslashes( $translatedTaxonomyLabel ) ) );
-	// 	$attributeFromSlug = wc_attribute_taxonomy_id_by_name( $translatedTaxonomySlug );
+		$translatedTaxonomyLabel = $taxonomyLabel === 'Model' ? 'Modelo' : Utils::translate( $taxonomyLabel, 'en', 'pt-BR', false, 'attribute', 'title' );
+		$translatedTaxonomySlug = wc_attribute_taxonomy_name( wc_sanitize_taxonomy_name( stripslashes( $translatedTaxonomyLabel ) ) );
+		$attributeFromSlug = wc_attribute_taxonomy_id_by_name( $translatedTaxonomySlug );
 
-	// 	if ( $attributeFromSlug ) {
-	// 		IdMapper::setAttributeId( $id, $attributeFromSlug );
-	// 		update_option( 'sp' . $taxonomyLabel, $attributeFromSlug, false );
-	// 		return $attributeFromSlug;
-	// 	}
+		if ( $attributeFromSlug ) {
+			BikeDiscountIdMapper::setAttributeId( $id, $attributeFromSlug );
+			update_option( 'sp' . $taxonomyLabel, $attributeFromSlug, false );
+			return $attributeFromSlug;
+		}
 
-	// 	$attribute_labels = wp_list_pluck( wc_get_attribute_taxonomies(), 'attribute_label', 'attribute_name' );
-	// 	$attribute_name   = array_search( $translatedTaxonomyLabel, $attribute_labels, true );
+		$attribute_labels = wp_list_pluck( wc_get_attribute_taxonomies(), 'attribute_label', 'attribute_name' );
+		$attribute_name   = array_search( $translatedTaxonomyLabel, $attribute_labels, true );
 
-	// 	$attributeFromLabel = wc_attribute_taxonomy_id_by_name( $attribute_name );
+		$attributeFromLabel = wc_attribute_taxonomy_id_by_name( $attribute_name );
 
-	// 	if ( $attributeFromLabel ) {
-	// 		IdMapper::setAttributeId( $id, $attributeFromLabel );
-	// 		update_option( 'sp_bike_discount_' . $taxonomyLabel, $attributeFromLabel, false );
-	// 		return $attributeFromLabel;
-	// 	}
+		if ( $attributeFromLabel ) {
+			BikeDiscountIdMapper::setAttributeId( $id, $attributeFromLabel );
+			update_option( 'sp_bike_discount_' . $taxonomyLabel, $attributeFromLabel, false );
+			return $attributeFromLabel;
+		}
 		
-	// 	$attribute_name = wc_sanitize_taxonomy_name( trim(substr($translatedTaxonomyLabel, 0, 27)) );
+		$attribute_name = wc_sanitize_taxonomy_name( trim(substr($translatedTaxonomyLabel, 0, 27)) );
 
-	// 	$attribute_id = wc_create_attribute(
-	// 		array(
-	// 			'name'         => $translatedTaxonomyLabel,
-	// 			'slug'         => $translatedTaxonomySlug,
-	// 			'type'         => 'select',
-	// 			'order_by'     => 'menu_order',
-	// 			'has_archives' => false,
-	// 		)
-	// 	);
+		$attribute_id = wc_create_attribute(
+			array(
+				'name'         => $translatedTaxonomyLabel,
+				'slug'         => $translatedTaxonomySlug,
+				'type'         => 'select',
+				'order_by'     => 'menu_order',
+				'has_archives' => false,
+			)
+		);
 
-	// 	if ( !is_wp_error( $attribute_id ) ) {
-	// 		do_action( 'lb_multi_language_translate_term', $attribute_id, 'ingles', trim( $taxonomyLabel ), '', sanitize_title( $taxonomyLabel ) );
+		if ( !is_wp_error( $attribute_id ) ) {
+			do_action( 'lb_multi_language_translate_term', $attribute_id, 'ingles', trim( $taxonomyLabel ), '', sanitize_title( $taxonomyLabel ) );
 
-	// 		$taxonomy_name = wc_attribute_taxonomy_name( $attribute_name );
+			$taxonomy_name = wc_attribute_taxonomy_name( $attribute_name );
 
-	// 		register_taxonomy(
-	// 			$taxonomy_name,
-	// 			apply_filters( 'woocommerce_taxonomy_objects_' . $taxonomy_name, array( 'product' ) ),
-	// 			apply_filters(
-	// 				'woocommerce_taxonomy_args_' . $taxonomy_name,
-	// 				array(
-	// 					'label' 			 => $translatedTaxonomyLabel,
-	// 					'hierarchical' => false,
-	// 					'show_ui'      => false,
-	// 					'query_var'    => true,
-	// 					'rewrite'      => false,
-	// 				)
-	// 			)
-	// 		);
-	// 	}
+			register_taxonomy(
+				$taxonomy_name,
+				apply_filters( 'woocommerce_taxonomy_objects_' . $taxonomy_name, array( 'product' ) ),
+				apply_filters(
+					'woocommerce_taxonomy_args_' . $taxonomy_name,
+					array(
+						'label' 			 => $translatedTaxonomyLabel,
+						'hierarchical' => false,
+						'show_ui'      => false,
+						'query_var'    => true,
+						'rewrite'      => false,
+					)
+				)
+			);
+		}
 
-	// 	IdMapper::setAttributeId( $id, $attribute_id );
-	// 	update_option( $optionName, $attribute_id, false );
+		BikeDiscountIdMapper::setAttributeId( $id, $attribute_id );
+		update_option( $optionName, $attribute_id, false );
 		
-	// 	return $attribute_id;
-	// }
+		return $attribute_id;
+	}
 
-  // private function getVariationId( $product, $variationAttributes ) {
-	// 	$data_store = \WC_Data_Store::load( 'product' );
+  protected function getProductId($id, $sku) {
+    $productId = BikeDiscountIdMapper::getProductId( $id );
 
-  //   $attributes = [];
+    if ( ! $productId ) {
+      return $productId;
+    }
 
-  //   foreach ( $variationAttributes as $key => $value ) {
-  //     $attributes[ 'attribute_' . $key ] = $value;
-  //   }
+    $id_by_sku = wc_get_product_id_by_sku('BD-' . $sku);
 
-	// 	return $data_store->find_matching_product_variation( $product, $attributes );
-	// }
+    if (!empty($id_by_sku)) {
+      return $id_by_sku;
+    }
+
+    return null;
+  }
+
+  protected function getVariationId( $bikeDiscountVariationId, $variationAttributes, $wc_product ) {
+    $variationId = BikeDiscountIdMapper::getVariationId( $bikeDiscountVariationId );
+		if ( ! empty( $variationId ) ) {	
+      return $variationId;
+    }
+
+    $variationIdBySku = wc_get_product_id_by_sku('BD-' . $bikeDiscountVariationId);
+    if ( ! empty( $variationIdBySku ) ) {
+      return $variationIdBySku;
+    }
+
+		$variationIdByAttribute = $this->getVariationIdByAttributes( $wc_product, $variationAttributes );
+    if ( ! empty( $variationId ) ) {
+      return $variationIdByAttribute;
+    }
+
+    return null;
+  }
+
+  private function getVariationIdByAttributes( $product, $variationAttributes ) {
+		$data_store = \WC_Data_Store::load( 'product' );
+
+    $attributes = [];
+
+    foreach ( $variationAttributes as $key => $value ) {
+      $attributes[ 'attribute_' . $key ] = $value;
+    }
+
+		return $data_store->find_matching_product_variation( $product, $attributes );
+	}
 
   // private function getWoocommerceProduct( string $id, string $sku, bool $isVariable ) {
   //   $productId = IdMapper::getProductId( $id );
@@ -399,42 +440,36 @@ class CreateProduct {
 	// 	return [new \WC_Product((int) $productId ), $new_product];
   // }
 
-  // private function getWoocommerceVariation( $bikeDiscountVariationId, $product, $variationAttributes ) {
-	// 	$variationId = IdMapper::getVariationId( $bikeDiscountVariationId );
+  private function getWoocommerceVariation( $bikeDiscountVariationId, $product, $variationAttributes ) {
+		$variationId = $this->getVariationId( $bikeDiscountVariationId, $variationAttributes, $product );
+		$variation = new \WC_Product_Variation( $variationId );
+		return $variation;
+	}
 
-	// 	if ( empty( $variationId ) ) {	
-	// 		$variationId = $this->getVariationId( $product, $variationAttributes );
-	// 	}
+  private function getWoocommerceVariationAttributes( $product ) {
+    $formattedAttributes = [];
+    $attributes = $product['variations'];
 
-	// 	$variation = new \WC_Product_Variation( $variationId );
+    foreach ( $attributes as $attribute ) {
+      $taxName =  wc_attribute_taxonomy_name( wc_sanitize_taxonomy_name( stripslashes( $attribute['name'] ) ) );
 
-	// 	return $variation;
-	// }
+      if ( isset( $this->taxonomies[ $taxName ] ) ) {
+        $taxName = $this->taxonomies[ $taxName ];
+      }
 
-  // private function getWoocommerceVariationAttributes( ProductVariationEntity $product ) {
-  //   $formattedAttributes = [];
-  //   $attributes = $product->getAttributes();
+			$values = $attribute['value'];
+      $value = is_array( $values ) ? $values[0] : $values;
 
-  //   foreach ( $attributes as $attribute ) {
-  //     $taxName =  wc_attribute_taxonomy_name( wc_sanitize_taxonomy_name( stripslashes( $attribute->getName() ) ) );
+			$value = isset( $this->translatedAttributes[ $attribute['name'] ][ $value ] )
+				? $this->translatedAttributes[ $attribute['name'] ][ $value ]
+				: $value;
 
-  //     if ( isset( $this->taxonomies[ $taxName ] ) ) {
-  //       $taxName = $this->taxonomies[ $taxName ];
-  //     }
+      $attrValSlug = wc_sanitize_taxonomy_name( sanitize_title( stripslashes( $value ) ) );
+      $formattedAttributes[$taxName] = $attrValSlug;
+    }
 
-	// 		$values = $attribute->getValue();
-  //     $value = is_array( $values ) ? $values[0] : $values;
-
-	// 		$value = isset( $this->translatedAttributes[ $attribute->getName() ][ $value ] )
-	// 			? $this->translatedAttributes[ $attribute->getName() ][ $value ]
-	// 			: $value;
-
-  //     $attrValSlug = wc_sanitize_taxonomy_name( sanitize_title( stripslashes( $value ) ) );
-  //     $formattedAttributes[$taxName] = $attrValSlug;
-  //   }
-
-  //   return $formattedAttributes;
-  // }
+    return $formattedAttributes;
+  }
 
 	// protected function sanitizeDescription( $description ) {
 	// 	$descriptionWithReplacedImage = Utils::replaceDescriptionImage( $description );
@@ -697,31 +732,30 @@ class CreateProduct {
 		return false;
 	}
 
-	// protected function translateAttributes( $values, $attributeName ) {
-	// 	if ( empty( $values ) ) {
-	// 		return $values;
-	// 	}
+	protected function translateAttributes( $values, $attributeName ) {
+		if ( empty( $values ) ) {
+			return $values;
+		}
 
-	// 	return array_map( function( $item ) use ( $attributeName ) {
-	// 		$value = is_array( $item ) ? $item['value'] : $value = $item;
-	// 		$translatedValue = $value;
+		return array_map( function( $item ) use ( $attributeName ) {
+			$value = is_array( $item ) ? $item['value'] : $value = $item;
+			$translatedValue = $value;
 
-	// 		if ( strlen( $value ) > 1 && ! str_ends_with( $value, ' UK' ) && ! str_ends_with( $value, ' EU' ) && ! str_ends_with( $value, ' US' ) ) {
-	// 			$translatedValue = Utils::translate( $value, 'en', 'pt-BR', false, 'term', 'title' );
-	// 		}
+			if ( strlen( $value ) > 1 && ! str_ends_with( $value, ' UK' ) && ! str_ends_with( $value, ' EU' ) && ! str_ends_with( $value, ' US' ) ) {
+				$translatedValue = Utils::translate( $value, 'en', 'pt-BR', false, 'term', 'title' );
+			}
 
-	// 		$this->translatedAttributes[ $attributeName ][ $value ] = $translatedValue;
+			$this->translatedAttributes[ $attributeName ][ $value ] = $translatedValue;
 
-	// 		if ( is_array( $item ) ) {
-	// 			$item['translated_value'] = $translatedValue;
-	// 			return $item;
-	// 		}
+			if ( is_array( $item ) ) {
+				$item['translated_value'] = $translatedValue;
+				return $item;
+			}
 
-	// 		return [
-	// 			'value' => $value,
-	// 			'translated_value' => $translatedValue
-	// 		];
-	// 		// return $translatedValue;
-	// 	}, $values );
-	// }
+			return [
+				'value' => $value,
+				'translated_value' => $translatedValue
+			];
+		}, $values );
+	}
 }

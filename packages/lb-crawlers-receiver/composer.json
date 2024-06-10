@@ -11,5 +11,7 @@
             "email": "barbosa.lucash@gmail.com"
         }
     ],
-    "require": {}
+    "require-dev": {
+        "php-stubs/woocommerce-stubs": "^8.9"
+    }
 }
