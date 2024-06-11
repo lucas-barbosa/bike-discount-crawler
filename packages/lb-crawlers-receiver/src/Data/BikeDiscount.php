@@ -71,11 +71,11 @@ class BikeDiscount extends BikeDiscountHelper {
   }
 
   private function appendAttribute($product, $attribute_name, $attribute_value) {
-    $attribute = $product->get_attribute( $attribute_name );
+    // $attribute = $product->get_attribute( $attribute_name );
 
-    if ( !$attribute ) {
-      return;
-    }
+    // if ( !$attribute ) {
+    //   return;
+    // }
 
     // Translate Attributes to Portuguese
     $values = [$attribute_value];

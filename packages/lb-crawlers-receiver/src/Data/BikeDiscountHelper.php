@@ -372,7 +372,7 @@ class BikeDiscountHelper {
   protected function getProductId($id, $sku) {
     $productId = BikeDiscountIdMapper::getProductId( $id );
 
-    if ( ! $productId ) {
+    if ( ! empty( $productId ) ) {
       return $productId;
     }
 
@@ -397,7 +397,7 @@ class BikeDiscountHelper {
     }
 
 		$variationIdByAttribute = $this->getVariationIdByAttributes( $wc_product, $variationAttributes );
-    if ( ! empty( $variationId ) ) {
+    if ( ! empty( $variationIdByAttribute ) ) {
       return $variationIdByAttribute;
     }
 
@@ -448,7 +448,7 @@ class BikeDiscountHelper {
 
   private function getWoocommerceVariationAttributes( $product ) {
     $formattedAttributes = [];
-    $attributes = $product['variations'];
+    $attributes = $product['attributes'];
 
     foreach ( $attributes as $attribute ) {
       $taxName =  wc_attribute_taxonomy_name( wc_sanitize_taxonomy_name( stripslashes( $attribute['name'] ) ) );
