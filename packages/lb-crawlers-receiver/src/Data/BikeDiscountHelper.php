@@ -262,15 +262,15 @@ class BikeDiscountHelper {
 		return $wc_variation->get_id();
 	}
 
-	// private function deleteNonUsedVariations( $existentVariations, $newVariations ) {
-	// 	if ( ! empty( $existentVariations ) ) {
-	// 		foreach ( $existentVariations as $variationId ) {
-	// 			if ( ! in_array( $variationId, $newVariations ) ) {
-	// 				wp_delete_post( $variationId, true );
-	// 			}
-	// 		}
-	// 	}
-	// }
+	protected function deleteNonUsedVariations( $existentVariations, $newVariations ) {
+		if ( ! empty( $existentVariations ) ) {
+			foreach ( $existentVariations as $variationId ) {
+				if ( ! in_array( $variationId, $newVariations ) ) {
+					wp_delete_post( $variationId, true );
+				}
+			}
+		}
+	}
 
 	// private function deleteProductIfExists( ProductEntity $product ) {
 	// 	$productId = IdMapper::getProductId( $product->getId() );
@@ -439,6 +439,26 @@ class BikeDiscountHelper {
 
 	// 	return [new \WC_Product((int) $productId ), $new_product];
   // }
+
+  protected function getWoocommerceProduct( string $id, string $sku, bool $isVariable ) {
+    $productId = $this->getProductId( $id, $sku );
+		$new_product = true;
+
+		if ( $productId ) {
+			$new_product = false;
+			$product = wc_get_product( $productId );		
+
+			if ( $product && 0 < $product->get_parent_id() ) {
+				$productId = $product->get_parent_id();
+			}
+		}
+
+    if ( $isVariable ) {
+			return [new \WC_Product_Variable((int) $productId ), $new_product];
+		}
+
+		return [new \WC_Product((int) $productId ), $new_product];
+  }
 
   private function getWoocommerceVariation( $bikeDiscountVariationId, $product, $variationAttributes ) {
 		$variationId = $this->getVariationId( $bikeDiscountVariationId, $variationAttributes, $product );

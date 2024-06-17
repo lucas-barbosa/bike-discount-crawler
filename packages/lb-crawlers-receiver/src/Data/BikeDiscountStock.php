@@ -5,7 +5,7 @@ namespace LucasBarbosa\LbCrawlersReceiver\Data;
 use LucasBarbosa\LbCrawlersReceiver\Data\CrawlerPostMetaData;
 use LucasBarbosa\LbCrawlersReceiver\Utils\Utils;
 
-class BikeDiscount extends BikeDiscountHelper {
+class BikeDiscountStock extends BikeDiscountHelper {
   function handleUpdateStock($data) {
     $productId = $this->getProductId($data['id'], $data['sku']);
 

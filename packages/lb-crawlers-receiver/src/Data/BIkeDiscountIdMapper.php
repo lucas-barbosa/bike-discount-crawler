@@ -109,6 +109,10 @@ class BikeDiscountIdMapper {
 		update_term_meta( $term, $key, $key );
 	}
 
+  static function setAttachmentId( $id, $key ) {
+    CrawlerPostMetaData::insert( $id, '_bike_discount_attachment_' . $key,  $key );
+  }
+  
 	static function setAttributeId( $bikeDiscountId, $id ) {
 		if ( empty( $bikeDiscountId ) ) return;
 		update_option( 'bike_discount_attribute_' . $bikeDiscountId, $id );

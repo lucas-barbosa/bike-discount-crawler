@@ -3,11 +3,11 @@
 namespace LucasBarbosa\LbCrawlersReceiver\Apis;
 
 use LucasBarbosa\LbCrawlersReceiver\Common\Authorization;
-use LucasBarbosa\LbCrawlersReceiver\Data\BikeDiscountStock;
+use LucasBarbosa\LbCrawlersReceiver\Data\BikeDiscountProduct;
 
-class StockApi {
+class ProductApi {
   protected $namespace = 'lb-crawlers/v1';
-  protected $rest_base = 'stock';
+  protected $rest_base = 'product';
 
   function __construct() {
     add_action( 'rest_api_init', array( $this, 'register_routes' ) );
@@ -35,12 +35,12 @@ class StockApi {
     }
 
     $data = $body['data'];
-    if ($data['crawlerId'] === 'BD') $this->update_bd_stock( $data );
+    if ($data['crawlerId'] === 'BD') $this->update_bd_product( $data );
   }
 
-  function update_bd_stock( $data ) {
+  function update_bd_product( $data ) {
     if ( empty( $data['id'] ) ) return;
-    $bd = new BikeDiscountStock();
-    $bd->handleUpdateStock( $data );
+    $bd = new BikeDiscountProduct();
+    $bd->handleCreateProduct( $data );
   }
 }
