@@ -7,22 +7,26 @@ const QUEUE_NAME = 'bike_discount.categories';
 export type CategoriesFoundCallback = (categories: any) => Promise<any>;
 
 let queue: Queue;
-export const categoriesQueue = async (enqueueInitial = false) => {
+export const categoriesQueue = () => {
   if (!queue) queue = createQueue(QUEUE_NAME);
+  return queue;
+};
+
+export const enqueueInitialCategories = async () => {
+  categoriesQueue();
   const existingJobs = await queue.getJobCountByTypes('waiting', 'delayed');
-  if (!existingJobs && enqueueInitial) {
+  if (!existingJobs) {
     await queue.add('find-categories', {}, {
       repeat: {
         every: 2629800000
       }
     });
   }
-  return queue;
 };
 
 export const enqueueCategories = async () => {
   console.log('Enqueuing categories');
-  await categoriesQueue(false);
+  categoriesQueue();
   await queue.add(`find-categories:${new Date().toISOString()}`, {});
   console.log('Finished');
 };
@@ -44,6 +48,7 @@ export const categoriesWorker = (onCategoriesFound: CategoriesFoundCallback) => 
 };
 
 export const startCategoriesQueue = async (onCategoriesFound: CategoriesFoundCallback) => {
-  await categoriesQueue(true);
+  categoriesQueue();
   categoriesWorker(onCategoriesFound);
+  await enqueueInitialCategories();
 };

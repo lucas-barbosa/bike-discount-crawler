@@ -1,4 +1,4 @@
-import { type CategoriesFoundCallback, startCategoriesQueue } from './categories';
+import { type CategoriesFoundCallback, startCategoriesQueue, categoriesQueue } from './categories';
 import { startCategoryQueue } from './category';
 import { type ProductFoundCallback, startProductQueue, productQueue } from './product';
 import { type StockFoundCallback, startStockQueue, stockQueue } from './stock';
@@ -23,6 +23,7 @@ export const initQueue = async ({
 export const queues = () => {
   return [
     stockQueue(),
-    productQueue()
+    productQueue(),
+    categoriesQueue()
   ];
 };
