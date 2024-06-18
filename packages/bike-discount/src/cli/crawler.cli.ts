@@ -4,12 +4,17 @@ import { fetchProduct } from '@usecases/fetch-product';
 import { fetchStock } from '@usecases/fetch-stock';
 import { Command } from 'commander';
 import { createReadStream } from 'fs';
+import { type Product } from '@entities/Product';
 import { type ProductStock } from '@entities/ProductStock';
 import { getCategories } from '@infrastructure/categories';
-import { enqueueCategories } from '../queue/categories';
 import { enqueueStock } from '../queue/stock/index';
+import { enqueueCategories } from '../queue/categories';
 
-export const getBikeDiscountCli = (publishStock: (stock: ProductStock) => Promise<any>, publishCategories: (categories: any) => Promise<any>) => {
+export const getBikeDiscountCli = (
+  publishStock: (stock: ProductStock) => Promise<any>,
+  publishCategories: (categories: any) => Promise<any>,
+  publishProduct: (product: Product) => Promise<any>
+) => {
   const bikeDiscountCli = new Command();
 
   bikeDiscountCli.name('bike-discount')
@@ -93,9 +98,16 @@ export const getBikeDiscountCli = (publishStock: (stock: ProductStock) => Promis
     .requiredOption('-u, --url <url>', 'Product Url')
     .option('-c, --category <category>', 'Category Url', '')
     .option('-l, --language <language>', 'Product Language', '')
+    .option('-p, --publish', 'Publish to Listeners', false)
     .action(async (params) => {
       console.log('Crawler Product');
       const result = await fetchProduct(params.url, params.category, params.language);
+
+      if (params.publish && result) {
+        console.log('Publishing');
+        await publishProduct(result);
+      }
+
       console.log(result);
     });
 
