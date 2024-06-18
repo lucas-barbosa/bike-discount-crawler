@@ -16,9 +16,17 @@ export const getRedis = (columnPrefix: string) => {
     await closeRedis(redis).catch();
   };
 
+  const saveMany = async (items: { key: string, value: any }[]) => {
+    const redis = await getRedisClient();
+    const promises = items.map(({ key, value }) => redis.set(getColumnName(key), value));
+    await Promise.all(promises);
+    await closeRedis(redis).catch();
+  };
+
   return {
     getColumnName,
     getByKey,
-    saveByKey
+    saveByKey,
+    saveMany
   }
 }

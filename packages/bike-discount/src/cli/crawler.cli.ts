@@ -1,9 +1,11 @@
 import { parse } from 'csv-parse';
+import { Command } from 'commander';
+import { createReadStream } from 'fs';
 import { exportToCsv } from '@crawlers/base/dist/file/csv';
 import { fetchProduct } from '@usecases/fetch-product';
 import { fetchStock } from '@usecases/fetch-stock';
-import { Command } from 'commander';
-import { createReadStream } from 'fs';
+import { fetchCategories } from '@usecases/fetch-categories';
+import { generateCategoriesTree } from '@usecases/generate-categories-tree';
 import { type Product } from '@entities/Product';
 import { type ProductStock } from '@entities/ProductStock';
 import { getCategories } from '@infrastructure/categories';
@@ -114,19 +116,37 @@ export const getBikeDiscountCli = (
   bikeDiscountCli.command('categories')
     .description('Crawler Categories')
     .option('-p, --publish', 'Publish to Listeners', false)
+    .option('-s, --search', 'Search if not exists', false)
+    .option('-e, --enqueue', 'Enqueue job', false)
     .action(async (params) => {
       console.log('Crawler Categories');
 
       if (params.publish) {
-        const categories = await getCategories();
-        await publishCategories({
-          data: categories,
-          crawlerId: 'BD'
-        });
-      } else {
+        console.log('Loading from DB');
+        let categories = await getCategories();
+        if (!categories && params.search) {
+          console.log('Loading from Site');
+          categories = await fetchCategories();
+        }
+        if (categories) {
+          await publishCategories({
+            data: categories,
+            crawlerId: 'BD'
+          });
+          console.log(categories);
+        }
+      } else if (params.enqueue) {
         await enqueueCategories();
+        console.log('Categories enqueued');
       }
-      console.log('Categories enqueued');
+    });
+
+  bikeDiscountCli.command('categories-tree')
+    .description('Generate categories tree')
+    .action(async () => {
+      console.log('Generating Categories Tree');
+      await generateCategoriesTree();
+      console.log('Finished');
     });
 
   return bikeDiscountCli;
