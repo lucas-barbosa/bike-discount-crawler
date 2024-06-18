@@ -3,6 +3,7 @@ import { disposeCrawler, getClasses, getPropertyContent, getTextNode, getUrl } f
 import { purifyHTML } from '@crawler/utils/html';
 import { Product } from '@entities/Product';
 import { getProductStock } from './get-product-stock';
+import { getCategoryTree } from '@crawlers/base/dist/infrastructure/categories-tree';
 
 export const getProduct = async (productUrl: string, categoryUrl: string, language?: string): Promise<Product> => {
   const { page, browser, stock } = await getProductStock(productUrl, false, language);
@@ -11,6 +12,7 @@ export const getProduct = async (productUrl: string, categoryUrl: string, langua
     title,
     attributes,
     brand,
+    categories,
     crossSelledProducts,
     description,
     dimension,
@@ -20,6 +22,7 @@ export const getProduct = async (productUrl: string, categoryUrl: string, langua
     getTitle(page),
     getAttributes(page),
     getBrand(page),
+    getCategories(categoryUrl),
     getCrossSelledProducts(page),
     getDescription(page),
     getDimension(page),
@@ -39,6 +42,7 @@ export const getProduct = async (productUrl: string, categoryUrl: string, langua
   product.attributes = attributes;
   product.availability = stock.availability;
   product.brand = brand;
+  product.categories = categories;
   product.crossSelledProducts = crossSelledProducts;
   product.description = description;
   product.dimensions = dimension;
@@ -103,6 +107,14 @@ const getBrand = async (page: Page) => {
     return (await getPropertyContent(page, element[0]));
   }
   return '';
+};
+
+const getCategories = async (url: string) => {
+  if (url) {
+    const categoryTree = await getCategoryTree('BD', url);
+    if (categoryTree && Array.isArray(categoryTree)) return categoryTree;
+  }
+  return [];
 };
 
 const getCrossSelledProducts = async (page: Page) => {
@@ -182,7 +194,7 @@ const getWeight = async (page: Page) => {
     };
   }
 
-  const weight = (await getTextNode(page, element[0])).split(' ');
+  const weight = (await getPropertyContent(page, element[0])).split(' ');
 
   return {
     value: Number(weight[0]),

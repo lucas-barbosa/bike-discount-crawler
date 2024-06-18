@@ -5,7 +5,7 @@ export class Product {
   attributes: BikeDiscountAttribute[] = [];
   availability: string = 'outofstock';
   brand: string = '';
-  categories: any[] = [];
+  categories: string[] = [];
   categoryUrl: string = '';
   crossSelledProducts: string[] = [];
   description: string = '';
