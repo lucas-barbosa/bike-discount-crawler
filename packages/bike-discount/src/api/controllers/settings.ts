@@ -1,5 +1,21 @@
 import { type Request, type Response } from 'express';
-import { getCategoriesDimension, getCategoriesTree, getCategoriesWeight, getDeniedBrands, getOverrideWeightCategories, getSelectedCategories, getViewedCategories, saveCategoriesDimension, saveCategoriesTree, saveCategoriesWeight, saveDeniedBrands, saveOverrideWeightCategories, saveSelectedCategories, saveViewedCategories } from '@infrastructure/crawler-settings';
+import {
+  getCategoriesDimension,
+  getCategoriesWeight,
+  getDeniedBrands,
+  getOverrideWeightCategories,
+  getSelectedCategories,
+  getWeightRules,
+  saveCategoriesDimension,
+  saveCategoriesWeight,
+  saveDeniedBrands,
+  saveMaxAllowedSize,
+  saveMaxAllowedWeight,
+  saveMinAllowedPrice,
+  saveOverrideWeightCategories,
+  saveSelectedCategories,
+  saveWeightRules
+} from '@infrastructure/crawler-settings';
 
 export const listDeniedBrands = async (req: Request, res: Response) => {
   const items = await getDeniedBrands();
@@ -11,18 +27,8 @@ export const listSelectedCategories = async (req: Request, res: Response) => {
   return res.json({ data });
 };
 
-export const listViewedCategories = async (req: Request, res: Response) => {
-  const data = await getViewedCategories();
-  return res.json({ data });
-};
-
 export const listCategoriesDimension = async (req: Request, res: Response) => {
   const data = await getCategoriesDimension();
-  return res.json({ data });
-};
-
-export const listCategoriesTree = async (req: Request, res: Response) => {
-  const data = await getCategoriesTree();
   return res.json({ data });
 };
 
@@ -36,10 +42,15 @@ export const listOverriedWeightCategories = async (req: Request, res: Response) 
   return res.json({ data });
 };
 
+export const listWeightRules = async (req: Request, res: Response) => {
+  const data = await getWeightRules();
+  return res.json({ data });
+};
+
 export const storeDeniedBrands = async (req: Request, res: Response) => {
   const { body } = req;
 
-  let items = body.items ?? [];
+  let items = body.data ?? [];
   if (typeof items === 'string') items = items.split(/\r\n|[\r\n]/);
   items = items.map((brand: string) => brand.toLowerCase());
 
@@ -51,17 +62,8 @@ export const storeDeniedBrands = async (req: Request, res: Response) => {
 export const storeSelectedCategories = async (req: Request, res: Response) => {
   const { body } = req;
 
-  const categories = body.categories ?? [];
+  const categories = body.data ?? [];
   await saveSelectedCategories(categories);
-
-  return res.status(200).json({ categories });
-};
-
-export const storeViewedCategories = async (req: Request, res: Response) => {
-  const { body } = req;
-
-  const categories = body.categories ?? [];
-  await saveViewedCategories(categories);
 
   return res.status(200).json({ categories });
 };
@@ -69,17 +71,8 @@ export const storeViewedCategories = async (req: Request, res: Response) => {
 export const storeCategoriesDimension = async (req: Request, res: Response) => {
   const { body } = req;
 
-  const categories = body.categories ?? [];
+  const categories = body.data ?? [];
   await saveCategoriesDimension(categories);
-
-  return res.status(200).json({ categories });
-};
-
-export const storeCategoriesTree = async (req: Request, res: Response) => {
-  const { body } = req;
-
-  const categories = body.categories ?? [];
-  await saveCategoriesTree(categories);
 
   return res.status(200).json({ categories });
 };
@@ -87,16 +80,35 @@ export const storeCategoriesTree = async (req: Request, res: Response) => {
 export const storeCategoriesWeight = async (req: Request, res: Response) => {
   const { body } = req;
 
-  const categories = body.categories ?? [];
+  const categories = body.data ?? [];
   await saveCategoriesWeight(categories);
 
   return res.status(200).json({ categories });
 };
 
+export const storeWeightRules = async (req: Request, res: Response) => {
+  const { body } = req;
+
+  const requestData = body.data ?? {};
+  const { min, maxWeight, maxSize, data } = requestData;
+
+  await saveMinAllowedPrice(min);
+  await saveMaxAllowedSize(maxSize);
+  await saveMaxAllowedWeight(maxWeight);
+  await saveWeightRules(data.map((x: any): WeightRule => ({
+    minPrice: x.min_price,
+    minWeight: x.min_weight,
+    maxWeight: x.max_weight,
+    maxSize: x.max_size
+  })));
+
+  return res.status(200).json({ data });
+};
+
 export const storeOverriedWeightCategories = async (req: Request, res: Response) => {
   const { body } = req;
 
-  const categories = body.categories ?? [];
+  const categories = body.data ?? [];
   await saveOverrideWeightCategories(categories);
 
   return res.status(200).json({ categories });

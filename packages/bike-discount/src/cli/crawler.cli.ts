@@ -11,6 +11,7 @@ import { type ProductStock } from '@entities/ProductStock';
 import { getCategories } from '@infrastructure/categories';
 import { enqueueStock } from '../queue/stock/index';
 import { enqueueCategories } from '../queue/categories';
+import { validateProduct } from '@usecases/validate-product';
 
 export const getBikeDiscountCli = (
   publishStock: (stock: ProductStock) => Promise<any>,
@@ -104,6 +105,10 @@ export const getBikeDiscountCli = (
     .action(async (params) => {
       console.log('Crawler Product');
       const result = await fetchProduct(params.url, params.category, params.language);
+
+      if (result) {
+        await validateProduct(result);
+      }
 
       if (params.publish && result) {
         console.log('Publishing');
