@@ -28,8 +28,14 @@ class SettingsApi {
       return;
     }
 
-    $host = LB_CRAWLERS_APP['host'];;
-    $apiKey = LB_CRAWLERS_APP['api_key'];
+    $crawlerData = unserialize( LB_CRAWLERS_APP );
+
+    if ( ! isset( $crawlerData['host'] ) || ! isset( $crawlerData['api_key'] ) ) {
+      return;
+    }
+    
+    $host = $crawlerData['host'];
+    $apiKey = $crawlerData['api_key'];
     $crawlerEndpoint = $allowed_crawler_id[ $crawlerId ];
     $actionEndpoint = $allowed_actions[ $action ];
     $url = "{$host}/{$crawlerEndpoint}/{$actionEndpoint}";
