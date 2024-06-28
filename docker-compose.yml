@@ -17,5 +17,10 @@ services:
       - "3000:3000"
     environment:
       - REDIS_URL='redis://default:my-password@database:6379/0'
+      - QUEUE_HOST=database
+      - QUEUE_PORT=6379
+      - AUTH_USERNAME=admin
+      - AUTH_PASSWORD=admin
+      - AUTH_SECRET=test_auth_secret
     depends_on:
       - redis

@@ -1,4 +1,4 @@
-FROM node:20.11-slim as builder
+FROM node:20.11-slim
 
 RUN mkdir -p /opt/app
 WORKDIR /opt/app
@@ -13,12 +13,5 @@ RUN yarn workspace @crawlers/base build
 RUN yarn workspace @crawlers/bike-discount build
 RUN yarn workspace @crawlers/app build
 
-FROM node:20.11-slim AS final
-
-RUN mkdir -p /usr/app
-WORKDIR /usr/app
-
-COPY --from=builder /opt/app/packages/app/dist ./
-RUN apt-get update -y && apt-get install -y openssl
-WORKDIR /usr/app/src
+WORKDIR /opt/app/packages/app/dist/src
 CMD [ "node", "index.js" ]
