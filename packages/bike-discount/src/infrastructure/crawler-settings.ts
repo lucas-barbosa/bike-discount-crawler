@@ -86,34 +86,34 @@ export const getMaxAllowedWeight = async () => {
 };
 
 export const saveCrawlerLogin = async (email: string, password: string) => {
-  await saveByKey(LOGIN_COLUMN_NAME, {
+  await saveByKey(LOGIN_COLUMN_NAME, JSON.stringify({
     email,
     password
-  });
+  }));
 };
 
 export const saveDeniedBrands = async (items: string[]) => {
-  await saveByKey(DENIED_BRANDS_COLUMN_NAME, items);
+  await saveByKey(DENIED_BRANDS_COLUMN_NAME, JSON.stringify(items));
 };
 
 export const saveSelectedCategories = async (items: string[]) => {
-  await saveByKey(SELECTED_CATEGORIES_COLUMN_NAME, items);
+  await saveByKey(SELECTED_CATEGORIES_COLUMN_NAME, JSON.stringify(items));
 };
 
 export const saveCategoriesDimension = async (items: CategoryDimension[]) => {
-  await saveByKey(CATEGORIES_DIMENSION_COLUMN_NAME, items);
+  await saveByKey(CATEGORIES_DIMENSION_COLUMN_NAME, JSON.stringify(items));
 };
 
 export const saveCategoriesWeight = async (items: CategoryWeight[]) => {
-  await saveByKey(CATEGORIES_WEIGHT_COLUMN_NAME, items);
+  await saveByKey(CATEGORIES_WEIGHT_COLUMN_NAME, JSON.stringify(items));
 };
 
 export const saveOverrideWeightCategories = async (items: string[]) => {
-  await saveByKey(OVERRIDE_WEIGHT_CATEGORIES_COLUMN_NAME, items);
+  await saveByKey(OVERRIDE_WEIGHT_CATEGORIES_COLUMN_NAME, JSON.stringify(items));
 };
 
 export const saveWeightRules = async (items: WeightRule[]) => {
-  await saveByKey(WEIGHT_RULES_COLUMN_NAME, items);
+  await saveByKey(WEIGHT_RULES_COLUMN_NAME, JSON.stringify(items));
 };
 
 export const saveMinAllowedPrice = async (value: any) => {
