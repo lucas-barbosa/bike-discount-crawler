@@ -3,19 +3,22 @@ FROM node:20.11-slim as builder
 RUN mkdir -p /opt/app
 WORKDIR /opt/app
 
-COPY package.json yarn.lock tsconfig.json src ./
+COPY package.json yarn.lock tsconfig.json .yarnrc.yml ./
+COPY .yarn ./.yarn
+COPY packages ./packages
 
-RUN yarn install
-RUN yarn build
+RUN ls -lh
+RUN yarn install 
+RUN yarn workspace @crawlers/base build
+RUN yarn workspace @crawlers/bike-discount build
+RUN yarn workspace @crawlers/app build
 
-FROM node:18-slim AS final
+FROM node:20.11-slim AS final
 
-WORKDIR /usr/src/app
+RUN mkdir -p /usr/app
+WORKDIR /usr/app
 
-COPY --from=builder /opt/app/dist ./dist
-COPY package.json yarn.lock ./
-
-RUN yarn install --production
+COPY --from=builder /opt/app/packages/app/dist ./
 RUN apt-get update -y && apt-get install -y openssl
-
-CMD [ "yarn", "start" ]
+WORKDIR /usr/app/src
+CMD [ "node", "index.js" ]
