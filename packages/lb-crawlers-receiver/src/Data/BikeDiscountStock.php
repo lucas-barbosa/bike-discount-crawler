@@ -19,6 +19,10 @@ class BikeDiscountStock extends BikeDiscountHelper {
       return;
     }
 
+    if ( ! empty( CrawlerPostMetaData::get( $productId, '_lb_bike_discount_attributes' ) ) ) {
+      return;
+    }
+
     parent::loadParams('_lb_bike_discount_stock');
 
     if ($product->is_type('simple')) {
