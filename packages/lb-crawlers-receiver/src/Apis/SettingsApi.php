@@ -42,12 +42,12 @@ class SettingsApi {
 
     $options = [ 
       'http' => [ 
-        'method'  => 'POST', 
+        'method'  => 'PUT', 
         'header'  => [
-          'Content-type: application/x-www-form-urlencoded',
+          'Content-type: application/json',
           "x-api-key: $apiKey"
         ],
-        'content' => http_build_query([
+        'content' => json_encode([
           'data' => $data
         ]), 
       ], 
