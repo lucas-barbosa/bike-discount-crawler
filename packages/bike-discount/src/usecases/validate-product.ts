@@ -25,24 +25,25 @@ const validateProductBrand = async (product: Product) => {
 };
 
 const validateProductDimensions = async (product: Product) => {
-  if (!product.brand || product.invalid) {
+  if (product.invalid) {
     return;
   }
 
+  const overrideWeight = await shouldOverrideWeight(product.categoryUrl);
   let weight = product.weight;
 
-  if (!weight || await shouldOverrideWeight(product.categoryUrl)) {
+  if (!weight || overrideWeight) {
     const weightValue = await getDefaultCategoryWeight(product.categoryUrl);
     weight = {
       unit: 'g',
-      value: weightValue
+      value: Number(weightValue)
     };
   }
   weight.value = convertWeightToUnit(weight.value, weight.unit as any, 'g');
 
   const size = product.getSize();
-  if (!size.value) {
-    size.value = await getDefaultCategorySize(product.categoryUrl);
+  if (!size.value || overrideWeight) {
+    size.value = Number(await getDefaultCategorySize(product.categoryUrl));
   }
   size.value = convertDimensionToUnit(size.value, size.unit as any, 'cm');
 
@@ -147,13 +148,13 @@ const validateWeight = async (productPrice: number, productWeight: number, produ
   let productWeightIsAllowed = false;
 
   for (const rule of weightRules) {
-    if (productWeightIsAllowed && rule.maxSize && rule.maxSize >= productSize) {
-      return productPrice >= rule.minPrice;
+    if (productWeightIsAllowed && rule.maxSize && Number(rule.maxSize) >= productSize) {
+      return productPrice >= Number(rule.minPrice);
     }
 
-    if (productWeight >= rule.minWeight && (!rule.maxWeight || productWeight <= rule.maxWeight)) {
-      if (!rule.maxSize || rule.maxSize >= productSize) {
-        return productPrice >= rule.minPrice;
+    if (productWeight >= Number(rule.minWeight) && (!rule.maxWeight || productWeight <= Number(rule.maxWeight))) {
+      if (!rule.maxSize || Number(rule.maxSize) >= productSize) {
+        return productPrice >= Number(rule.minPrice);
       }
 
       productWeightIsAllowed = true;

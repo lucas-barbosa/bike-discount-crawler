@@ -17,7 +17,8 @@ class SettingsApi {
       'selected_categories'   => 'selected-categories',
       'categories_dimension'  => 'categories-dimension',
       'categories_weight'     => 'categories-weight',
-      'override_categories'   => 'override-weight-categories'
+      'override_categories'   => 'override-weight-categories',
+      'denied_brands'         => 'denied-brands'
     ];
 
     $allowed_crawler_id = [
@@ -54,6 +55,6 @@ class SettingsApi {
     ]; 
     
     $context  = stream_context_create($options); 
-    file_get_contents($url, false, $context); 
+    file_get_contents($url, false, $context);
   }
 }
