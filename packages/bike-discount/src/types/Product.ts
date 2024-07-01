@@ -51,7 +51,7 @@ export class Product {
     const largestSide = Math.max(...sides);
 
     return {
-      value: largestSide,
+      value: largestSide || 20,
       unit
     };
   }

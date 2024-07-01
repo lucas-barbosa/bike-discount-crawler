@@ -30,25 +30,28 @@ const validateProductDimensions = async (product: Product) => {
   }
 
   const overrideWeight = await shouldOverrideWeight(product.categoryUrl);
-  let weight = product.weight;
 
-  if (!weight || overrideWeight) {
+  if (!product.weight || overrideWeight) {
     const weightValue = await getDefaultCategoryWeight(product.categoryUrl);
-    weight = {
+    product.weight = {
       unit: 'g',
       value: Number(weightValue)
     };
   }
-  weight.value = convertWeightToUnit(weight.value, weight.unit as any, 'g');
+
+  const weight = {
+    ...product.weight,
+    value: convertWeightToUnit(product.weight.value, product.weight.unit as any, 'g')
+  };
 
   const size = product.getSize();
   if (!size.value || overrideWeight) {
     size.value = Number(await getDefaultCategorySize(product.categoryUrl));
   }
-  size.value = convertDimensionToUnit(size.value, size.unit as any, 'cm');
+  size.value = convertDimensionToUnit(size.value, size.unit as any || 'cm', 'cm');
 
   const largestSide = product.getLargestSide();
-  largestSide.value = convertDimensionToUnit(largestSide.value, largestSide.unit as any, 'cm');
+  largestSide.value = convertDimensionToUnit(largestSide.value, largestSide.unit as any || 'cm', 'cm');
 
   if (!product.isVariable) {
     const isValid = await checkIsValid(product, weight.value, size.value, largestSide.value);
