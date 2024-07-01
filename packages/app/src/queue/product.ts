@@ -1,7 +1,7 @@
 import { type Job, type Queue } from 'bullmq';
 import { createQueue, createWorker } from '@crawlers/base/dist/queue/client';
 import { type Product } from '@crawlers/bike-discount/dist/types/Product';
-// import { publishProductChanges } from '#publishers/product';
+import { publishProductChanges } from '#publishers/product';
 
 const QUEUE_NAME = 'crawlers.main.product';
 
@@ -14,7 +14,7 @@ export const productQueue = () => {
 export const productWorker = () => {
   const worker = createWorker(QUEUE_NAME, async ({ data }: Job<Product>) => {
     console.log('STARTED PUBLISHING product');
-    // await publishProductChanges(data);
+    await publishProductChanges(data);
     console.log('FINISHED PUBLISHING product');
   });
   return worker;
