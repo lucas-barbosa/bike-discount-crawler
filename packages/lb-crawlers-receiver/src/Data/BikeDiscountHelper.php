@@ -295,14 +295,14 @@ class BikeDiscountHelper {
 		}
 
 		$optionName = 'bike_discount_' . $taxonomyLabel;
-		$attributeIdFromCache = get_option( $optionName, '' );
+		$attributeIdFromCache = CrawlerOptions::get( $optionName, '' );
 
 		if ( ! empty( $attributeIdFromCache ) && ! is_null( wc_get_attribute( $attributeIdFromCache ) ) ) {
 			BikeDiscountIdMapper::setAttributeId( $id, $attributeIdFromCache );
 			return $attributeIdFromCache;
 		}
 
-		$attributeIdFromCache = get_option( 'sp' . $taxonomyLabel, '' );
+		$attributeIdFromCache = CrawlerOptions::get( 'sp' . $taxonomyLabel, '' );
 
 		if ( ! empty( $attributeIdFromCache ) && ! is_null( wc_get_attribute( $attributeIdFromCache ) ) ) {
 			BikeDiscountIdMapper::setAttributeId( $id, $attributeIdFromCache );
@@ -315,7 +315,7 @@ class BikeDiscountHelper {
 
 		if ( $attributeFromSlug ) {
 			BikeDiscountIdMapper::setAttributeId( $id, $attributeFromSlug );
-			update_option( 'sp' . $taxonomyLabel, $attributeFromSlug, false );
+			CrawlerOptions::insert( 'sp' . $taxonomyLabel, $attributeFromSlug );
 			return $attributeFromSlug;
 		}
 
@@ -326,7 +326,7 @@ class BikeDiscountHelper {
 
 		if ( $attributeFromLabel ) {
 			BikeDiscountIdMapper::setAttributeId( $id, $attributeFromLabel );
-			update_option( 'sp_bike_discount_' . $taxonomyLabel, $attributeFromLabel, false );
+			CrawlerOptions::insert( 'sp_bike_discount_' . $taxonomyLabel, $attributeFromLabel );
 			return $attributeFromLabel;
 		}
 		
@@ -364,7 +364,7 @@ class BikeDiscountHelper {
 		}
 
 		BikeDiscountIdMapper::setAttributeId( $id, $attribute_id );
-		update_option( $optionName, $attribute_id, false );
+		CrawlerOptions::insert( $optionName, $attribute_id );
 		
 		return $attribute_id;
 	}

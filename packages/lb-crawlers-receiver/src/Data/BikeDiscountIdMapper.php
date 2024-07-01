@@ -14,17 +14,10 @@ class BikeDiscountIdMapper {
   }
 
 	static function getAttributeId( $id ) {
-    global $wpdb;
+		$value = CrawlerOptions::get( 'bike_discount_attribute_' . $id );
 
-		$meta = $wpdb->get_row(
-			$wpdb->prepare(
-				"SELECT option_value FROM {$wpdb->prefix}options WHERE option_name = %s",
-				'bike_discount_attribute_' . $id
-			)
-		);
-
-		if ( ! empty( $meta->option_value ) ) {
-			return $meta->option_value;
+		if ( ! empty( $value ) ) {
+			return $value;
 		}
 
 		return false;
@@ -115,6 +108,6 @@ class BikeDiscountIdMapper {
   
 	static function setAttributeId( $bikeDiscountId, $id ) {
 		if ( empty( $bikeDiscountId ) ) return;
-		update_option( 'bike_discount_attribute_' . $bikeDiscountId, $id );
+		CrawlerOptions::insert( 'bike_discount_attribute_' . $bikeDiscountId, $id );
 	}
 }
