@@ -11,8 +11,8 @@ import { type ProductStock } from '@entities/ProductStock';
 import { getCategories } from '@infrastructure/categories';
 import { enqueueStock } from '../queue/stock/index';
 import { enqueueCategories } from '../queue/categories';
+import { enqueueCategory } from '../queue/category';
 import { validateProduct } from '@usecases/validate-product';
-import { enqueueCategory } from 'src/queue/category';
 
 export const getBikeDiscountCli = (
   publishStock: (stock: ProductStock) => Promise<any>,
