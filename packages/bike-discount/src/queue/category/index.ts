@@ -28,6 +28,7 @@ export const categoryWorker = () => {
 };
 
 export const enqueueCategory = async (params: Category, recurring: string = '') => {
+  categoryQueue();
   await queue.add(`category:${params.categoryUrl}:${params.page ?? 1}`, params, {
     ...(recurring && {
       repeat: {
