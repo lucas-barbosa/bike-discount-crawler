@@ -22,8 +22,13 @@ class BikeDiscountProduct extends BikeDiscountHelper {
     self::$IS_RUNNING = true;
 
     $result = $this->getWoocommerceProduct( $data['id'], $data['sku'], is_array( $data['variations'] ) && count( $data['variations'] ) > 0 );
+
 		$wc_product = $result[0];
 		$is_new_product = $result[1];
+
+		if ( ! $is_new_product ) {
+			return;
+		}
 
     $wc_product = $this->setRequiredData( $wc_product, $data );
 		
@@ -173,7 +178,7 @@ class BikeDiscountProduct extends BikeDiscountHelper {
 
 		try {
 			foreach ( $variations as $i => $variation ) {
-				if ( $variation->getInvalid() ) {
+				if ( $variation['invalid'] ) {
 					continue;
 				}
 
@@ -254,9 +259,9 @@ class BikeDiscountProduct extends BikeDiscountHelper {
 		$productAttributes = [];
 
 		foreach ( $attributes as $attribute ) {
-			$attributeName = $attribute->getName();
-			$values = $attribute->getValue();
-			$isVariation = $attribute->isVariation();
+			$attributeName = $attribute['name'];
+			$values = $attribute['value'];
+			$isVariation = $attribute['variable'];
 			$values = $this->translateAttributes( $values, $attributeName );
 
 			$name = wc_sanitize_taxonomy_name( stripslashes( $attributeName ) );
@@ -404,7 +409,7 @@ class BikeDiscountProduct extends BikeDiscountHelper {
 		}
 
 		if ( empty( $wc_product->get_sku() ) ) {
-			$wc_product->set_sku( $data['sku'] );
+			$wc_product->set_sku( 'BD-' . $data['sku'] );
 		}
     
     $wc_product = $this->setDimensions( $wc_product, $data['dimensions'], $data['weight'] );

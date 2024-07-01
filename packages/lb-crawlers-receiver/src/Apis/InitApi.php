@@ -7,5 +7,6 @@ class InitApi {
     new SettingsApi();
     new StockApi();
     new CategoriesApi();
+    new ProductApi();
   }
 }
