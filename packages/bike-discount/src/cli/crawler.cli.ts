@@ -12,6 +12,7 @@ import { getCategories } from '@infrastructure/categories';
 import { enqueueStock } from '../queue/stock/index';
 import { enqueueCategories } from '../queue/categories';
 import { validateProduct } from '@usecases/validate-product';
+import { enqueueCategory } from 'src/queue/category';
 
 export const getBikeDiscountCli = (
   publishStock: (stock: ProductStock) => Promise<any>,
@@ -143,6 +144,20 @@ export const getBikeDiscountCli = (
       } else if (params.enqueue) {
         await enqueueCategories();
         console.log('Categories enqueued');
+      }
+    });
+
+  bikeDiscountCli.command('category')
+    .description('Crawler Category')
+    .option('-u, --url <url>', 'Product Url')
+    .option('-e, --enqueue', 'Enqueue job', false)
+    .action(async (params) => {
+      console.log('Crawler Category');
+      if (params.enqueue) {
+        await enqueueCategory({
+          categoryUrl: params.url
+        });
+        console.log('Category enqueued');
       }
     });
 
