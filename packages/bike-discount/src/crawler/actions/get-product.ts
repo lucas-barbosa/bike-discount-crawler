@@ -55,7 +55,7 @@ export const getProduct = async (productUrl: string, categoryUrl: string, langua
   return product;
 };
 
-const getAttributes = async (page: Page) => {
+export const getAttributes = async (page: Page) => {
   const rawAttributes = [];
   const elements = await page.$$('xpath/.//div[contains(@class, "tab-menu--product")]//table[contains(@class, "product--properties-table")]//tr/td');
 
@@ -122,7 +122,7 @@ const getCrossSelledProducts = async (page: Page) => {
   return Promise.all(elements.map(x => getUrl(page, x)));
 };
 
-const getDescription = async (page: Page) => {
+export const getDescription = async (page: Page) => {
   const element = await page.$$('xpath/.//div[contains(@class,"tab-menu--product")]//div[contains(@class,"content--description")]');
   if (!element.length) return '';
   const content = await page.evaluate(x => x.innerHTML, element[0]);
@@ -176,7 +176,7 @@ const getImages = async (page: Page) => {
   return Promise.all(promises);
 };
 
-const getTitle = async (page: Page) => {
+export const getTitle = async (page: Page) => {
   const element = await page.$$('xpath/.//h1[@class="product--title"]');
   if (element.length) {
     return (await getTextNode(page, element[0])).trim();

@@ -4,6 +4,7 @@ import { fetchProduct } from '@usecases/fetch-product';
 import { validateProduct } from '@usecases/validate-product';
 import { enqueueStock } from '../stock';
 import { type Product } from '@entities/Product';
+import { enqueueTranslation } from '../translate';
 
 export type ProductFoundCallback = (product: Product) => Promise<any>;
 
@@ -28,6 +29,9 @@ export const productWorker = (onProductFound: ProductFoundCallback) => {
     if (result) {
       await validateProduct(result);
       if (result.isValid) {
+        if (data.language !== 'es') {
+          await enqueueTranslation(data.url, 'es');
+        }
         await enqueueStock(data.url);
         await onProductFound(result);
       }
