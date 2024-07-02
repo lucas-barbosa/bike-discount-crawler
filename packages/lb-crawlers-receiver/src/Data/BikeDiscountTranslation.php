@@ -12,6 +12,8 @@ class BikeDiscountTranslation extends BikeDiscountHelper {
       return;
     }
 
-    do_action( 'lb_multi_language_translate_product', $productId, $data['language'], $data['title'], $data['description'], '' );
+    $language = $data['language'];
+    if ( $language === 'es' ) $language = 'espanhol';
+    do_action( 'lb_multi_language_translate_product', $productId, $language, $data['title'], $data['description'], '' );
   }
 }
