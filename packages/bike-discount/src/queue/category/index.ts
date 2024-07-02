@@ -47,10 +47,12 @@ const enqueueNextCategoryPage = async (params: Category) => {
 };
 
 const enqueueProducts = async (productUrls: string[], categoryUrl: string) => {
-  await Promise.all(productUrls.map(async (url) => {
-    const alreadySearched = await isProductSearched(url);
-    if (!alreadySearched) await enqueueProduct(url, categoryUrl);
-  }));
+  const pendingProducts: string[] = [];
+  for (const productUrl of productUrls) {
+    const alreadySearched = await isProductSearched(productUrl).catch(() => false);
+    if (!alreadySearched) pendingProducts.push(productUrl);
+  }
+  await Promise.all(productUrls.map(url => enqueueProduct(url, categoryUrl)));
 };
 
 export const startCategoryQueue = () => {

@@ -12,5 +12,5 @@ export const getSearchedProducts = async (crawlerId: string, url: string) => {
 
 export const saveSearchedProducts = async (crawlerId: string, url: string) => {
   const { saveByKey } = getRedis(crawlerId);
-  await saveByKey(getColumnName(url), true);
+  await saveByKey(getColumnName(url), 'true');
 };
