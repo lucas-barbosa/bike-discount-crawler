@@ -8,6 +8,7 @@ import { fetchCategories } from '@usecases/fetch-categories';
 import { generateCategoriesTree } from '@usecases/generate-categories-tree';
 import { type Product } from '@entities/Product';
 import { type ProductStock } from '@entities/ProductStock';
+import { type Translation } from '@entities/Translation';
 import { getCategories } from '@infrastructure/categories';
 import { enqueueStock } from '../queue/stock/index';
 import { enqueueCategories } from '../queue/categories';
@@ -18,7 +19,8 @@ import { fetchTranslation } from '@usecases/fetch-translation';
 export const getBikeDiscountCli = (
   publishStock: (stock: ProductStock) => Promise<any>,
   publishCategories: (categories: any) => Promise<any>,
-  publishProduct: (product: Product) => Promise<any>
+  publishProduct: (product: Product) => Promise<any>,
+  publishTranslation: (translation: Translation) => Promise<any>
 ) => {
   const bikeDiscountCli = new Command();
 
@@ -124,9 +126,14 @@ export const getBikeDiscountCli = (
     .description('Crawler Translation')
     .requiredOption('-u, --url <url>', 'Product Url')
     .option('-l, --language <language>', 'Product Language', 'en')
+    .option('-p, --publish', 'Publish to Listeners', false)
     .action(async (params) => {
       console.log('Crawler Translation');
       const result = await fetchTranslation(params.url, params.language);
+      if (params.publish && result) {
+        console.log('Publishing');
+        await publishTranslation(result);
+      }
       console.log(result);
     });
 
