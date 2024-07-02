@@ -5,6 +5,7 @@ import { validateProduct } from '@usecases/validate-product';
 import { enqueueStock } from '../stock';
 import { type Product } from '@entities/Product';
 import { enqueueTranslation } from '../translate';
+import { setProductSearched } from '@usecases/searched-products';
 
 export type ProductFoundCallback = (product: Product) => Promise<any>;
 
@@ -34,6 +35,7 @@ export const productWorker = (onProductFound: ProductFoundCallback) => {
         }
         await enqueueStock(data.url);
         await onProductFound(result);
+        await setProductSearched(data.url);
       }
       console.log('Product: ', {
         id: result.id,

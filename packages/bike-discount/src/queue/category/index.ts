@@ -2,6 +2,7 @@ import { type Job, type Queue } from 'bullmq';
 import { createQueue, createWorker } from '../client';
 import { fetchProductList } from '@usecases/fetch-product-list';
 import { enqueueProduct } from '../product';
+import { isProductSearched } from '@usecases/searched-products';
 
 interface Category {
   categoryUrl: string
@@ -46,7 +47,10 @@ const enqueueNextCategoryPage = async (params: Category) => {
 };
 
 const enqueueProducts = async (productUrls: string[], categoryUrl: string) => {
-  await Promise.all(productUrls.map(url => enqueueProduct(url, categoryUrl)));
+  await Promise.all(productUrls.map(async (url) => {
+    const alreadySearched = await isProductSearched(url);
+    if (!alreadySearched) await enqueueProduct(url, categoryUrl);
+  }));
 };
 
 export const startCategoryQueue = () => {
