@@ -13,6 +13,7 @@ import { enqueueStock } from '../queue/stock/index';
 import { enqueueCategories } from '../queue/categories';
 import { enqueueCategory } from '../queue/category';
 import { validateProduct } from '@usecases/validate-product';
+import { fetchTranslation } from '@usecases/fetch-translation';
 
 export const getBikeDiscountCli = (
   publishStock: (stock: ProductStock) => Promise<any>,
@@ -116,6 +117,16 @@ export const getBikeDiscountCli = (
         await publishProduct(result);
       }
 
+      console.log(result);
+    });
+
+  bikeDiscountCli.command('translate')
+    .description('Crawler Translation')
+    .requiredOption('-u, --url <url>', 'Product Url')
+    .option('-l, --language <language>', 'Product Language', 'en')
+    .action(async (params) => {
+      console.log('Crawler Translation');
+      const result = await fetchTranslation(params.url, params.language);
       console.log(result);
     });
 

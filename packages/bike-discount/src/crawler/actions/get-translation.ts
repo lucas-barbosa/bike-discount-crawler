@@ -5,7 +5,7 @@ import { navigate } from './navigate';
 import { getId } from './get-product-stock';
 
 export const getTranslation = async (productUrl: string, language: string): Promise<Translation> => {
-  const { page, browser } = await navigate(productUrl, language);
+  const { page, browser } = await navigate(productUrl, language, false);
 
   const [
     id,

@@ -1,7 +1,7 @@
 import { startCrawler } from '@crawler/utils/crawler';
 import { loginIfRequired } from '@middlewares/login-if-required';
 
-export const navigate = async (productUrl: string, language?: string) => {
+export const navigate = async (productUrl: string, language?: string, shouldLogin = true) => {
   const { page, browser } = await startCrawler();
 
   if (language) {
@@ -13,7 +13,7 @@ export const navigate = async (productUrl: string, language?: string) => {
   });
 
   await page.goto(`${productUrl}?${query.toString()}`);
-  await loginIfRequired(page);
+  if (shouldLogin) await loginIfRequired(page);
 
   return {
     page,
