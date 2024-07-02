@@ -8,5 +8,6 @@ class InitApi {
     new StockApi();
     new CategoriesApi();
     new ProductApi();
+    new TranslateApi();
   }
 }
