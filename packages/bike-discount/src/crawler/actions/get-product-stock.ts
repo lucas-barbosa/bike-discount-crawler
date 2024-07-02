@@ -60,7 +60,7 @@ const getPrice = async (page: Page) => {
   return 0;
 };
 
-const getSku = async (page: Page) => {
+export const getSku = async (page: Page) => {
   const element = await page.$$('xpath/.//span[@itemprop = "sku"]');
   if (element.length) {
     const sku = await getPropertyContent(page, element[0]);

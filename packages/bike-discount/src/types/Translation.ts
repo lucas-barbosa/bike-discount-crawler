@@ -1,5 +1,6 @@
 export class Translation {
   id: string;
+  sku: string;
   crawlerId: string;
   attributes: BikeDiscountAttribute[] = [];
   description: string;
@@ -7,8 +8,9 @@ export class Translation {
   url: string;
   language: string;
 
-  constructor (id: string, crawlerId: string, title: string, description: string, url: string, language: string) {
+  constructor (id: string, sku: string, crawlerId: string, title: string, description: string, url: string, language: string) {
     this.id = id;
+    this.sku = sku;
     this.crawlerId = crawlerId;
     this.title = title;
     this.description = description;
