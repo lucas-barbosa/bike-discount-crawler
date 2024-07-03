@@ -13,6 +13,6 @@ export const getRedisClient = async () => {
   return redis;
 };
 
-export const closeRedis = async (redis: RedisClientType) => {
-  await redis.disconnect();
+export const closeRedis = async () => {
+  await redis.quit();
 };
