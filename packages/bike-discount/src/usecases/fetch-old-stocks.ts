@@ -2,7 +2,7 @@ import { type OldProductRequest, getOldProductStock } from '@crawler/actions/get
 
 export const fetchOldStocks = async (productUrl: string, variations: OldProductRequest[]) => {
   return await getOldProductStock(productUrl, variations)
-    .then(res => res.stocks)
+    .then(res => ({ id: 'BD', items: res.stocks }))
     .catch(err => {
       console.warn(err);
       return null;

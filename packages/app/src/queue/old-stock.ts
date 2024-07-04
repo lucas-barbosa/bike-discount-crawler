@@ -1,6 +1,6 @@
 import { type Job, type Queue } from 'bullmq';
 import { createQueue, createWorker } from '@crawlers/base/dist/queue/client';
-import { type ProductStock } from '@crawlers/bike-discount/dist/types/ProductStock';
+import { type OldStockResult } from '@crawlers/bike-discount/src/queue/old-stock';
 
 const QUEUE_NAME = 'crawlers.main.old_product_stock';
 
@@ -11,7 +11,7 @@ export const oldStockQueue = () => {
 };
 
 export const oldStockWorker = () => {
-  const worker = createWorker(QUEUE_NAME, async ({ data }: Job<ProductStock[]>) => {
+  const worker = createWorker(QUEUE_NAME, async ({ data }: Job<OldStockResult>) => {
     console.log('START PUBLISHING old stock', data);
     // if (await hasStockChanged(data)) {
     // await publishStockChanges(data);
@@ -22,9 +22,9 @@ export const oldStockWorker = () => {
   return worker;
 };
 
-export const enqueueOldStock = async (stock: ProductStock[]) => {
-  if (stock.length) {
-    await queue.add(`old-stock:${stock[0].crawlerId}-${stock[0].id}`, stock);
+export const enqueueOldStock = async (data: OldStockResult) => {
+  if (data.items.length) {
+    await queue.add(`old-stock:${data.id}-${data.items[0].id}`, data);
   }
 };
 

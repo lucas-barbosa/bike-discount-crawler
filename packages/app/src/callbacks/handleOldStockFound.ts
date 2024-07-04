@@ -1,8 +1,7 @@
-import { type OldStockFoundCallback } from '@crawlers/bike-discount/src/queue/old-stock';
-import { type ProductStock } from '@crawlers/bike-discount/dist/types/ProductStock';
+import { type OldStockResult, type OldStockFoundCallback } from '@crawlers/bike-discount/src/queue/old-stock';
 import { enqueueOldStock } from '#queue/old-stock';
 
-export const handleOldStockFound: OldStockFoundCallback = async (stock: ProductStock[]) => {
+export const handleOldStockFound: OldStockFoundCallback = async (data: OldStockResult) => {
   console.log('Enqueue old stock:');
-  await enqueueOldStock(stock);
+  await enqueueOldStock(data);
 };

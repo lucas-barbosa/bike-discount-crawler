@@ -13,11 +13,14 @@ import { getCategories } from '@infrastructure/categories';
 import { enqueueStock } from '../queue/stock/index';
 import { enqueueCategories } from '../queue/categories';
 import { enqueueCategory } from '../queue/category';
+import { type OldStockResult } from '../queue/old-stock';
 import { validateProduct } from '@usecases/validate-product';
 import { fetchTranslation } from '@usecases/fetch-translation';
+import { fetchOldStocks } from '@usecases/fetch-old-stocks';
 
 export const getBikeDiscountCli = (
   publishStock: (stock: ProductStock) => Promise<any>,
+  publishOldStock: (data: OldStockResult) => Promise<any>,
   publishCategories: (categories: any) => Promise<any>,
   publishProduct: (product: Product) => Promise<any>,
   publishTranslation: (translation: Translation) => Promise<any>
@@ -98,6 +101,34 @@ export const getBikeDiscountCli = (
         }
         console.timeEnd('Processing CSV');
       }
+    });
+
+  bikeDiscountCli.command('old-stock')
+    .description('Crawler Old Product Stock')
+    .requiredOption('-u, --url <url>', 'Product Url')
+    .requiredOption('-i, --ids <ids>', 'Product Ids')
+    .requiredOption('-v, --variations <variations>', 'Product Variations')
+    .option('-p, --publish', 'Publish to Listeners', false)
+    .action(async (params) => {
+      console.log('Crawler Old Product Stock');
+
+      const ids = params.ids.split(',');
+      const variations = params.variations.split(',');
+
+      if (!ids.length || ids.length !== variations.length) {
+        console.warn('Forneça a mesma quantidade de ids e variações!');
+        return;
+      }
+
+      const products = ids.map((id: string, index: number) => ({ productId: id, variationName: variations[index] }));
+      const result = await fetchOldStocks(params.url, products);
+
+      if (params.publish && result) {
+        console.log('Publishing');
+        await publishOldStock(result);
+      }
+
+      console.log(result);
     });
 
   bikeDiscountCli.command('product')

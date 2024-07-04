@@ -4,7 +4,8 @@ import { type ProductStock } from '@entities/ProductStock';
 import { type OldProductRequest } from '@crawler/actions/get-old-product-stock';
 import { fetchOldStocks } from '@usecases/fetch-old-stocks';
 
-export type OldStockFoundCallback = (stock: ProductStock[]) => Promise<any>;
+export interface OldStockResult { id: string, items: ProductStock[] }
+export type OldStockFoundCallback = (stock: OldStockResult) => Promise<any>;
 
 interface OldStockQueueItem {
   url: string
