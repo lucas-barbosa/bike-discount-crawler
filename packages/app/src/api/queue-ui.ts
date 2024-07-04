@@ -5,6 +5,7 @@ import { queues as bdQueues } from '@crawlers/bike-discount';
 import { productQueue } from '../queue/product';
 import { stockQueue } from '../queue/stock';
 import { translationQueue } from '../queue/translation';
+import { oldStockQueue } from '#queue/old-stock';
 
 const serverAdapter = new ExpressAdapter();
 serverAdapter.setBasePath('/admin/queues');
@@ -12,6 +13,7 @@ serverAdapter.setBasePath('/admin/queues');
 const getQueues = () => {
   const queues = [
     stockQueue(),
+    oldStockQueue(),
     productQueue(),
     translationQueue(),
     ...bdQueues()
