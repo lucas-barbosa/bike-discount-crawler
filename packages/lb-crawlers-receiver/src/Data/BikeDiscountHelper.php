@@ -8,7 +8,7 @@ class BikeDiscountHelper {
 	// public static $IS_RUNNING = false;
   private array $taxonomies = [];
 	private array $translatedAttributes = [];
-  private string $stock = '';
+  protected string $stock = '';
   
   // public function setHooks() {
   //   add_action( 'lb_bike_discount_crawler_product_loaded', array( $this, 'execute' ) );
