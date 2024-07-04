@@ -6,6 +6,7 @@ class InitApi {
   function run() {
     new SettingsApi();
     new StockApi();
+    new OldStockApi();
     new CategoriesApi();
     new ProductApi();
     new TranslateApi();
