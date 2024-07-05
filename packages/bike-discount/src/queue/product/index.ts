@@ -6,6 +6,7 @@ import { enqueueStock } from '../stock';
 import { type Product } from '@entities/Product';
 import { enqueueTranslation } from '../translate';
 import { setProductSearched } from '@usecases/searched-products';
+import { removeOptions } from '@crawlers/base/dist/queue/client';
 
 export type ProductFoundCallback = (product: Product) => Promise<any>;
 
@@ -53,6 +54,8 @@ export const enqueueProduct = async (productUrl: string, categoryUrl: string, la
     url: productUrl,
     categoryUrl,
     language
+  }, {
+    ...removeOptions
   });
 };
 

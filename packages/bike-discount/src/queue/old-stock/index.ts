@@ -3,6 +3,7 @@ import { createQueue, createWorker } from '../client';
 import { type ProductStock } from '@entities/ProductStock';
 import { type OldProductRequest } from '@crawler/actions/get-old-product-stock';
 import { fetchOldStocks } from '@usecases/fetch-old-stocks';
+import { removeOptions } from '@crawlers/base/dist/queue/client';
 
 export interface OldStockResult { id: string, items: ProductStock[] }
 export type OldStockFoundCallback = (stock: OldStockResult) => Promise<any>;
@@ -41,7 +42,8 @@ export const enqueueOldStock = async (productUrl: string, variations: OldProduct
   }, {
     repeat: {
       every: 48 * 60 * 60 * 1000 // (hours * minutes * seconds * milliseconds)
-    }
+    },
+    ...removeOptions
   }).catch(err => { console.log(`An error happened: ${err.message}`); });
 };
 

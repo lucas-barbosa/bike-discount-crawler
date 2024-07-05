@@ -3,6 +3,7 @@ import { createQueue, createWorker } from '../client';
 import { fetchProductList } from '@usecases/fetch-product-list';
 import { enqueueProduct } from '../product';
 import { isProductSearched } from '@usecases/searched-products';
+import { removeOptions } from '@crawlers/base/dist/queue/client';
 
 interface Category {
   categoryUrl: string
@@ -35,7 +36,8 @@ export const enqueueCategory = async (params: Category, recurring: string = '') 
       repeat: {
         pattern: recurring
       }
-    })
+    }),
+    ...removeOptions
   });
 };
 

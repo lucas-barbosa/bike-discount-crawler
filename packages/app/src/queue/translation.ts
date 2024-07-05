@@ -1,5 +1,5 @@
 import { type Job, type Queue } from 'bullmq';
-import { createQueue, createWorker } from '@crawlers/base/dist/queue/client';
+import { createQueue, createWorker, removeOptions } from '@crawlers/base/dist/queue/client';
 import { type Translation } from '@crawlers/bike-discount/dist/types/Translation';
 import { publishTranslationChanges } from '#publishers/translation';
 
@@ -22,7 +22,8 @@ export const translationWorker = () => {
 
 export const enqueueTranslation = async (translation: Translation) => {
   await queue.add(`translation:${translation.crawlerId}:${translation.id}:${translation.language}`, translation, {
-    delay: 86400000 // 24 * 60 * 60 * 1000
+    delay: 86400000, // 24 * 60 * 60 * 1000
+    ...removeOptions
   });
 };
 

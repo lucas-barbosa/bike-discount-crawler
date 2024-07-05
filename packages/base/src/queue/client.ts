@@ -19,3 +19,12 @@ export const createWorker = (queueName: string, queueHandler: any) => {
     ...queueConnection
   });
 };
+
+export const removeOptions = {
+  removeOnComplete: {
+    age: 24 * 3 * 3600 // keep up to 3 days
+  },
+  removeOnFail: {
+    age: 24 * 5 * 3600 // keep up to 5 days
+  }
+};

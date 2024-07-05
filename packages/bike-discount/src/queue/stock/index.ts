@@ -2,6 +2,7 @@ import { type Job, type Queue } from 'bullmq';
 import { createQueue, createWorker } from '../client';
 import { fetchStock } from '@usecases/fetch-stock';
 import { type ProductStock } from '@entities/ProductStock';
+import { removeOptions } from '@crawlers/base/dist/queue/client';
 
 export type StockFoundCallback = (stock: ProductStock) => Promise<any>;
 
@@ -37,7 +38,8 @@ export const enqueueStock = async (productUrl: string) => {
   }, {
     repeat: {
       every: 48 * 60 * 60 * 1000 // (hours * minutes * seconds * milliseconds)
-    }
+    },
+    ...removeOptions
   }).catch(err => { console.log(`An error happened: ${err.message}`); });
 };
 

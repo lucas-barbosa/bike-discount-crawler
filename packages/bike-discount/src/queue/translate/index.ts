@@ -1,4 +1,5 @@
 import { type Job, type Queue } from 'bullmq';
+import { removeOptions } from '@crawlers/base/dist/queue/client';
 import { createQueue, createWorker } from '../client';
 import { type Translation } from '@entities/Translation';
 import { fetchTranslation } from '@usecases/fetch-translation';
@@ -34,6 +35,8 @@ export const enqueueTranslation = async (productUrl: string, language: string) =
   await queue.add(`translation:${productUrl}:${language}`, {
     url: productUrl,
     language
+  }, {
+    ...removeOptions
   });
 };
 

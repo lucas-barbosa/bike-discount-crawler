@@ -1,5 +1,5 @@
 import { type Job, type Queue } from 'bullmq';
-import { createQueue, createWorker } from '@crawlers/base/dist/queue/client';
+import { createQueue, createWorker, removeOptions } from '@crawlers/base/dist/queue/client';
 import { publishCategoriesChange } from '#publishers/categories';
 
 const QUEUE_NAME = 'crawlers.main.categories';
@@ -21,7 +21,7 @@ export const categoryWorker = () => {
 
 export const enqueueCategories = async (category: any) => {
   categoryQueue();
-  await queue.add('category', category);
+  await queue.add('category', category, { ...removeOptions });
 };
 
 export const startCategoryQueue = () => {

@@ -1,5 +1,5 @@
 import { type Job, type Queue } from 'bullmq';
-import { createQueue, createWorker } from '@crawlers/base/dist/queue/client';
+import { createQueue, createWorker, removeOptions } from '@crawlers/base/dist/queue/client';
 import { type Product } from '@crawlers/bike-discount/dist/types/Product';
 import { publishProductChanges } from '#publishers/product';
 
@@ -21,7 +21,7 @@ export const productWorker = () => {
 };
 
 export const enqueueProduct = async (product: Product) => {
-  await queue.add(`product:${product.crawlerId}:${product.id}`, product);
+  await queue.add(`product:${product.crawlerId}:${product.id}`, product, { ...removeOptions });
 };
 
 export const startProductQueue = () => {

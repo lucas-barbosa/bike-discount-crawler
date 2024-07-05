@@ -1,5 +1,5 @@
 import { type Job, type Queue } from 'bullmq';
-import { createQueue, createWorker } from '@crawlers/base/dist/queue/client';
+import { createQueue, createWorker, removeOptions } from '@crawlers/base/dist/queue/client';
 import { type OldStockResult } from '@crawlers/bike-discount/src/queue/old-stock';
 import { addOldStockToCache, hasOldStockChanged } from '#infrastructure/stock-cache';
 import { publishOldStockChanges } from '#publishers/stock';
@@ -26,7 +26,7 @@ export const oldStockWorker = () => {
 
 export const enqueueOldStock = async (data: OldStockResult) => {
   if (data.items.length) {
-    await queue.add(`old-stock:${data.id}-${data.items[0].id}`, data);
+    await queue.add(`old-stock:${data.id}-${data.items[0].id}`, data, { ...removeOptions });
   }
 };
 

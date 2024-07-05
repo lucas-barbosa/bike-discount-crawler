@@ -432,6 +432,7 @@ class BikeDiscountProduct extends BikeDiscountHelper {
 			}
 
 			do_action( 'lb_crawler_creating_product', $product, true );
+      if ( ! empty( $product->get_id() ) ) do_action( 'lb_multistore_new_product_sync_props', $product->get_id() );
 		}
 	}
 }
