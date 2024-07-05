@@ -29,12 +29,18 @@ export const categoryWorker = () => {
   return worker;
 };
 
-export const enqueueCategory = async (params: Category, recurring: string = '') => {
+export const cleanQueueCategory = async () => {
+  categoryQueue();
+  await queue.drain(true);
+};
+
+export const enqueueCategory = async (params: Category, recurring: number = 0) => {
   categoryQueue();
   await queue.add(`category:${params.categoryUrl}:${params.page ?? 1}`, params, {
-    ...(recurring && {
+    ...(!!recurring && {
       repeat: {
-        pattern: recurring
+        every: recurring,
+        startDate: new Date()
       }
     }),
     ...removeOptions

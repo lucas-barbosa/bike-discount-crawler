@@ -16,6 +16,7 @@ import {
   saveSelectedCategories,
   saveWeightRules
 } from '@infrastructure/crawler-settings';
+import { enqueueSelectedCategories } from '@usecases/enqueue-selected-categories';
 
 export const listDeniedBrands = async (req: Request, res: Response) => {
   const items = await getDeniedBrands();
@@ -64,6 +65,7 @@ export const storeSelectedCategories = async (req: Request, res: Response) => {
 
   const categories = body.data ?? [];
   await saveSelectedCategories(categories);
+  await enqueueSelectedCategories();
 
   return res.status(200).json({ categories });
 };

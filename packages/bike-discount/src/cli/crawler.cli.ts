@@ -17,6 +17,7 @@ import { enqueueOldStock, type OldStockResult } from '../queue/old-stock';
 import { validateProduct } from '@usecases/validate-product';
 import { fetchTranslation } from '@usecases/fetch-translation';
 import { fetchOldStocks } from '@usecases/fetch-old-stocks';
+import { enqueueSelectedCategories } from '@usecases/enqueue-selected-categories';
 
 export const getBikeDiscountCli = (
   publishStock: (stock: ProductStock) => Promise<any>,
@@ -221,6 +222,7 @@ export const getBikeDiscountCli = (
     .description('Crawler Category')
     .option('-u, --url <url>', 'Product Url')
     .option('-e, --enqueue', 'Enqueue job', false)
+    .option('-s, --selected', 'Enqueue selected categories', false)
     .action(async (params) => {
       console.log('Crawler Category');
       if (params.enqueue) {
@@ -228,6 +230,11 @@ export const getBikeDiscountCli = (
           categoryUrl: params.url
         });
         console.log('Category enqueued');
+      }
+      if (params.selected) {
+        console.log('Enqueuing selected-categories');
+        await enqueueSelectedCategories();
+        console.log('Selected-categories enqueued');
       }
     });
 

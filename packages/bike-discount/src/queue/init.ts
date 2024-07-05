@@ -1,5 +1,5 @@
 import { type CategoriesFoundCallback, startCategoriesQueue, categoriesQueue } from './categories';
-import { startCategoryQueue } from './category';
+import { categoryQueue, startCategoryQueue } from './category';
 import { type OldStockFoundCallback, oldStockQueue, startOldStockQueue } from './old-stock';
 import { type ProductFoundCallback, startProductQueue, productQueue } from './product';
 import { type StockFoundCallback, startStockQueue, stockQueue } from './stock';
@@ -34,6 +34,7 @@ export const queues = () => {
     stockQueue(),
     productQueue(),
     categoriesQueue(),
+    categoryQueue(),
     translationQueue()
   ];
 };
