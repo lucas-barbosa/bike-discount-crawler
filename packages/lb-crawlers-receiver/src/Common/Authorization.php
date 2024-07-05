@@ -19,7 +19,17 @@ class Authorization {
       return false;
     }
 
-    $site_key = 'teste';//MultistoreData::getKey();  
+    if ( ! defined( 'LB_CRAWLERS_APP' ) ) {
+      return false;
+    }
+
+    $crawlerConfig = unserialize( LB_CRAWLERS_APP );
+
+    if ( ! isset( $crawlerConfig['authentication'] ) ) {
+      return false;
+    }
+
+    $site_key = $crawlerConfig['authentication'];  
     return strcmp( $authorization, $site_key) === 0;
   }
 }

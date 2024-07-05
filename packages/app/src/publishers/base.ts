@@ -13,7 +13,7 @@ export const publish = async (path: string, data: any) => {
       data,
       version: '1.0',
       sendAt: new Date(),
-      headers: { authorization_key: 'teste' }
+      headers: { authorization_key: listener.authenticationKey }
     });
   });
 

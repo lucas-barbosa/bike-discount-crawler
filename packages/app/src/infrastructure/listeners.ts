@@ -7,9 +7,10 @@ export interface Listener {
   id: string
   url: string
   name: string
+  authenticationKey?: string
 };
 
-export const addListener = async (name: string, url: string) => {
+export const addListener = async (name: string, url: string, authenticationKey?: string) => {
   const urlPattern = /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$/;
 
   if (!urlPattern.test(url)) {
@@ -27,7 +28,8 @@ export const addListener = async (name: string, url: string) => {
   listeners.push({
     id,
     name,
-    url
+    url,
+    authenticationKey
   });
   await saveListeners(listeners);
   return listeners;
@@ -42,8 +44,8 @@ export const deleteListener = async (id: string) => {
   return modifiedListeners;
 };
 
-export const updateListener = async (id: string, name?: string, url?: string) => {
-  if (!name && !url) {
+export const updateListener = async (id: string, name?: string, url?: string, authenticationKey?: string) => {
+  if (!name && !url && !authenticationKey) {
     return null;
   }
 
@@ -64,7 +66,8 @@ export const updateListener = async (id: string, name?: string, url?: string) =>
     ? {
         id,
         name: name ?? x.name,
-        url: url ?? x.url
+        url: url ?? x.url,
+        authenticationKey: authenticationKey ?? x.authenticationKey ?? ''
       }
     : x);
 

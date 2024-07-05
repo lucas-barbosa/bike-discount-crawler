@@ -11,9 +11,10 @@ listenerCli.command('add')
   .description('Register a new listener')
   .requiredOption('-n, --name <name>', 'Listener Name')
   .requiredOption('-u, --url <url>', 'Listener Url')
+  .requiredOption('-a, --authentication <authentication>', 'Authentication Key')
   .action(async (params) => {
     console.log('Registering a new listener');
-    const result = await addListener(params.name, params.url);
+    const result = await addListener(params.name, params.url, params.authentication);
     console.log(result);
   });
 
@@ -31,9 +32,10 @@ listenerCli.command('update')
   .requiredOption('-i, --id <id>', 'Listener ID')
   .option('-n, --name <name>', 'Listener Name')
   .option('-u, --url <url>', 'Listener Url')
+  .option('-a, --authentication <authentication>', 'Authentication Key')
   .action(async (params) => {
     console.log('Updating an existing listener');
-    const result = await updateListener(params.id, params.name, params.url);
+    const result = await updateListener(params.id, params.name, params.url, params.authentication);
     console.log(result);
   });
 
