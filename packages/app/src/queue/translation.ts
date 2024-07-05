@@ -21,7 +21,9 @@ export const translationWorker = () => {
 };
 
 export const enqueueTranslation = async (translation: Translation) => {
-  await queue.add(`translation:${translation.crawlerId}:${translation.id}:${translation.language}`, translation);
+  await queue.add(`translation:${translation.crawlerId}:${translation.id}:${translation.language}`, translation, {
+    delay: 86400000 // 24 * 60 * 60 * 1000
+  });
 };
 
 export const startTranslationQueue = () => {
