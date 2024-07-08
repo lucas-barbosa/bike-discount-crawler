@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { load } from 'cheerio';
 import { type Category } from '@crawlers/base/dist/types/Category';
+import { addPrefixIfRelative } from '@crawler/utils/url';
 
 interface BarrabesCategory extends Category {
   isParent?: boolean
@@ -43,13 +44,6 @@ export const listProCategories = async (): Promise<Category[]> => {
   const url = 'https://www.barrabes.com/gama-profesionales/c-1406';
   const categories = await getSubcategories(url);
   return makeCategoriesTree(categories);
-};
-
-const addPrefixIfRelative = (url: string) => {
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    return url;
-  }
-  return `https://www.barrabes.com${url}`;
 };
 
 const getSubcategories = async (subcategoryUrl: string) => {

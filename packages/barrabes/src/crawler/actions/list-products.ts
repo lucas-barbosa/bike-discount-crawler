@@ -2,6 +2,7 @@ import axios from 'axios';
 import { load, type CheerioAPI } from 'cheerio';
 import { request } from '@crawler/utils/request';
 import { type CategorySearch } from '@crawlers/base/dist/types/CategorySearch';
+import { addPrefixIfRelative } from '@crawler/utils/url';
 
 export const listProducts = async (categoryUrl: string, pageNumber: number = 1): Promise<CategorySearch> => {
   let productLinks: string[] = [];
@@ -27,7 +28,10 @@ export const listProducts = async (categoryUrl: string, pageNumber: number = 1):
 
 const getProductUrls = ($: CheerioAPI) => {
   const products = $('.fichaProducto .card-content a');
-  return products.map((i, element) => $(element).attr('href') ?? '').get();
+  return products.map((i, element) => $(element).attr('href') ?? '')
+    .get()
+    .filter((url: string) => url.length > 0)
+    .map(addPrefixIfRelative);
 };
 
 const getHasNextPage = ($: CheerioAPI) => {
