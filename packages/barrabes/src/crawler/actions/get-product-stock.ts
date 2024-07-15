@@ -151,7 +151,7 @@ const getPrice = async (page: Page) => {
   return 0;
 }
 
-const getSku = async (page: Page) => {
+export const getSku = async (page: Page) => {
   const elements = await page.$$('#IdProH');
   if (!elements.length) return '';
   return await page.evaluate(x => x.getAttribute('value'), elements[0]) ?? '';

@@ -58,7 +58,7 @@ export const getProduct = async (productUrl: string, categoryUrl: string, langua
   return product;
 };
 
-const getTitle = async (page: Page) => {
+export const getTitle = async (page: Page) => {
   const titleItem = await page.$$('h1.product--header-name');
 
   if (titleItem.length < 1) {
@@ -106,7 +106,7 @@ const getCrossSelledProducts = async (page: Page) => {
    .map(url => addPrefixIfRelative(url));
 };
 
-const getDescription = async (page: Page) => {
+export const getDescription = async (page: Page) => {
   const element = await page.$$('.product--features .wysiwyg');
   if (!element.length) return '';
   const content = await page.evaluate(x => x.innerHTML, element[0]);
