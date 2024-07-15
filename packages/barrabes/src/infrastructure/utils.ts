@@ -1,6 +1,6 @@
 import { getRedis } from '@crawlers/base/dist/infrastructure/utils';
 
-const COLUMN_PREFIX = 'barrabes_crawler';
+export const COLUMN_PREFIX = 'barrabes_crawler';
 
 const redis = getRedis(COLUMN_PREFIX);
 export const getByKey = redis.getByKey;

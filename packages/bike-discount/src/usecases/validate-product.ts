@@ -1,8 +1,9 @@
 import { getCategoriesDimension, getCategoriesWeight, getDeniedBrands, getMaxAllowedSize, getMaxAllowedWeight, getMinAllowedPrice, getOverrideWeightCategories, getWeightRules } from '@infrastructure/crawler-settings';
 import { type Product } from '@entities/Product';
 import { type ProductVariation } from '@entities/ProductVariation';
-import { convertDimensionToUnit, convertWeightToUnit } from '@utils//converters';
+import { convertDimensionToUnit, convertWeightToUnit } from '@crawlers/base/dist/utils/converters';
 
+// TODO: replace with useValidateProduct
 export const validateProduct = async (product: Product) => {
   await validateProductBrand(product);
   await validateProductDimensions(product);
