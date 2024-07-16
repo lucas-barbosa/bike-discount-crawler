@@ -1,16 +1,19 @@
 import { Command } from 'commander';
 
+import { Product } from '@crawlers/base/dist/types/Product';
+import { ProductStock } from '@crawlers/base/dist/types/ProductStock';
+import { ProductTranslation } from '@crawlers/base/dist/types/ProductTranslation';
+
 import { fetchProduct } from '@usecases/fetch-product';
 import { fetchStock } from '@usecases/fetch-stock';
 import { fetchCategories } from '@usecases/fetch-categories';
 import { generateCategoriesTree } from '@usecases/generate-categories-tree';
-
-import { Product } from '@crawlers/base/dist/types/Product';
-import { ProductStock } from '@crawlers/base/dist/types/ProductStock';
-import { ProductTranslation } from '@crawlers/base/dist/types/ProductTranslation';
 import { fetchProductList } from '@usecases/fetch-product-list';
 import { getCategories } from '@infrastructure/categories';
 import { fetchTranslation } from '@usecases/fetch-translation';
+import { validateProduct } from '@usecases/validate-product';
+import { enqueueCategories } from '../queue/categories';
+import { enqueueCategory, enqueueSelectedCategories } from '../queue/category';
 
 export const getBarrabesCli = (
   publishStock?: (stock: ProductStock) => Promise<any>,
@@ -62,7 +65,7 @@ export const getBarrabesCli = (
       const result = await fetchProduct(params.url, params.category, params.language);
 
       if (result) {
-        // await validateProduct(result);
+        await validateProduct(result);
       }
 
       if (publishProduct && params.publish && result) {
@@ -116,8 +119,8 @@ export const getBarrabesCli = (
         }
         console.log(categories);
       } else if (params.enqueue) {
-        // await enqueueCategories();
-        // console.log('Categories enqueued');
+        await enqueueCategories();
+        console.log('Categories enqueued');
       }
     });
 
@@ -135,18 +138,18 @@ export const getBarrabesCli = (
         console.log(result);
       }
 
-      // if (params.enqueue) {
-      //   await enqueueCategory({
-      //     categoryUrl: params.url
-      //   });
-      //   console.log('Category enqueued');
-      // }
+      if (params.enqueue) {
+        await enqueueCategory({
+          categoryUrl: params.url
+        });
+        console.log('Category enqueued');
+      }
 
-      // if (params.selected) {
-      //   console.log('Enqueuing selected-categories');
-      //   await enqueueSelectedCategories();
-      //   console.log('Selected-categories enqueued');
-      // }
+      if (params.selected) {
+        console.log('Enqueuing selected-categories');
+        await enqueueSelectedCategories();
+        console.log('Selected-categories enqueued');
+      }
     });
 
   barrabesCli.command('categories-tree')
