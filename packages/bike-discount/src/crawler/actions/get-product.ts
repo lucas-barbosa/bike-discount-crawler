@@ -1,58 +1,60 @@
 import { type Page } from 'puppeteer';
-import { disposeCrawler, getClasses, getPropertyContent, getTextNode, getUrl } from '@crawler/utils/crawler';
+import { getClasses, getPropertyContent, getTextNode, getUrl } from '@crawler/utils/crawler';
 import { purifyHTML } from '@crawler/utils/html';
 import { Product } from '@entities/Product';
 import { getProductStock } from './get-product-stock';
 import { getCategoryTree } from '@crawlers/base/dist/infrastructure/categories-tree';
+import { runAndDispose } from '@crawlers/base/dist/crawler/utils';
 
 export const getProduct = async (productUrl: string, categoryUrl: string, language?: string): Promise<Product> => {
   const { page, browser, stock } = await getProductStock(productUrl, false, language);
 
-  const [
-    title,
-    attributes,
-    brand,
-    categories,
-    crossSelledProducts,
-    description,
-    dimension,
-    images,
-    weight
-  ] = await Promise.all([
-    getTitle(page),
-    getAttributes(page),
-    getBrand(page),
-    getCategories(categoryUrl),
-    getCrossSelledProducts(page),
-    getDescription(page),
-    getDimension(page),
-    getImages(page),
-    getWeight(page)
-  ]);
+  return runAndDispose(async () => {
+    const [
+      title,
+      attributes,
+      brand,
+      categories,
+      crossSelledProducts,
+      description,
+      dimension,
+      images,
+      weight
+    ] = await Promise.all([
+      getTitle(page),
+      getAttributes(page),
+      getBrand(page),
+      getCategories(categoryUrl),
+      getCrossSelledProducts(page),
+      getDescription(page),
+      getDimension(page),
+      getImages(page),
+      getWeight(page)
+    ]);
 
-  const product = new Product(
-    stock.id,
-    Number(stock.price),
-    title,
-    stock.sku,
-    productUrl,
-    categoryUrl
-  );
+    const product = new Product(
+      stock.id,
+      Number(stock.price),
+      title,
+      stock.sku,
+      productUrl,
+      categoryUrl
+    );
 
-  product.attributes = attributes;
-  product.availability = stock.availability;
-  product.brand = brand;
-  product.categories = categories;
-  product.crossSelledProducts = crossSelledProducts;
-  product.description = description;
-  product.dimensions = dimension;
-  product.images = images;
-  product.variations = stock.variations;
-  product.weight = weight;
-  product.crawlerId = 'BD';
+    product.attributes = attributes;
+    product.availability = stock.availability;
+    product.brand = brand;
+    product.categories = categories;
+    product.crossSelledProducts = crossSelledProducts;
+    product.description = description;
+    product.dimensions = dimension;
+    product.images = images;
+    product.variations = stock.variations;
+    product.weight = weight;
+    product.crawlerId = 'BD';
 
-  await disposeCrawler(page, browser);
-  return product;
+    return product;
+  }, page, browser);
 };
 
 export const getAttributes = async (page: Page) => {

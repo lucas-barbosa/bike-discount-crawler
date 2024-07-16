@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+import { getBarrabesCli } from '@crawlers/barrabes/dist/cli/crawler.cli';
 import { getBikeDiscountCli } from '@crawlers/bike-discount/dist/cli/crawler.cli';
 import { publishStockChanges, publishOldStockChanges } from '#publishers/stock';
 import { publishCategoriesChange } from '#publishers/categories';
@@ -19,6 +20,9 @@ const bikeDiscountCli = getBikeDiscountCli(
   publishTranslationChanges
 );
 
+const barrabesCli = getBarrabesCli();
+
 crawlersCli.addCommand(bikeDiscountCli);
+crawlersCli.addCommand(barrabesCli);
 
 export { crawlersCli };

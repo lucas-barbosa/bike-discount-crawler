@@ -1,6 +1,6 @@
 import { type ElementHandle, type Page } from 'puppeteer';
 
-import { disposeCrawler, getOnClick, getSrc, getTextNode, getUrl, hasClass } from '@crawlers/base/dist/crawler/utils';
+import { getOnClick, getSrc, getTextNode, getUrl, hasClass, runAndDispose } from '@crawlers/base/dist/crawler/utils';
 import { type ProductAttribute } from '@crawlers/base/dist/types/ProductAttribute';
 import { Product } from '@crawlers/base/dist/types/Product';
 import { getCategoryTree } from '@crawlers/base/dist/infrastructure/categories-tree';
@@ -12,50 +12,49 @@ import { getAttributes, getProductStock } from './get-product-stock';
 export const getProduct = async (productUrl: string, categoryUrl: string, language: string = 'pt'): Promise<any> => {
   const { page, browser, stock } = await getProductStock(productUrl, false, language);
 
-  const features = await getFeatures(page);
-  const [
-    title,
-    brand,
-    categories,
-    crossSelledProducts,
-    description,
-    images,
-    weight
-  ] = await Promise.all([
-    getTitle(page),
-    getBrand(page),
-    getCategories(categoryUrl),
-    getCrossSelledProducts(page),
-    getDescription(page),
-    getImages(page),
-    getWeight(features)
-  ]);
-  
-  const variationAttributes = await getAttributes(page);
-  const attributes = [...variationAttributes, ...features].filter(x => !!x);
+  return runAndDispose(async () => {
+    const features = await getFeatures(page);
+    const [
+      title,
+      brand,
+      categories,
+      crossSelledProducts,
+      description,
+      images,
+      weight
+    ] = await Promise.all([
+      getTitle(page),
+      getBrand(page),
+      getCategories(categoryUrl),
+      getCrossSelledProducts(page),
+      getDescription(page),
+      getImages(page),
+      getWeight(features)
+    ]);
+    
+    const variationAttributes = await getAttributes(page);
+    const attributes = [...variationAttributes, ...features].filter(x => !!x);
 
-  const product = new Product(
-    stock.id,
-    Number(stock.price),
-    title,
-    stock.sku,
-    productUrl,
-    categoryUrl
-  );
-  product.attributes = attributes;
-  product.availability = stock.availability;
-  product.brand = brand;
-  product.categories = categories;
-  product.crossSelledProducts = crossSelledProducts;
-  product.description = description;
-  product.images = images;
-  product.variations = stock.variations;
-  product.weight = weight;
-  product.crawlerId = 'BB';
-
-  await disposeCrawler(page, browser);
-  console.log(product)
-  return product;
+    const product = new Product(
+      stock.id,
+      Number(stock.price),
+      title,
+      stock.sku,
+      productUrl,
+      categoryUrl
+    );
+    product.attributes = attributes;
+    product.availability = stock.availability;
+    product.brand = brand;
+    product.categories = categories;
+    product.crossSelledProducts = crossSelledProducts;
+    product.description = description;
+    product.images = images;
+    product.variations = stock.variations;
+    product.weight = weight;
+    product.crawlerId = 'BB';
+    return product;
+  }, page, browser);
 };
 
 export const getTitle = async (page: Page) => {
@@ -128,7 +127,8 @@ const getFeatures = async (page: Page): Promise<ProductAttribute[]> => {
       return { name, value: [isDescription ? value : ''] };
     })
   );
-  return features.filter(feature => !!feature);
+  const filteredFeatures = features.filter(feature => feature !== null);
+  return filteredFeatures as any;
 };
 
 const getImages = async (page: Page) => {

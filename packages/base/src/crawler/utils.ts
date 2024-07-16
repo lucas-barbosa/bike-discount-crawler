@@ -1,6 +1,17 @@
 import { type CookieParam, type Browser, type Page, type ElementHandle } from 'puppeteer';
 import { getCrawlerClient } from './client';
 
+export const runAndDispose = async (callback: () => Promise<any>, page: Page, browser: Browser) => {
+  try {
+    const result = await callback();
+    return result;
+  } catch (err) {
+    throw err;
+  } finally {
+    await disposeCrawler(page, browser);
+  }
+};
+
 export const startCrawler = async (initialBrowser?: Browser) => {
   const client = getCrawlerClient();
   const browser = initialBrowser ?? await client.launch();

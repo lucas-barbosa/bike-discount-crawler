@@ -1,9 +1,9 @@
 // This method should be used to crawler stock of Manually Created Products (plugin v1)
 
 import { type Page } from 'puppeteer';
-import { disposeCrawler } from '@crawler/utils/crawler';
 import { ProductStock } from '@entities/ProductStock';
 import { navigate } from './navigate';
+import { runAndDispose } from '@crawlers/base/dist/crawler/utils';
 
 export interface OldProductRequest {
   productId: string
@@ -13,23 +13,24 @@ export interface OldProductRequest {
 export const getOldProductStock = async (productUrl: string, products: OldProductRequest[]) => {
   const { page, browser } = await navigate(productUrl, 'en');
 
-  const result = await Promise.all(products.map(async (product) => {
-    const attributeName = product.variationName.split('"')[0].replace(/\\(.)/mg, '$1');
+  const result = await runAndDispose(() => {
+    return Promise.all(products.map(async (product) => {
+      const attributeName = product.variationName.split('"')[0].replace(/\\(.)/mg, '$1');
 
-    const { price, availability } = await getVariationByAttribute(page, attributeName);
+      const { price, availability } = await getVariationByAttribute(page, attributeName);
 
-    const stock = new ProductStock(
-      product.productId,
-      Number(price),
-      'LB_CRAWLERS_OLD_PRODUCT',
-      availability
-    );
-    stock.crawlerId = 'BD';
+      const stock = new ProductStock(
+        product.productId,
+        Number(price),
+        'LB_CRAWLERS_OLD_PRODUCT',
+        availability
+      );
+      stock.crawlerId = 'BD';
 
-    return stock;
-  }));
+      return stock;
+    }));
+  }, page, browser);
 
-  await disposeCrawler(page, browser);
   return { stocks: result };
 };
 

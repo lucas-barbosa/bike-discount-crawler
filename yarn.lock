@@ -78,6 +78,7 @@ __metadata:
   resolution: "@crawlers/app@workspace:packages/app"
   dependencies:
     "@bull-board/express": "npm:^5.19.2"
+    "@crawlers/barrabes": "npm:*"
     "@crawlers/base": "workspace:^"
     "@crawlers/bike-discount": "npm:*"
     "@types/axios": "npm:^0.14.0"
@@ -104,7 +105,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@crawlers/barrabes@workspace:packages/barrabes":
+"@crawlers/barrabes@npm:*, @crawlers/barrabes@workspace:packages/barrabes":
   version: 0.0.0-use.local
   resolution: "@crawlers/barrabes@workspace:packages/barrabes"
   dependencies:
@@ -121,6 +122,7 @@ __metadata:
     eslint: "npm:^8.0.1"
     eslint-config-crawlers: "workspace:^"
     express: "npm:^4.19.2"
+    puppeteer: "npm:^22.0.0"
     redis: "npm:^4.6.13"
     tsc-alias: "npm:^1.8.8"
     tsx: "npm:^4.7.0"
@@ -134,6 +136,9 @@ __metadata:
   dependencies:
     "@types/node": "npm:^20.11.16"
     bullmq: "npm:^5.4.6"
+    puppeteer: "npm:^22.0.0"
+    puppeteer-extra: "npm:^3.3.6"
+    puppeteer-extra-plugin-stealth: "npm:^2.11.2"
     redis: "npm:^4.6.13"
     tsc-alias: "npm:^1.8.8"
     typescript: "npm:^5.3.3"

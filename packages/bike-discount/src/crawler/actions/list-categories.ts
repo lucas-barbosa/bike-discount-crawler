@@ -1,31 +1,33 @@
-import { disposeCrawler, getClasses, getTextNode, getUrl, startCrawler } from '@crawler/utils/crawler';
+import { getClasses, getTextNode, getUrl, startCrawler } from '@crawler/utils/crawler';
+import { runAndDispose } from '@crawlers/base/dist/crawler/utils';
 import { loginIfRequired } from '@middlewares/login-if-required';
 import { type Page } from 'puppeteer';
 
 export const listCategories = async () => {
   const { page, browser } = await startCrawler();
 
-  await page.goto('https://www.bike-discount.de/en');
+  return runAndDispose(async () => {
+    await page.goto('https://www.bike-discount.de/en');
 
-  await loginIfRequired(page);
+    await loginIfRequired(page);
 
-  const stores = await findStores(page);
-  const categories: BikeDiscountCategory[] = [];
+    const stores = await findStores(page);
+    const categories: BikeDiscountCategory[] = [];
 
-  for (const store of stores) {
-    let storeUrl = store.url;
-    if (storeUrl.startsWith('/')) storeUrl = 'https://bike-discount.de' + storeUrl;
-    await page.goto(storeUrl);
-    const storeCategories = await getCategoriesFromStore(page);
-    categories.push({
-      name: store.name,
-      url: store.url,
-      childs: storeCategories
-    });
-  }
+    for (const store of stores) {
+      let storeUrl = store.url;
+      if (storeUrl.startsWith('/')) storeUrl = 'https://bike-discount.de' + storeUrl;
+      await page.goto(storeUrl);
+      const storeCategories = await getCategoriesFromStore(page);
+      categories.push({
+        name: store.name,
+        url: store.url,
+        childs: storeCategories
+      });
+    }
 
-  await disposeCrawler(page, browser);
-  return categories;
+    return categories;
+  }, page, browser);
 };
 
 const findStores = async (page: Page): Promise<BikeDiscountStore[]> => {

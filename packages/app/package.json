@@ -17,6 +17,7 @@
     "build": "tsc && tsc-alias && cp -r ./src/api/views ./dist/src/api/views",
     "cli": "node dist/src/cli",
     "crawler": "node dist/src/cli crawler",
+    "crawler:bb": "node dist/src/cli crawler barrabes",
     "crawler:bd": "node dist/src/cli crawler bike-discount",
     "dev": "tsx watch -r dotenv/config src/index.ts",
     "lint": "eslint ./**/*.ts --quiet"
@@ -37,6 +38,7 @@
   },
   "dependencies": {
     "@bull-board/express": "^5.19.2",
+    "@crawlers/barrabes": "*",
     "@crawlers/base": "workspace:^",
     "@crawlers/bike-discount": "*",
     "axios": "^1.6.8",
