@@ -40,24 +40,24 @@
     }
 
     function renderTableData() {
-      if (lb_barrabes_crawler && lb_barrabes_crawler.weight_settings) {
-        if (lb_barrabes_crawler.weight_settings.length === 0) {
+      if (lb_crawlers_receiver_barrabes && lb_crawlers_receiver_barrabes.weight_settings) {
+        if (lb_crawlers_receiver_barrabes.weight_settings.length === 0) {
           renderRow();
           return;
         }
 
-        lb_barrabes_crawler.weight_settings.map(el => renderRow(el.min_weight, el.max_weight, el.min_price, el.max_size || ''));
+        lb_crawlers_receiver_barrabes.weight_settings.map(el => renderRow(el.min_weight, el.max_weight, el.min_price, el.max_size || ''));
       }
     }
 
     $(document).on('click', '#lb-barrabes-new-line', renderRow);
     $(document).on('click', '.lb-weight-delete', deleteRow);
 
-    const selectedCategories = lb_barrabes_crawler.selected_categories;
-    const viewedCategories = lb_barrabes_crawler.viewed_categories || [];
-    const overrideWeight = lb_barrabes_crawler.override_weight || [];
-    const categoriesWeight = lb_barrabes_crawler.categories_weight || {};
-    const categoriesDimension = lb_barrabes_crawler.categories_dimension || {};
+    const selectedCategories = lb_crawlers_receiver_barrabes.selected_categories;
+    const viewedCategories = lb_crawlers_receiver_barrabes.viewed_categories || [];
+    const overrideWeight = lb_crawlers_receiver_barrabes.override_weight || [];
+    const categoriesWeight = lb_crawlers_receiver_barrabes.categories_weight || {};
+    const categoriesDimension = lb_crawlers_receiver_barrabes.categories_dimension || {};
 
     const getCategoryWeight = (category) => {
       if (category && categoriesWeight[category]) return categoriesWeight[category];
@@ -185,8 +185,8 @@
     }
 
     renderTableData();
-    renderAvailableCategories(lb_barrabes_crawler.barrabes_categories, '#lb-barrabes-available-categories', '#lb-barrabes-save-categories');
-    renderAvailableCategories(lb_barrabes_crawler.pro_categories, '#lb-barrabes-pro-available-categories', '#lb-barrabes-save-categories');
+    renderAvailableCategories(lb_crawlers_receiver_barrabes.barrabes_categories, '#lb-barrabes-available-categories', '#lb-barrabes-save-categories');
+    renderAvailableCategories(lb_crawlers_receiver_barrabes.pro_categories, '#lb-barrabes-pro-available-categories', '#lb-barrabes-save-categories');
 
     const getValues = (field_name) => {
       const $selCatInputs = $(field_name);
@@ -215,11 +215,11 @@
 
       $.ajax({
         type: 'POST',
-        url: lb_barrabes_crawler.ajaxurl,
+        url: lb_crawlers_receiver_barrabes.ajaxurl,
         data: {
           categories: $categories,
           action: 'barrabes_process_selected_categories',
-          nonce: lb_barrabes_crawler.nonce
+          nonce: lb_crawlers_receiver_barrabes.nonce
         },
         dataType: 'JSON',
         success: function () {
@@ -236,11 +236,11 @@
 
       $.ajax({
         type: 'POST',
-        url: lb_barrabes_crawler.ajaxurl,
+        url: lb_crawlers_receiver_barrabes.ajaxurl,
         data: {
           viewed: $categories,
           action: 'barrabes_process_viewed_categories',
-          nonce: lb_barrabes_crawler.nonce
+          nonce: lb_crawlers_receiver_barrabes.nonce
         },
         dataType: 'JSON',
         success: function () {
@@ -257,11 +257,11 @@
 
       $.ajax({
         type: 'POST',
-        url: lb_barrabes_crawler.ajaxurl,
+        url: lb_crawlers_receiver_barrabes.ajaxurl,
         data: {
           overrides: $categories,
           action: 'barrabes_process_override_weight_categories',
-          nonce: lb_barrabes_crawler.nonce
+          nonce: lb_crawlers_receiver_barrabes.nonce
         },
         dataType: 'JSON',
         success: function () {
@@ -290,11 +290,11 @@
 
       $.ajax({
         type: 'POST',
-        url: lb_barrabes_crawler.ajaxurl,
+        url: lb_crawlers_receiver_barrabes.ajaxurl,
         data: {
           dimensions: $categories,
           action: 'barrabes_process_categories_dimension',
-          nonce: lb_barrabes_crawler.nonce
+          nonce: lb_crawlers_receiver_barrabes.nonce
         },
         dataType: 'JSON',
         success: function () {
@@ -323,11 +323,11 @@
 
       $.ajax({
         type: 'POST',
-        url: lb_barrabes_crawler.ajaxurl,
+        url: lb_crawlers_receiver_barrabes.ajaxurl,
         data: {
           weights: $categories,
           action: 'barrabes_process_categories_weight',
-          nonce: lb_barrabes_crawler.nonce
+          nonce: lb_crawlers_receiver_barrabes.nonce
         },
         dataType: 'JSON',
         success: function () {
