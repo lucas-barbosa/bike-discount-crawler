@@ -125,6 +125,12 @@ class PluginSettings {
     SettingsData::saveMaxWeight( $max_weight );
     SettingsData::saveMinPrice( $min_price );
     SettingsData::saveMaxSize( $max_size );
+    do_action( 'lb_crawlers_settings_changed', 'BB', 'weight_table', [
+      'data'      => $data,
+      'min'       => $min_price,
+      'maxWeight' => $max_weight,
+      'maxSize'   => $max_size
+    ] );
 
     wp_redirect( admin_url( 'admin.php?page=' . $this->page_name ) );
     exit;
@@ -142,7 +148,8 @@ class PluginSettings {
 
     $brands = sanitize_textarea_field( $_POST['denied_brands'] );
     SettingsData::saveDeniedBrands( $brands );
-    
+    do_action( 'lb_crawlers_settings_changed', 'BB', 'denied_brands', $brands );
+
     wp_redirect( admin_url( 'admin.php?page=' . $this->page_name ) );
     exit;    
   }

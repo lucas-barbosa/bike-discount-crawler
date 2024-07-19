@@ -29,6 +29,10 @@ class SaveSettingsAjax {
     }
 
     SettingsData::saveSelectedCategories($data);
+    $filteredCategories = array_filter( $data, function( $item ) {
+      return filter_var( $item, FILTER_VALIDATE_URL ) !== FALSE;
+    });
+    do_action( 'lb_crawlers_settings_changed', 'BB', 'selected_categories', array_values( $filteredCategories ) );
 
     return true;
   }
@@ -46,6 +50,7 @@ class SaveSettingsAjax {
       }
     }
     SettingsData::saveCategoriesDimension($categoriesDimension);
+    do_action( 'lb_crawlers_settings_changed', 'BB', 'categories_dimension', $categoriesDimension );
 
     return true;
   }
@@ -64,6 +69,7 @@ class SaveSettingsAjax {
     }
 
     SettingsData::saveCategoriesWeight($categoriesWeight);
+    do_action( 'lb_crawlers_settings_changed', 'BB', 'categories_weight', $categoriesWeight );
 
     return true;
   }
@@ -104,6 +110,7 @@ class SaveSettingsAjax {
     }
 
     SettingsData::saveCategoriesOverrideWeight($overrideWeightCategories);
+    do_action( 'lb_crawlers_settings_changed', 'BB', 'override_categories', $overrideWeightCategories );
   }
 
   private function validate_permission() {

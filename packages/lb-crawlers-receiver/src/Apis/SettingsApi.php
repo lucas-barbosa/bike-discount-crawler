@@ -22,6 +22,7 @@ class SettingsApi {
     ];
 
     $allowed_crawler_id = [
+      'BB'  => 'barrabes/settings',
       'BD'  => 'bike-discount/settings'
     ];
 
