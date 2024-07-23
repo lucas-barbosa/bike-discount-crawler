@@ -2,8 +2,8 @@
 
 namespace LucasBarbosa\LbCrawlersReceiver\Apis;
 
+use LucasBarbosa\LbCrawlersReceiver\Barrabes\Data\SettingsData as BarrabesSettings;
 use LucasBarbosa\LbCrawlersReceiver\Common\Authorization;
-use LucasBarbosa\LbCrawlersReceiver\Data\BikeDiscount;
 
 class CategoriesApi {
   protected $namespace = 'lb-crawlers/v1';
@@ -35,7 +35,19 @@ class CategoriesApi {
     }
 
     $data = $body['data'];
+
     if ($data['crawlerId'] === 'BD') $this->update_bd( $data['data'] );
+    else if ($data['crawlerId'] === 'BB') $this->update_barrabes( $data['data'] );
+  }
+
+  function update_barrabes( $data ) {
+    if ( isset( $data['barrabes'] ) ) {
+      BarrabesSettings::saveCategories( $data['barrabes'], false );
+    }
+
+    if ( isset( $data['pro'] ) ) {
+      BarrabesSettings::saveCategories( $data['pro'], true );
+    }
   }
 
   function update_bd( $data ) {
