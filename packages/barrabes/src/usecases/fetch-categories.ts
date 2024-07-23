@@ -1,4 +1,4 @@
-import { listCategories } from '@crawler/actions/list-categories';
+import { listCategories, listProCategories } from '@crawler/actions/list-categories';
 import { saveCategories } from '@infrastructure/categories';
 import { generateCategoriesTree } from './generate-categories-tree';
 
@@ -8,10 +8,20 @@ export const fetchCategories = async () => {
     return null;
   });
 
-  if (categories) {
-    await saveCategories(categories);
+  const proCategories = await listProCategories().catch(err => {
+    console.warn(err);
+    return null;
+  });
+
+  const allCategories = {
+    barrabes: categories || [],
+    pro: proCategories || []
+  };
+
+  if (categories || proCategories) {
+    await saveCategories(allCategories);
     await generateCategoriesTree();
   }
 
-  return categories;
+  return allCategories;
 };

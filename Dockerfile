@@ -10,6 +10,7 @@ COPY packages ./packages
 RUN ls -lh
 RUN yarn install 
 RUN yarn workspace @crawlers/base build
+RUN yarn workspace @crawlers/barrabes build
 RUN yarn workspace @crawlers/bike-discount build
 RUN yarn workspace @crawlers/app build
 
