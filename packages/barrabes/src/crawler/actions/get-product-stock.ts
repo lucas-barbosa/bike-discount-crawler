@@ -32,6 +32,7 @@ export const getProductStock = async (productUrl: string, dispose?: boolean, lan
   );
 
   stock.crawlerId = 'BB';
+  stock.url = productUrl;
 
   if (dispose) await disposeCrawler(page, browser);
   return {
@@ -40,7 +41,6 @@ export const getProductStock = async (productUrl: string, dispose?: boolean, lan
     browser
   };
 };
-
 
 const getBarrabesProductObject = async (page: Page) => {
   const scriptContent = await page.evaluate(() => {

@@ -6,6 +6,7 @@ export class ProductStock {
   id: string;
   price: number;
   sku: string;
+  url?: string;
   variations: ProductVariation[] = [];
 
   constructor (id: string, price: number, sku: string, availability: string, variations: ProductVariation[] = []) {

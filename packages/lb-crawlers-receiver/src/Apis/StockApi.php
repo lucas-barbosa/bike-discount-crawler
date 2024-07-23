@@ -2,6 +2,7 @@
 
 namespace LucasBarbosa\LbCrawlersReceiver\Apis;
 
+use LucasBarbosa\LbCrawlersReceiver\Barrabes\Api\BarrabesStock;
 use LucasBarbosa\LbCrawlersReceiver\Common\Authorization;
 use LucasBarbosa\LbCrawlersReceiver\Data\BikeDiscountStock;
 
@@ -36,11 +37,18 @@ class StockApi {
 
     $data = $body['data'];
     if ($data['crawlerId'] === 'BD') $this->update_bd_stock( $data );
+    else if ($data['crawlerId'] === 'BB') $this->update_bb_stock( $data );
   }
 
   function update_bd_stock( $data ) {
     if ( empty( $data['id'] ) ) return;
     $bd = new BikeDiscountStock();
+    $bd->handleUpdateStock( $data );
+  }
+
+  function update_bb_stock( $data ) {
+    if ( empty( $data['id'] ) ) return;
+    $bd = new BarrabesStock();
     $bd->handleUpdateStock( $data );
   }
 }
