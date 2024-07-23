@@ -1,7 +1,8 @@
 import { createBullBoard } from '@bull-board/api';
 import { BullAdapter } from '@bull-board/api/bullAdapter';
 import { ExpressAdapter } from '@bull-board/express';
-import { queues as bdQueues } from '@crawlers/bike-discount';
+import { queues as barrabesQueues } from '@crawlers/barrabes';
+import { queues as bikeDiscountQueues } from '@crawlers/bike-discount';
 import { productQueue } from '../queue/product';
 import { stockQueue } from '../queue/stock';
 import { translationQueue } from '../queue/translation';
@@ -16,7 +17,8 @@ const getQueues = () => {
     oldStockQueue(),
     productQueue(),
     translationQueue(),
-    ...bdQueues()
+    ...barrabesQueues(),
+    ...bikeDiscountQueues()
   ];
   return queues.map(x => new BullAdapter(x));
 };

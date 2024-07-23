@@ -1,3 +1,4 @@
+import { initQueue as initBarrabes } from '@crawlers/barrabes';
 import { initQueue as initBikeDiscount } from '@crawlers/bike-discount';
 import { handleCategoriesFound } from '#callbacks/handleCategoriesFound';
 import { handleProductFound } from '#callbacks/handleProductFound';
@@ -6,6 +7,13 @@ import { handleTranslationFound } from '#callbacks/handleTranslationFound';
 import { handleOldStockFound } from '#callbacks/handleOldStockFound';
 
 export const initCrawlers = async () => {
+  initBarrabes({
+    onCategoriesFound: handleCategoriesFound,
+    onProductFound: handleProductFound,
+    onStockFound: handleStockFound,
+    onTranslationFound: handleTranslationFound
+  });
+
   await initBikeDiscount({
     onCategoriesFound: handleCategoriesFound,
     onProductFound: handleProductFound,

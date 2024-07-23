@@ -20,7 +20,12 @@ const bikeDiscountCli = getBikeDiscountCli(
   publishTranslationChanges
 );
 
-const barrabesCli = getBarrabesCli();
+const barrabesCli = getBarrabesCli(
+  publishStockChanges,
+  publishCategoriesChange,
+  publishProductChanges,
+  publishTranslationChanges
+);
 
 crawlersCli.addCommand(bikeDiscountCli);
 crawlersCli.addCommand(barrabesCli);

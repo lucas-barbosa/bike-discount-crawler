@@ -3,7 +3,10 @@ import express from 'express';
 import session from 'express-session';
 import passport from 'passport';
 import { ensureLoggedIn } from 'connect-ensure-login';
+
+import { router as barrabesRoutes } from '@crawlers/barrabes';
 import { router as bikeDiscountRoutes } from '@crawlers/bike-discount';
+
 import queueUi from './queue-ui';
 import authRouter from './auth';
 import { setupPassportAuth } from './passport';
@@ -22,6 +25,7 @@ app.use(passport.authenticate('session'));
 
 app.get('/', (req, res) => res.send('Main Api running'));
 app.use('/', authRouter);
+app.use('/barrabes', barrabesRoutes);
 app.use('/bike-discount', bikeDiscountRoutes);
 app.use('/admin/queues', ensureLoggedIn({ redirectTo: '/admin/login' }), queueUi);
 

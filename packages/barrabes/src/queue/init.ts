@@ -1,4 +1,4 @@
-import { QueueParams } from '@crawlers/base/dist/types/Queue';
+import { type QueueParams } from '@crawlers/base/dist/types/Queue';
 import { startCategoriesQueue, categoriesQueue } from './categories';
 import { categoryQueue, startCategoryQueue } from './category';
 import { startProductQueue, productQueue } from './product';
