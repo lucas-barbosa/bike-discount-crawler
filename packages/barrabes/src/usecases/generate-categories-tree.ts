@@ -6,6 +6,10 @@ export const generateCategoriesTree = async () => {
   const categories = await getCategories();
   if (!categories) return;
 
-  const categoriesTree = getCategoriesTree(categories);
+  const allCategories = [
+    ...(categories.barrabes || []),
+    ...(categories.pro || [])
+  ];
+  const categoriesTree = getCategoriesTree(allCategories);
   await saveCategories('BB', categoriesTree);
 };

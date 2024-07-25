@@ -69,7 +69,7 @@
       return '';
     }
 
-    function renderCategory(root, id, name, parent = '', value = '', title = true) {
+    function renderCategory(root, id, name, parent = '', value = '', isTitle = true, hasChilds = true) {
       if (!value) value = id;
 
       const element = `
@@ -80,18 +80,19 @@
               name="sel_cat[]"
               value="${value}"
               ${value && selectedCategories.includes(value) ? 'checked' : ''}
-              ${title ? `class="lb-barrabes-title"` : ''}
-            >${!title ? `<a href="https://barrabes.com${value}" target="blank">${name}</a>` : name}
-            ${title ? `<button class="lb-barrabes-toggle" type="button">Exibir/Ocultar</button>` : ''}
+              ${isTitle ? `class="lb-barrabes-title"` : ''}
+            >${hasChilds ? name : `<a href="${value}" target="blank">${name}</a>`}
+            ${isTitle && hasChilds ? `<button class="lb-barrabes-toggle" type="button">Exibir/Ocultar</button>` : ''}
             </label>
 
-            ${title ? `<ul class="lb-barrabes-subitems"></ul>` : `
+            ${isTitle && hasChilds ? `<ul class="lb-barrabes-subitems"></ul>` : ''}
+            ${!hasChilds ? `
             <div style="display:inline-flex;gap:5px;align-items:center;">
               <div><input type="checkbox" name="vw_cat[]" value="${value}" ${value && viewedCategories.includes(value) ? 'checked' : ''}></div>
               <label><strong>Peso (g): </strong><input type="number" name="lt_wei[${value}]" style="width: 70px" min="0" step="any" value="${getCategoryWeight(value)}"></label>
               <label><strong>Dimensão (cm): </strong><input type="number" name="lt_dim[${value}]" style="width: 70px" min="0" step="any" value="${getCategoryDimension(value)}"></label>
               <label><input type="checkbox" name="ow_cat[]" value="${value}" ${value && overrideWeight.includes(value) ? 'checked' : ''}> Usar Peso?</label>
-            </div>`}
+            </div>` : ''}
         </li>
       `;
 
@@ -107,73 +108,24 @@
         .replace(/^-+|-+$/g, '');
 
     function renderAvailableCategories(categories, listId, saveId) {
-      if (categories) {
-        const parents = Object.keys(categories);
-
-        if (!parents.length) {
-          $(saveId).prop('disabled', true);
-          return;
-        }
-
-        const isSingleParent = parents.length === 1;
-
-        parents.map(parent => {
-          const parentSlug = slugify(parent);
-          const subParents = Object.keys(categories[parent]);
-
-          if (!subParents.length) return '';
-
-          if (!isSingleParent) {
-            renderCategory(listId, parentSlug, parent);
-          }
-
-          subParents.map(subParent => {
-            const subParentSlug = `${parentSlug}-${slugify(subParent)}`;
-            const url = categories[parent][subParent].url;
-            const childs = categories[parent][subParent].items;
-
-            if (!Array.isArray(childs)) {
-              const subChilds = Object.keys(childs);
-
-              renderCategory(listId, subParentSlug, subParent, isSingleParent ? '' : `#lb-barrabes-item_${parentSlug} ~ .lb-barrabes-subitems`, !subChilds.length ? url : '', subChilds.length > 0);
-
-              subChilds.map(child => {
-                const childSlug = `${subParentSlug}-${slugify(child)}`;
-                const item = childs[child];
-                const subitems = item.items;
-
-                renderCategory(listId, childSlug, child, `#lb-barrabes-item_${subParentSlug} ~ .lb-barrabes-subitems`, !subitems.length ? item.url : '', subitems.length > 0);
-
-                subitems.map(subitem => {
-                  const slug = `${childSlug}-${slugify(subitem.name)}`;
-                  renderCategory(listId, slug, subitem.name, `#lb-barrabes-item_${childSlug} ~ .lb-barrabes-subitems`, subitem.url, false);
-                });
-              });
-
-              return subParent;
-            }
-
-            renderCategory(listId, subParentSlug, subParent, isSingleParent ? '' : `#lb-barrabes-item_${parentSlug} ~ .lb-barrabes-subitems`, !childs.length ? url : '', childs.length > 0);
-
-            childs.map(item => {
-              const childSlug = `${subParentSlug}-${slugify(item.name)}`;
-
-              renderCategory(listId, childSlug, item.name, `#lb-barrabes-item_${subParentSlug} ~ .lb-barrabes-subitems`, item.items ? '' : item.url, !!item.items);
-
-              if (item.items) {
-                item.items.map(subitem => {
-                  const slug = `${childSlug}-${slugify(subitem.name)}`;
-                  renderCategory(listId, slug, subitem.name, `#lb-barrabes-item_${childSlug} ~ .lb-barrabes-subitems`, subitem.url, false);
-                });
-              }
-            });
-          });
-        });
-
-        $('.lb-barrabes-subitems').slideUp();
-      } else {
+      if (!categories) {
         $(saveId).prop('disabled', true);
       }
+
+      const renderCategories = (items, parentSlug) => {
+        items.map(item => {
+          const slug = `${parentSlug}${!!parentSlug ? '-' : ''}${slugify(item.name)}`;
+          const hasChilds = item.childs && item.childs.length > 0 ? true : false;
+          const parent = !parentSlug ? '' : `#lb-barrabes-item_${parentSlug} ~ .lb-barrabes-subitems`;
+
+          renderCategory(listId, slug, item.name, parent, !hasChilds ? item.url : '', hasChilds, hasChilds);
+
+          if (hasChilds) renderCategories(item.childs, slug);
+        });
+      };
+
+      renderCategories(categories, '');
+      $('.lb-barrabes-subitems').slideUp();
     }
 
     function selectAll() {

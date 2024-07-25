@@ -86,9 +86,6 @@ if( current_user_can( 'manage_woocommerce' ) ) {
     </form>
 
     <br>
-    <a href="<?php echo esc_url( $getCategoriesUrl ); ?>" class="button-secondary">Carregar Categorias Barrabes</a>
-    <a href="<?php echo esc_url( $getCategoriesUrl . "&is_pro_site=1" ); ?>" class="button-secondary">Carregar Categorias Barrabes Pro</a>
-    <a href="<?php echo esc_url( $runCrawlerUrl); ?>" class="button-secondary">Executar Crawler</a>
     <a href="<?php echo esc_url( $deleteProductsUrl); ?>" class="button-secondary">Deletar Produtos de Categorias Não Selecionadas</a>
 
     <hr />
