@@ -75,7 +75,7 @@ const makeCategoriesTree = (categories: BarrabesCategory[]) => {
     const barrabesCategory = categories[i];
     const category = {
       url: barrabesCategory.url,
-      childs: barrabesCategory.childs,
+      childs: makeCategoriesTree(barrabesCategory.childs),
       name: barrabesCategory.name
     };
 
@@ -86,6 +86,10 @@ const makeCategoriesTree = (categories: BarrabesCategory[]) => {
     } else {
       categoriesTemp.unshift(category);
     }
+  }
+
+  if (categoriesTemp.length) {
+    categoriesTree.unshift(...categoriesTemp);
   }
 
   return categoriesTree;
