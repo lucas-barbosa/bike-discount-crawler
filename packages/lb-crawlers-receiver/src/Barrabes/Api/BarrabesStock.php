@@ -4,7 +4,7 @@ namespace LucasBarbosa\LbCrawlersReceiver\Barrabes\Api;
 
 class BarrabesStock extends BarrabesHelper {
   function handleUpdateStock($data) {
-    $productId = $this->getProductId($data['id'], $data['sku']);
+    $productId = $this->getProductId($data['url'], $data['sku']);
 
     if (!$productId) {
       return;
@@ -30,6 +30,11 @@ class BarrabesStock extends BarrabesHelper {
     $price = $this->calculatePrice( $data['price'] );
     $availability = $data['availability'];
 
+    if ( empty( $availability ) && count( $data['variations'] ) === 1 ) {
+      // If product has only one variation, consider it as simple
+      $availability = $data['variations'][0]['availability'];
+    }
+
     $changed = parent::setPriceAndStock($product, $price, $availability);
     parent::saveProduct($product, $changed, $price, $availability);
   }
@@ -46,7 +51,10 @@ class BarrabesStock extends BarrabesHelper {
       $variationId = $this->getVariationId( $variation['id'], $variation['attributes'], $product );
 
       if ( empty( $variationId ) ) {
-        $this->appendVariation( $i, $product, $variation );
+        // Appened only new variations with stock
+        if ( $variation['availability'] !== 'outofstock') {
+          $this->appendVariation( $i, $product, $variation );
+        }
         continue;
       }
 
@@ -68,22 +76,24 @@ class BarrabesStock extends BarrabesHelper {
   }
 
   private function appendAttribute($product, $attribute_name, $attribute_value) {
-    $attribute = $product->get_attribute( $attribute_name );
+    $taxonomy_name= wc_attribute_taxonomy_name( wc_sanitize_taxonomy_name( stripslashes( $attribute_name ) ) );
+    $taxonomy = $this->addTaxonomyIfNotExists( $taxonomy_name, $attribute_name, [$attribute_value] );
+    $attribute = $product->get_attribute( $taxonomy );
 
     if ( !$attribute ) {
-      return;
+      return false;
     }
 
-    $taxonomy = wc_attribute_taxonomy_name( wc_sanitize_taxonomy_name( stripslashes( $attribute_name ) ) );
-    $taxonomy = $this->addTaxonomyIfNotExists( $taxonomy, $attribute_name, [$attribute_value] );
     wp_set_post_terms( $product->get_id(), $attribute_value, $taxonomy, true );
+    return true;
   }
 
   private function appendVariation($i, $product, $variation) {
     $attributes = $variation['attributes'];
 
     foreach ( $attributes as $attribute ) {
-      $this->appendAttribute($product, $attribute['name'], $attribute['value'][0]);
+      $appended = $this->appendAttribute($product, $attribute['name'], $attribute['value'][0]);
+      if ( ! $appended ) return;
     }
 
     $this->createVariation($i, $product, $variation);
