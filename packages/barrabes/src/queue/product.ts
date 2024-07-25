@@ -5,8 +5,7 @@ import { enqueueStock } from './stock';
 import { enqueueTranslation } from './translate';
 import { setProductSearched } from '@usecases/searched-products';
 import { createQueue, createWorker, removeOptions } from '@crawlers/base/dist/queue/client';
-import { ProductFoundCallback, ProductQueueItem } from '@crawlers/base/dist/types/Queue';
-
+import { type ProductFoundCallback, type ProductQueueItem } from '@crawlers/base/dist/types/Queue';
 
 const QUEUE_NAME = 'barrabes.product';
 

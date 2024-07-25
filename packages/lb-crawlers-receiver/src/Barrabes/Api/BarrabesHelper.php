@@ -83,7 +83,7 @@ class BarrabesHelper {
 			return $attributeIdFromCustomTable;
 		}
 
-    $optionName = 'sp_barrabes_' . $taxonomyLabel;
+    $optionName = 'sp_barrabes_attribute_' . $taxonomyLabel;
 		$attributeIdFromCache = CrawlerOptions::get( $optionName, '' );
 
 		if ( ! empty( $attributeIdFromCache ) && ! is_null( wc_get_attribute( $attributeIdFromCache ) ) ) {

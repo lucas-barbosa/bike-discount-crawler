@@ -1,5 +1,5 @@
 import { useValidateProduct } from '@crawlers/base/dist/usecases/validate-product';
-import { Product } from '@crawlers/base/dist/types/Product';
+import { type Product } from '@crawlers/base/dist/types/Product';
 import { crawlerSettings } from '@infrastructure/crawler-settings';
 
 export const validateProduct = async (product: Product) => {

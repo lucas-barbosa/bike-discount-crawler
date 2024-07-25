@@ -9,11 +9,11 @@ use LucasBarbosa\LbCrawlersReceiver\Data\CrawlerTermMetaData;
 class BarrabesMapper {
   static function setAttributeId( $barrabes_id, $id ) {
 		if ( empty( $barrabes_id ) ) return;
-		CrawlerOptions::insert( '_barrabes_attribute_' . $barrabes_id, $id );
+		CrawlerOptions::insert( 'barrabes_attribute_' . $barrabes_id, $id );
 	}
 
   static function getAttributeId( $id ) {
-		$value = CrawlerOptions::get( '_barrabes_attribute_' . $id );
+		$value = CrawlerOptions::get( 'barrabes_attribute_' . $id );
 
 		if ( ! empty( $value ) ) {
 			return $value;
