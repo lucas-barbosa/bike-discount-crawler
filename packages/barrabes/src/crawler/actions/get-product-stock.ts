@@ -4,6 +4,7 @@ import { type ProductAttribute } from '@crawlers/base/dist/types/ProductAttribut
 import { ProductStock } from '@crawlers/base/dist/types/ProductStock';
 import { ProductVariation } from '@crawlers/base/dist/types/ProductVariation';
 import { navigate } from '@crawler/utils/navigate';
+import { BARRABES_PRICE_MULTIPLICATOR } from '../../config';
 
 export const getProductStock = async (productUrl: string, dispose?: boolean, language?: string) => {
   const { page, browser } = await navigate(productUrl, language);
@@ -18,14 +19,16 @@ export const getProductStock = async (productUrl: string, dispose?: boolean, lan
     getAttributes(page)
   ]);
 
+  const originalPrice = Number(price);
+  const calculatedPrice = calculatePrice(originalPrice);
   const [availability, variations] = await Promise.all([
     getAvailability(page, sku),
-    getVariations(page, attributes, sku, price)
+    getVariations(page, attributes, sku, calculatedPrice)
   ]);
 
   const stock = new ProductStock(
     sku,
-    Number(price),
+    calculatedPrice,
     sku,
     availability,
     variations
@@ -33,6 +36,7 @@ export const getProductStock = async (productUrl: string, dispose?: boolean, lan
 
   stock.crawlerId = 'BB';
   stock.url = productUrl;
+  stock.metadata.originalPrice = originalPrice;
 
   if (dispose) await disposeCrawler(page, browser);
   return {
@@ -42,17 +46,23 @@ export const getProductStock = async (productUrl: string, dispose?: boolean, lan
   };
 };
 
+const calculatePrice = (price: number) => {
+  const multiplicator = BARRABES_PRICE_MULTIPLICATOR || 1;
+  const value = Math.round(price * multiplicator * 100) / 100;
+  return Math.round(Math.max(value, 0) * 100) / 100;
+};
+
 const getBarrabesProductObject = async (page: Page) => {
   const scriptContent = await page.evaluate(() => {
     const scriptTags = Array.from(document.querySelectorAll('script'));
-    for (let scriptTag of scriptTags) {
+    for (const scriptTag of scriptTags) {
       if (scriptTag.textContent?.includes('function CambiarTalla')) {
         return scriptTag.textContent;
       }
     }
     return null;
   });
-  
+
   if (scriptContent) {
     const lstProdMatch = scriptContent.match(/var lstProd = (\[[\s\S]*?\]);/);
     const lstProd = lstProdMatch ? JSON.parse(lstProdMatch[1]) : null;
@@ -60,13 +70,13 @@ const getBarrabesProductObject = async (page: Page) => {
   }
 
   return null;
-}
+};
 
 const getStockFromBarrabesObject = (productId: string, size: string, barrabesObject: any) => {
   if (!barrabesObject || !Array.isArray(barrabesObject)) return 'outofstock';
   const product = barrabesObject.find(product => product.IdProducto === Number(productId));
   if (product?.LST_VARIEDADES) {
-    const variation = !!size
+    const variation = size
       ? product.LST_VARIEDADES.find((variation: any) => variation.Talla === size || variation.TallaERP === size)
       : product.LST_VARIEDADES[0];
 
@@ -81,7 +91,7 @@ const getStockFromBarrabesObject = (productId: string, size: string, barrabesObj
     }
   }
   return 'outofstock';
-}
+};
 
 const getAvailability = async (page: Page, productId: string): Promise<string> => {
   const sizeElements = await page.$$('#listaTallas li');
@@ -95,7 +105,7 @@ export const getAttributes = async (page: Page): Promise<ProductAttribute[]> => 
   const colorVariationElements = await page.$$('#colorSeleccionado:not([hidden])');
   if (colorVariationElements.length) {
     const color = await getTextNode(page, colorVariationElements[0]);
-    if (!!color) {
+    if (color) {
       attributes.push({
         name: 'Cor',
         value: [color],
@@ -106,7 +116,7 @@ export const getAttributes = async (page: Page): Promise<ProductAttribute[]> => 
 
   const sizeElements = await page.$$('#listaTallas li');
   if (!sizeElements.length) return attributes;
-  
+
   const promises = sizeElements.map(async (size) => {
     const labelElement = await size.$('label');
     const label = await getTextNode(page, labelElement!);
@@ -147,9 +157,9 @@ const getPrice = async (page: Page) => {
     const price = await getTextNode(page, salePrice[0]);
     return sanitizePrice(price);
   }
-  
+
   return 0;
-}
+};
 
 export const getSku = async (page: Page) => {
   const elements = await page.$$('#IdProH');

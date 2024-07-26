@@ -17,18 +17,17 @@ class BarrabesStock extends BarrabesHelper {
     }
 
     parent::loadParams('lb_barrabes_stock');
-    $is_pro = $this->check_is_pro( $data );
 
     if ($product->is_type('simple')) {
-      $this->syncSimpleProduct( $product, $data, $is_pro );
+      $this->syncSimpleProduct( $product, $data );
       return;
     }
 
-    $this->syncVariableProduct( $product, $data, $is_pro );
+    $this->syncVariableProduct( $product, $data );
   }
 
-  private function syncSimpleProduct( $product, $data, $is_pro ) {
-    $price = $this->calculatePrice( $data['price'], $is_pro );
+  private function syncSimpleProduct( $product, $data ) {
+    $price = $data['price'];
     $availability = $data['availability'];
 
     if ( empty( $availability ) && count( $data['variations'] ) === 1 ) {
@@ -40,7 +39,7 @@ class BarrabesStock extends BarrabesHelper {
     parent::saveProduct($product, $changed, $price, $availability);
   }
 
-  private function syncVariableProduct( $product, $data, $is_pro ) {
+  private function syncVariableProduct( $product, $data ) {
     $existentVariations = $product->get_children( array(
     	'fields'      => 'ids',
     	'post_status' => array( 'publish', 'private' )
@@ -66,7 +65,7 @@ class BarrabesStock extends BarrabesHelper {
         continue;
       }
 
-      $price = $this->calculatePrice( $variation['price'], $is_pro );
+      $price = $variation['price'];
       $availability = $variation['availability'];
 
       $changed = parent::setPriceAndStock($variationProduct, $price, $availability);

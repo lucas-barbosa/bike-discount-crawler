@@ -14,14 +14,6 @@ class BarrabesHelper {
 		$this->stock = get_option( $stockName, '' );
 	}
 
-  protected function calculatePrice( $price, $is_pro ) {
-    $multiplicator = !!$is_pro
-      ? SettingsData::getProMultiplicator()
-      : SettingsData::getMultiplicator();
-    $value = round( $price * $multiplicator, 2 );
-		return round( max( $value, 0 ), 2 );
-	}
-
   protected function addTaxonomyIfNotExists( $taxonomySlug, $taxonomyLabel, $values = array() ) {
     // If taxonomy was created before, reuse it
     if ( isset( $this->taxonomies[ $taxonomySlug ] ) ) {
@@ -57,7 +49,7 @@ class BarrabesHelper {
 		return $taxonomy;
 	}
 
-	public function createVariation( $i, $wc_product, $variation, $is_pro ) {
+	public function createVariation( $i, $wc_product, $variation ) {
 		$attributes = $this->getWoocommerceVariationAttributes( $variation );
 
 		$wc_variation = $this->getWoocommerceVariation( $variation['id'], $wc_product, $attributes );
@@ -70,7 +62,7 @@ class BarrabesHelper {
 		$wc_variation->set_sku( $variationSku );
 		$wc_variation->set_attributes( $attributes );
 
-		$price = $this->calculatePrice( $variation['price'], $is_pro );
+		$price = $variation['price'];
     $stock = $variation['availability'];
 
 		$this->setPriceAndStock( $wc_variation, $price, $stock );

@@ -29,7 +29,7 @@ class BarrabesProduct extends BarrabesHelper {
 		}
 
     $is_pro = $this->check_is_pro( $data );
-    $price = $this->calculatePrice( $data['price'], $is_pro );
+    $price = $data['price'];
     $availability = $data['availability'];
 
     if ( empty( $availability ) && count( $data['variations'] ) === 1 ) {
@@ -41,7 +41,7 @@ class BarrabesProduct extends BarrabesHelper {
 		
     parent::saveProduct( $wc_product, true, $price, $availability );
 		$this->setCustomMetaData( $wc_product, $data );
-		$this->setAdditionalData( $wc_product, $data, $is_pro );
+		$this->setAdditionalData( $wc_product, $data );
 		$this->setSyncData( $wc_product, $is_new_product );
 		$this->setCrossSelledProducts( $wc_product, $data['crossSelledProducts'] );
   }
@@ -156,7 +156,7 @@ class BarrabesProduct extends BarrabesHelper {
 		return $imageIds;
 	}
 
-  private function createVariations( $product, array $variations, $is_pro ) {
+  private function createVariations( $product, array $variations ) {
     $existentVariations = $product->get_children( array(
 			'fields'      => 'ids',
 			'post_status' => array( 'publish', 'private' )
@@ -170,7 +170,7 @@ class BarrabesProduct extends BarrabesHelper {
 					continue;
 				}
 
-				$syncedVariations[] = $this->createVariation( $i, $product, $variation, $is_pro );
+				$syncedVariations[] = $this->createVariation( $i, $product, $variation );
 			}
 		} catch ( Exception $e ) {
 			/**
@@ -223,13 +223,13 @@ class BarrabesProduct extends BarrabesHelper {
     CrawlerPostMetaData::insert( $product->get_id(), '_lb_barrabes_url', $data['url'] );
   }
 
-  private function setAdditionalData( $wc_product, $data, $is_pro ) {
+  private function setAdditionalData( $wc_product, $data ) {
     $this->setBrand( $wc_product, $data['brand'] );
     $this->setAttributes( $wc_product, $data['attributes'] );
 
     if ( count( $data['variations'] ) > 1 ) {
       $variations = $data['variations'];
-      $this->createVariations( $wc_product, $variations, $is_pro );
+      $this->createVariations( $wc_product, $variations );
     }
   }
 
