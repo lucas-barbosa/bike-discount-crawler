@@ -2,6 +2,7 @@
 
 namespace LucasBarbosa\LbCrawlersReceiver\Apis;
 
+use LucasBarbosa\LbCrawlersReceiver\Barrabes\Api\BarrabesTranslation;
 use LucasBarbosa\LbCrawlersReceiver\Common\Authorization;
 use LucasBarbosa\LbCrawlersReceiver\Data\BikeDiscountTranslation;
 
@@ -36,6 +37,12 @@ class TranslateApi {
 
     $data = $body['data'];
     if ($data['crawlerId'] === 'BD') $this->bike_discount( $data );
+  }
+
+  function barrabes( $data ) {
+    if ( empty( $data['id'] ) ) return;
+    $bd = new BarrabesTranslation();
+    $bd->handleTranslateProduct( $data );
   }
 
   function bike_discount( $data ) {
