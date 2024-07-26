@@ -69,7 +69,7 @@ class BarrabesProduct extends BarrabesHelper {
 			$barrabesCategories = [];
 		}
 		
-    array_unshift( $category, $is_pro ? 'Profissional' : 'Esportivo' );
+    array_unshift( $barrabesCategories, $is_pro ? 'Profissional' : 'Esportivo' );
     $parentId = get_option( 'lb_barrabes_category', 0 );
 		$categoryIds = array();
 
@@ -305,28 +305,30 @@ class BarrabesProduct extends BarrabesHelper {
 		}
 	}
 
-  private function setDimensions( $product, array $dimensions, $weight ) {
+  private function setDimensions( $product, $dimensions, $weight ) {
     if ( is_array( $weight ) && empty( $product->get_weight() ) ) {
 			$convertedWeight = Utils::convertWeightToWoocommerceUnit( $weight['value'], $weight['unit'] );
 			$product->set_weight( $convertedWeight );
     }
 
-		$productUnit = isset( $dimensions['unit'] ) ? $dimensions['unit'] : 'cm';
+		if ( ! empty( $dimensions) ) {
+			$productUnit = isset( $dimensions['unit'] ) ? $dimensions['unit'] : 'cm';
 
-    if ( isset( $dimensions['height'] ) && empty( $product->get_height() )) {
-			$convertedHeight = Utils::convertDimensionToWoocommerceUnit( $dimensions['height'], $productUnit );
-      $product->set_height( $convertedHeight );
-    }
+			if ( isset( $dimensions['height'] ) && empty( $product->get_height() )) {
+				$convertedHeight = Utils::convertDimensionToWoocommerceUnit( $dimensions['height'], $productUnit );
+				$product->set_height( $convertedHeight );
+			}
 
-    if ( isset( $dimensions['length'] ) && empty( $product->get_length() )) {
-			$convertedLength = Utils::convertDimensionToWoocommerceUnit( $dimensions['length'], $productUnit );
-      $product->set_length( $convertedLength );
-    }
+			if ( isset( $dimensions['length'] ) && empty( $product->get_length() )) {
+				$convertedLength = Utils::convertDimensionToWoocommerceUnit( $dimensions['length'], $productUnit );
+				$product->set_length( $convertedLength );
+			}
 
-    if ( isset( $dimensions['width'] ) && empty( $product->get_width() )) {
-			$convertedWidth = Utils::convertDimensionToWoocommerceUnit( $dimensions['width'], $productUnit );
-      $product->set_width( $convertedWidth );
-    }
+			if ( isset( $dimensions['width'] ) && empty( $product->get_width() )) {
+				$convertedWidth = Utils::convertDimensionToWoocommerceUnit( $dimensions['width'], $productUnit );
+				$product->set_width( $convertedWidth );
+			}
+		}
 
     return $product;
   }
@@ -359,9 +361,9 @@ class BarrabesProduct extends BarrabesHelper {
 		if ( empty( $wc_product->get_sku() ) ) {
 			$wc_product->set_sku( 'BB-' . $data['sku'] );
 		}
-    
-    $wc_product = $this->setDimensions( $wc_product, $data['dimensions'], $data['weight'] );
-    $wc_product = $this->setImages( $wc_product, $data['images'] );
+	
+    $wc_product = $this->setDimensions( $wc_product, isset( $data['dimensions'] ) ? $data['dimensions'] : [], $data['weight'] );
+		$wc_product = $this->setImages( $wc_product, $data['images'] );
 
     $this->setPriceAndStock( $wc_product, $price, $availability );
     return $wc_product;
