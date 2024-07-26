@@ -36,7 +36,8 @@ class TranslateApi {
     }
 
     $data = $body['data'];
-    if ($data['crawlerId'] === 'BD') $this->bike_discount( $data );
+    if ($data['crawlerId'] === 'BB') $this->barrabes( $data );
+    else if ($data['crawlerId'] === 'BD') $this->bike_discount( $data );
   }
 
   function barrabes( $data ) {
