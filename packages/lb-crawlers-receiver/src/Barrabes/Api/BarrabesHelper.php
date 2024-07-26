@@ -14,12 +14,10 @@ class BarrabesHelper {
 		$this->stock = get_option( $stockName, '' );
 	}
 
-  protected function calculatePrice( $price ) {
-    // TODO: check it's pro website
-    // $multiplicator = $this->isProWebsite()
-    //   ? SettingsData::getProMultiplicator()
-    //   : SettingsData::getMultiplicator();
-    $multiplicator = SettingsData::getMultiplicator();
+  protected function calculatePrice( $price, $is_pro ) {
+    $multiplicator = !!$is_pro
+      ? SettingsData::getProMultiplicator()
+      : SettingsData::getMultiplicator();
     $value = round( $price * $multiplicator, 2 );
 		return round( max( $value, 0 ), 2 );
 	}
@@ -59,7 +57,7 @@ class BarrabesHelper {
 		return $taxonomy;
 	}
 
-	public function createVariation( $i, $wc_product, $variation ) {
+	public function createVariation( $i, $wc_product, $variation, $is_pro ) {
 		$attributes = $this->getWoocommerceVariationAttributes( $variation );
 
 		$wc_variation = $this->getWoocommerceVariation( $variation['id'], $wc_product, $attributes );
@@ -72,13 +70,27 @@ class BarrabesHelper {
 		$wc_variation->set_sku( $variationSku );
 		$wc_variation->set_attributes( $attributes );
 
-		$price = $this->calculatePrice( $variation['price'] );
+		$price = $this->calculatePrice( $variation['price'], $is_pro );
     $stock = $variation['availability'];
 
 		$this->setPriceAndStock( $wc_variation, $price, $stock );
 		$this->saveProduct( $wc_variation, true, $price, $stock );
 
 		return $wc_variation->get_id();
+	}
+
+  protected function check_is_pro( $data ) {
+    return is_array( $data['metadata'] ) && isset( $data['metadata']['isPro'] ) && !!$data['metadata']['isPro'];
+  }
+
+  protected function deleteNonUsedVariations( $existentVariations, $newVariations ) {
+		if ( ! empty( $existentVariations ) ) {
+			foreach ( $existentVariations as $variationId ) {
+				if ( ! in_array( $variationId, $newVariations ) ) {
+					wp_delete_post( $variationId, true );
+				}
+			}
+		}
 	}
 
   private function getAttributeTaxonomyId( $taxonomyLabel, $taxonomySlug ) {
@@ -196,25 +208,25 @@ class BarrabesHelper {
 		return $data_store->find_matching_product_variation( $wc_roduct, $attributes );
 	}
 
-  // protected function getWoocommerceProduct( string $id, string $sku, bool $isVariable ) {
-  //   $productId = $this->getProductId( $id, $sku );
-	// 	$new_product = true;
+  protected function getWoocommerceProduct( string $url, string $sku, bool $isVariable ) {
+    $productId = $this->getProductId( $url, $sku );
+		$new_product = true;
 
-	// 	if ( $productId ) {
-	// 		$new_product = false;
-	// 		$product = wc_get_product( $productId );		
+		if ( $productId ) {
+			$new_product = false;
+			$product = wc_get_product( $productId );		
 
-	// 		if ( $product && 0 < $product->get_parent_id() ) {
-	// 			$productId = $product->get_parent_id();
-	// 		}
-	// 	}
+			if ( $product && 0 < $product->get_parent_id() ) {
+				$productId = $product->get_parent_id();
+			}
+		}
 
-  //   if ( $isVariable ) {
-	// 		return [new \WC_Product_Variable((int) $productId ), $new_product];
-	// 	}
+    if ( $isVariable ) {
+			return [new \WC_Product_Variable((int) $productId ), $new_product];
+		}
 
-	// 	return [new \WC_Product((int) $productId ), $new_product];
-  // }
+		return [new \WC_Product((int) $productId ), $new_product];
+  }
 
   private function getWoocommerceVariation( $variationSku, $product, $variationAttributes ) {
 		$variationId = $this->getVariationId( $variationSku, $variationAttributes, $product );

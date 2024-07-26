@@ -2,6 +2,7 @@
 
 namespace LucasBarbosa\LbCrawlersReceiver\Apis;
 
+use LucasBarbosa\LbCrawlersReceiver\Barrabes\Api\BarrabesProduct;
 use LucasBarbosa\LbCrawlersReceiver\Common\Authorization;
 use LucasBarbosa\LbCrawlersReceiver\Data\BikeDiscountProduct;
 
@@ -35,10 +36,17 @@ class ProductApi {
     }
 
     $data = $body['data'];
-    if ($data['crawlerId'] === 'BD') $this->update_bd_product( $data );
+    if ($data['crawlerId'] === 'BB') $this->create_barrabes_product( $data );
+    else if ($data['crawlerId'] === 'BD') $this->create_bike_discount_product( $data );
   }
 
-  function update_bd_product( $data ) {
+  function create_barrabes_product( $data ) {
+    if ( empty( $data['id'] ) ) return;
+    $bd = new BarrabesProduct();
+    $bd->handleCreateProduct( $data );
+  }
+
+  function create_bike_discount_product( $data ) {
     if ( empty( $data['id'] ) ) return;
     $bd = new BikeDiscountProduct();
     $bd->handleCreateProduct( $data );
