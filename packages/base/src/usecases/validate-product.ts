@@ -42,7 +42,7 @@ export const useValidateProduct = (params: ValidateProductParams) => {
 
     const overrideWeight = await shouldOverrideWeight(product.categoryUrl);
 
-    if (!product.weight || overrideWeight) {
+    if (!product.weight?.value || overrideWeight) {
       const weightValue = await getDefaultCategoryWeight(product.categoryUrl);
       product.weight = {
         unit: 'g',

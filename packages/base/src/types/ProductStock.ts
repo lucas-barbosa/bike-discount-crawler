@@ -8,6 +8,7 @@ export class ProductStock {
   sku: string;
   url?: string;
   variations: ProductVariation[] = [];
+  metadata: Record<string, any> = {};
 
   constructor (id: string, price: number, sku: string, availability: string, variations: ProductVariation[] = []) {
     this.id = id;

@@ -14,11 +14,11 @@ export const fetchCategories = async () => {
   });
 
   const allCategories = {
-    barrabes: categories || [],
-    pro: proCategories || []
+    barrabes: categories ?? [],
+    pro: proCategories ?? []
   };
 
-  if (categories || proCategories) {
+  if (!!categories || !!proCategories) {
     await saveCategories(allCategories);
     await generateCategoriesTree();
   }

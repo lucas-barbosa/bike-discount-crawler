@@ -25,6 +25,11 @@ class BarrabesHelper {
 	}
 
   protected function addTaxonomyIfNotExists( $taxonomySlug, $taxonomyLabel, $values = array() ) {
+    // If taxonomy was created before, reuse it
+    if ( isset( $this->taxonomies[ $taxonomySlug ] ) ) {
+      return $this->taxonomies[ $taxonomySlug ];
+    }
+
 		$attribute_id = $this->getAttributeTaxonomyId( $taxonomyLabel, $taxonomySlug );
 
 		if ( ! is_wp_error( $attribute_id ) && $values ) {

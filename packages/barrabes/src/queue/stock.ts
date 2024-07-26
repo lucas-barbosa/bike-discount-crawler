@@ -1,9 +1,13 @@
 import { type Job, type Queue } from 'bullmq';
 import { fetchStock } from '@usecases/fetch-stock';
 import { createQueue, createWorker, removeOptions } from '@crawlers/base/dist/queue/client';
-import { StockFoundCallback, StockQueueItem } from '@crawlers/base/dist/types/Queue';
+import { type StockFoundCallback, type StockQueueItem } from '@crawlers/base/dist/types/Queue';
 
 const QUEUE_NAME = 'barrabes.product_stock';
+
+type BarrabesStockQueueItem = {
+  isPro?: boolean
+} & StockQueueItem;
 
 let queue: Queue;
 export const stockQueue = () => {
@@ -12,9 +16,9 @@ export const stockQueue = () => {
 };
 
 export const stockWorker = (onStockFound: StockFoundCallback) => {
-  const worker = createWorker(QUEUE_NAME, async ({ data }: Job<StockQueueItem>) => {
+  const worker = createWorker(QUEUE_NAME, async ({ data }: Job<BarrabesStockQueueItem>) => {
     console.log('STARTED loading stock', data);
-    const result = await fetchStock(data.url);
+    const result = await fetchStock(data.url, data.isPro);
     if (result) {
       console.log('Stock: ', result);
       await onStockFound(result);
@@ -24,9 +28,10 @@ export const stockWorker = (onStockFound: StockFoundCallback) => {
   return worker;
 };
 
-export const enqueueStock = async (productUrl: string) => {
+export const enqueueStock = async (productUrl: string, isPro?: boolean) => {
   stockQueue();
   await queue.add(`stock:${productUrl}`, {
+    isPro,
     url: productUrl
   }, {
     repeat: {

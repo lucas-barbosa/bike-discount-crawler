@@ -28,7 +28,7 @@ export const productWorker = (onProductFound: ProductFoundCallback) => {
         if (data.language !== 'en') {
           await enqueueTranslation(data.url, 'en');
         }
-        await enqueueStock(data.url);
+        await enqueueStock(data.url, result.metadata?.isPro);
         await onProductFound(result);
         await setProductSearched(data.url);
       }

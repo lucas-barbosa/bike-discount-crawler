@@ -34,10 +34,11 @@ export const getBarrabesCli = (
     .description('Crawler Product Stock')
     .requiredOption('-u, --url <url>', 'Product Url')
     .option('-p, --publish', 'Publish to Listeners', false)
+    .option('-pp, --pro', 'Is Pro Website', false)
     .action(async (params) => {
       console.log('Crawler Product Stock');
 
-      const result = await fetchStock(params.url)
+      const result = await fetchStock(params.url, params.pro)
         .catch((err: any) => {
           console.error('Failed to retrieve stock!', err);
           return null;

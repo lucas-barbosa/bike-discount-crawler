@@ -9,7 +9,7 @@ import { purifyHTML } from '@crawler/utils/html';
 import { addPrefixIfRelative } from '@crawler/utils/url';
 import { getAttributes, getProductStock } from './get-product-stock';
 
-export const getProduct = async (productUrl: string, categoryUrl: string, language: string = 'pt'): Promise<any> => {
+export const getProduct = async (productUrl: string, categoryUrl: string, language: string = 'pt'): Promise<Product> => {
   const { page, browser, stock } = await getProductStock(productUrl, false, language);
 
   return runAndDispose(async () => {
@@ -31,9 +31,10 @@ export const getProduct = async (productUrl: string, categoryUrl: string, langua
       getImages(page),
       getWeight(features)
     ]);
-    
+
     const variationAttributes = await getAttributes(page);
     const attributes = [...variationAttributes, ...features].filter(x => !!x);
+    const isProCategory = !categoryUrl.includes('barrabes.com/pt/');
 
     const product = new Product(
       stock.id,
@@ -53,6 +54,7 @@ export const getProduct = async (productUrl: string, categoryUrl: string, langua
     product.variations = stock.variations;
     product.weight = weight;
     product.crawlerId = 'BB';
+    product.metadata.isPro = isProCategory;
     return product;
   }, page, browser);
 };
@@ -102,7 +104,7 @@ const getCrossSelledProducts = async (page: Page) => {
     ...colorVariations,
     ...recommendedProducts
   ].filter(x => !!x)
-   .map(url => addPrefixIfRelative(url));
+    .map(url => addPrefixIfRelative(url));
 };
 
 export const getDescription = async (page: Page) => {

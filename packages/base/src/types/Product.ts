@@ -33,6 +33,7 @@ export class Product {
   url: string;
   variations: ProductVariation[] = [];
   weight?: Weight;
+  metadata: Record<string, any> = {};
 
   constructor (id: string, price: number, title: string, sku: string, url: string, categoryUrl: string) {
     this.id = id;
