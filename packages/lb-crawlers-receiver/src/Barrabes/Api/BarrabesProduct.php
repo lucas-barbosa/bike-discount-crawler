@@ -248,7 +248,7 @@ class BarrabesProduct extends BarrabesHelper {
 
 			$name = wc_sanitize_taxonomy_name( stripslashes( $attributeName ) );
 			$taxonomy = wc_attribute_taxonomy_name($name); // woocommerce prepend pa_ to each attribute name
-			$taxonomy = $this->addTaxonomyIfNotExists( $attributeName, $taxonomy, $values );
+			$taxonomy = $this->addTaxonomyIfNotExists( $taxonomy, $attributeName, $values );
 
 			$values = array_map( function ( $value ) {
 				if ( is_array( $value ) ) {
