@@ -68,7 +68,7 @@ const enqueueProducts = async (productUrls: string[], categoryUrl: string) => {
     const alreadySearched = await isProductSearched(productUrl).catch(() => false);
     if (!alreadySearched) pendingProducts.push(productUrl);
   }
-  await Promise.all(productUrls.map(url => enqueueProduct(url, categoryUrl)));
+  await Promise.all(pendingProducts.map(url => enqueueProduct(url, categoryUrl)));
 };
 
 export const startCategoryQueue = () => {
