@@ -20,10 +20,12 @@ class BarrabesStock extends BarrabesHelper {
 
     if ($product->is_type('simple')) {
       $this->syncSimpleProduct( $product, $data );
-      return;
+    } else {
+      $this->syncVariableProduct( $product, $data );
     }
 
-    $this->syncVariableProduct( $product, $data );
+    // After Barrabes changed the site version, we need to update the SKU to match the new version
+    $this->update_sku( $product, $data );
   }
 
   private function syncSimpleProduct( $product, $data ) {
@@ -73,6 +75,18 @@ class BarrabesStock extends BarrabesHelper {
     }
 
     $this->setNotFoundVariationsOutStock( $existentVariations, $syncedVariations );
+  }
+
+  private function update_sku( $product, $data ) {
+    if ( ! empty( $data['sku'] ) ) {
+      $barrabes_sku = wc_get_product_id_by_sku( 'BB-' . $data['sku'], 32 );
+      $product_sku = $product->get_sku();
+
+      if ( $barrabes_sku !== $product_sku ) {
+        $product->set_sku( $barrabes_sku );
+        $product->save();
+      }
+    }
   }
 
   private function appendAttribute($product, $attribute_name, $attribute_value) {
