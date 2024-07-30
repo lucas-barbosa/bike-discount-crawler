@@ -7,7 +7,7 @@ import { handleTranslationFound } from '#callbacks/handleTranslationFound';
 import { handleOldStockFound } from '#callbacks/handleOldStockFound';
 
 export const initCrawlers = async () => {
-  initBarrabes({
+  await initBarrabes({
     onCategoriesFound: handleCategoriesFound,
     onProductFound: handleProductFound,
     onStockFound: handleStockFound,
