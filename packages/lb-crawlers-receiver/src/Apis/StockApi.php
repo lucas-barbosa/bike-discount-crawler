@@ -47,7 +47,7 @@ class StockApi {
   }
 
   function update_bb_stock( $data ) {
-    if ( empty( $data['id'] ) ) return;
+    if ( empty( $data['id'] ) && empty( $data['url'] ) ) return;
     $bd = new BarrabesStock();
     $bd->handleUpdateStock( $data );
   }
