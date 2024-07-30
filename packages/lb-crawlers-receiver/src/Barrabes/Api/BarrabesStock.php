@@ -79,7 +79,7 @@ class BarrabesStock extends BarrabesHelper {
 
   private function update_sku( $product, $data ) {
     if ( ! empty( $data['sku'] ) ) {
-      $barrabes_sku = wc_get_product_id_by_sku( 'BB-' . $data['sku'], 32 );
+      $barrabes_sku = 'BB-' . $data['sku'];
       $product_sku = $product->get_sku();
 
       if ( $barrabes_sku !== $product_sku ) {
