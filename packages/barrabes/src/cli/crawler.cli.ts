@@ -66,8 +66,9 @@ export const getBarrabesCli = (
       if (params.stock) {
         const stream = createReadStream(params.stock).pipe(parse());
         for await (const url of stream) {
-          const isPro = url.includes('barrabes.com/pro/');
-          await enqueueStock(url, isPro);
+          const productUrl = Array.isArray(url) ? url[0] : url; 
+          const isPro = productUrl.includes('barrabes.com/pro/');
+          await enqueueStock(productUrl, isPro);
         }
       }
 
