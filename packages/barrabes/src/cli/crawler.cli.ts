@@ -60,35 +60,15 @@ export const getBarrabesCli = (
   barrabesCli.command('import')
     .description('Command to import urls to crawler')
     .option('-s, --stock <stock>', 'Stock File path')
-    .option('-o, --oldStock <oldStock>', 'Old Stock File path')
     .action(async (params) => {
       console.log('Import File');
 
       if (params.stock) {
         const stream = createReadStream(params.stock).pipe(parse());
         for await (const url of stream) {
-          await enqueueStock(url);
+          const isPro = url.includes('barrabes.com/pro/');
+          await enqueueStock(url, isPro);
         }
-      } else if (params.oldStock) {
-        // const stream = createReadStream(params.oldStock).pipe(parse());
-        // const grouped: Record<string, {
-        //   url: string
-        //   items: any[]
-        // }> = {};
-        // for await (const [id, url, variation] of stream) {
-        //   if (!id || !url || !variation) continue;
-        //   const key = url as string;
-        //   if (!grouped[key]) {
-        //     grouped[key] = {
-        //       url,
-        //       items: [{ productId: id, variationName: variation }]
-        //     };
-        //   } else {
-        //     grouped[key].items.push({ productId: id, variationName: variation });
-        //   }
-        // }
-
-        // await Promise.all(Object.entries(grouped).map(([k, v]) => enqueueOldStock(k, v.items)));
       }
 
       console.log('Finished');
