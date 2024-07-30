@@ -1,4 +1,4 @@
-import { type ProductStock } from '@crawlers/bike-discount/src/types/ProductStock';
+import { type ProductStock } from '@crawlers/base/dist/types/ProductStock';
 import { type OldStockResult } from '@crawlers/bike-discount/src/queue/old-stock';
 import { getByKey, saveByKey } from './redis';
 
@@ -6,8 +6,12 @@ const COLUMN_NAME = 'stock-cache';
 
 const getColumName = (id: string, crawlerId: string) => `${COLUMN_NAME}_${id}_${crawlerId}`;
 
+const getStockId = (stock: ProductStock) => {
+  return (stock.id || stock.url) ?? '';
+};
+
 export const addStockToCache = async (stock: ProductStock) => {
-  await saveByKey(getColumName(stock.id, stock.crawlerId), JSON.stringify(stock));
+  await saveByKey(getColumName(getStockId(stock), stock.crawlerId), JSON.stringify(stock));
 };
 
 export const addOldStockToCache = async ({ items }: OldStockResult) => {
@@ -21,14 +25,14 @@ export const retrieveStockFromCache = async (id: string, crawlerId: string) => {
 };
 
 export const hasStockChanged = async (stock: ProductStock) => {
-  const existingCache = await retrieveStockFromCache(stock.id, stock.crawlerId);
+  const existingCache = await retrieveStockFromCache(getStockId(stock), stock.crawlerId);
   if (!existingCache) return true;
   return isCachedStockUpdated(stock, existingCache);
 };
 
 export const hasOldStockChanged = async ({ items }: OldStockResult) => {
   for (const stock of items) {
-    const existingCache = await retrieveStockFromCache(stock.id, stock.crawlerId);
+    const existingCache = await retrieveStockFromCache(getStockId(stock), stock.crawlerId);
     if (!existingCache) return true;
 
     const isUpdated = isCachedStockUpdated(stock, existingCache);
@@ -38,7 +42,7 @@ export const hasOldStockChanged = async ({ items }: OldStockResult) => {
 };
 
 const isCachedStockUpdated = (currentStock: ProductStock, cachedStock: ProductStock) => {
-  if (currentStock.id !== cachedStock.id ||
+  if (getStockId(currentStock) !== getStockId(cachedStock) ||
     currentStock.price !== cachedStock.price ||
     currentStock.availability !== cachedStock.availability ||
     currentStock.variations?.length !== cachedStock.variations?.length) {

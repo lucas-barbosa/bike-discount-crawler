@@ -1,7 +1,7 @@
 import { type Page } from 'puppeteer';
+import { ProductStock } from '@crawlers/base/dist/types/ProductStock';
 import { disposeCrawler, getPropertyContent } from '@crawler/utils/crawler';
 import { ProductVariation } from '@entities/ProductVariation';
-import { ProductStock } from '@entities/ProductStock';
 import { navigate } from './navigate';
 
 export const getProductStock = async (productUrl: string, dispose?: boolean, language?: string) => {
@@ -25,11 +25,11 @@ export const getProductStock = async (productUrl: string, dispose?: boolean, lan
     id,
     Number(price),
     sku,
-    availability
+    availability,
+    variations
   );
 
   stock.crawlerId = 'BD';
-  stock.variations = variations;
 
   if (dispose) await disposeCrawler(page, browser);
   return {

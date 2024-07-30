@@ -1,4 +1,4 @@
-import { type ProductStock } from '@crawlers/bike-discount/src/types/ProductStock';
+import { type ProductStock } from '@crawlers/base/dist/types/ProductStock';
 import { publish } from './base';
 import { type OldStockResult } from '@crawlers/bike-discount/src/queue/old-stock';
 

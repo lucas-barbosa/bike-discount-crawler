@@ -1,6 +1,6 @@
 import { type Job, type Queue } from 'bullmq';
 import { createQueue, createWorker, removeOptions } from '@crawlers/base/dist/queue/client';
-import { type ProductStock } from '@crawlers/bike-discount/dist/types/ProductStock';
+import { type ProductStock } from '@crawlers/base/dist/types/ProductStock';
 import { publishStockChanges } from '#publishers/stock';
 import { addStockToCache, hasStockChanged } from '#infrastructure/stock-cache';
 

@@ -1,7 +1,7 @@
 // This method should be used to crawler stock of Manually Created Products (plugin v1)
 
 import { type Page } from 'puppeteer';
-import { ProductStock } from '@entities/ProductStock';
+import { ProductStock } from '@crawlers/base/dist/types/ProductStock';
 import { navigate } from './navigate';
 import { runAndDispose } from '@crawlers/base/dist/crawler/utils';
 

@@ -1,7 +1,7 @@
 import { type Job, type Queue } from 'bullmq';
+import { type ProductStock } from '@crawlers/base/dist/types/ProductStock';
 import { createQueue, createWorker } from '../client';
 import { fetchStock } from '@usecases/fetch-stock';
-import { type ProductStock } from '@entities/ProductStock';
 import { removeOptions } from '@crawlers/base/dist/queue/client';
 
 export type StockFoundCallback = (stock: ProductStock) => Promise<any>;

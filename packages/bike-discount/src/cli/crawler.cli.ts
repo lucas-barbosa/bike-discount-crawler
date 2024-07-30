@@ -7,7 +7,6 @@ import { fetchStock } from '@usecases/fetch-stock';
 import { fetchCategories } from '@usecases/fetch-categories';
 import { generateCategoriesTree } from '@usecases/generate-categories-tree';
 import { type Product } from '@entities/Product';
-import { type ProductStock } from '@entities/ProductStock';
 import { type Translation } from '@entities/Translation';
 import { getCategories } from '@infrastructure/categories';
 import { enqueueStock } from '../queue/stock/index';
@@ -18,6 +17,7 @@ import { validateProduct } from '@usecases/validate-product';
 import { fetchTranslation } from '@usecases/fetch-translation';
 import { fetchOldStocks } from '@usecases/fetch-old-stocks';
 import { enqueueSelectedCategories } from '@usecases/enqueue-selected-categories';
+import { type ProductStock } from '@crawlers/base/dist/types/ProductStock';
 
 export const getBikeDiscountCli = (
   publishStock: (stock: ProductStock) => Promise<any>,
