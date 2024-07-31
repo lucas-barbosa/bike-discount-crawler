@@ -188,16 +188,16 @@ class BarrabesHelper {
     return null;
   }
 
-  private function getVariationIdByAttributes( $variationAttributes, $wc_roduct ) {
+  private function getVariationIdByAttributes( $variationAttributes, $wc_product ) {
 		$data_store = \WC_Data_Store::load( 'product' );
 
     $attributes = [];
 
-    foreach ( $variationAttributes as $key => $value ) {
-      $attributes[ 'attribute_' . $key ] = $value;
+    foreach ( $variationAttributes as $name => $value ) {
+      $attributes[ 'attribute_' . $name ] = $value;
     }
 
-		return $data_store->find_matching_product_variation( $wc_roduct, $attributes );
+		return $data_store->find_matching_product_variation( $wc_product, $attributes );
 	}
 
   protected function getWoocommerceProduct( string $url, string $sku, bool $isVariable ) {
@@ -226,7 +226,7 @@ class BarrabesHelper {
 		return $variation;
 	}
 
-  private function getWoocommerceVariationAttributes( $product ) {
+  protected function getWoocommerceVariationAttributes( $product ) {
     $formattedAttributes = [];
     $attributes = $product['attributes'];
 

@@ -50,7 +50,8 @@ class BikeDiscountStock extends BikeDiscountHelper {
     $syncedVariations = [];
 
     foreach ($data['variations'] as $i => $variation) {
-      $variationId = $this->getVariationId( $variation['id'], $variation['attributes'], $product );
+      $attributes = $this->getWoocommerceVariationAttributes( $variation );
+      $variationId = $this->getVariationId( $variation['id'], $attributes, $product );
 
       if ( empty( $variationId ) ) {
         $this->appendVariation( $i, $product, $variation );

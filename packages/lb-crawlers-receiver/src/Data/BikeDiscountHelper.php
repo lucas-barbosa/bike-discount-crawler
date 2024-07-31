@@ -466,7 +466,7 @@ class BikeDiscountHelper {
 		return $variation;
 	}
 
-  private function getWoocommerceVariationAttributes( $product ) {
+  protected function getWoocommerceVariationAttributes( $product ) {
     $formattedAttributes = [];
     $attributes = $product['attributes'];
 
