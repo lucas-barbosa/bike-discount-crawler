@@ -1,4 +1,5 @@
-const COUNTRY_PORTUGAL_ID = 159;
+import { COUNTRY_PORTUGAL_ID } from '../../config';
+
 export const PAGE_SIZE = 96;
 
 const getCategoryFilter = (categoryId: string) => ({

@@ -8,6 +8,7 @@ export class ProductVariation {
   upc: string;
   price: number;
   invalid: boolean = false;
+  metadata: Record<string, any> = {};
 
   constructor (id: string, attributes: ProductAttribute[], availability: number, ean: string, upc: string, price: number) {
     this.id = id;
