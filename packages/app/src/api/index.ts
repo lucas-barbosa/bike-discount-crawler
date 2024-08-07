@@ -6,6 +6,7 @@ import { ensureLoggedIn } from 'connect-ensure-login';
 
 import { router as barrabesRoutes } from '@crawlers/barrabes';
 import { router as bikeDiscountRoutes } from '@crawlers/bike-discount';
+import { router as tradeinnRoutes } from '@crawlers/tradeinn';
 
 import queueUi from './queue-ui';
 import authRouter from './auth';
@@ -27,6 +28,7 @@ app.get('/', (req, res) => res.send('Main Api running'));
 app.use('/', authRouter);
 app.use('/barrabes', barrabesRoutes);
 app.use('/bike-discount', bikeDiscountRoutes);
+app.use('/tradeinn', tradeinnRoutes);
 app.use('/admin/queues', ensureLoggedIn({ redirectTo: '/admin/login' }), queueUi);
 
 export { app as api };
