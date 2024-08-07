@@ -79,7 +79,7 @@ const getAttributes = async (productJson: any, page: Page): Promise<ProductAttri
   ];
 };
 
-const getTitle = (productJson: any, language: string) => {
+export const getTitle = (productJson: any, language: string) => {
   const title = {
     pt: productJson.model.por || productJson.model.eng,
     es: productJson.model.spa || productJson.model.eng,
