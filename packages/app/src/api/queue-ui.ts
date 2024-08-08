@@ -4,6 +4,7 @@ import { ExpressAdapter } from '@bull-board/express';
 import { queues as barrabesQueues } from '@crawlers/barrabes';
 import { queues as bikeDiscountQueues } from '@crawlers/bike-discount';
 import { productQueue } from '../queue/product';
+import { productImageQueue } from '../queue/product-image';
 import { stockQueue } from '../queue/stock';
 import { translationQueue } from '../queue/translation';
 import { oldStockQueue } from '#queue/old-stock';
@@ -16,6 +17,7 @@ const getQueues = () => {
     stockQueue(),
     oldStockQueue(),
     productQueue(),
+    productImageQueue(),
     translationQueue(),
     ...barrabesQueues(),
     ...bikeDiscountQueues()
