@@ -17,6 +17,7 @@ import { validateProduct } from '@usecases/validate-product';
 import { enqueueCategories } from '../queue/categories';
 import { enqueueCategory, enqueueSelectedCategories } from '../queue/category';
 import { enqueueStock } from '../queue/stock';
+import { enqueueProductImage } from '../queue/product-image';
 
 export const getBarrabesCli = (
   publishStock?: (stock: ProductStock) => Promise<any>,
@@ -60,15 +61,24 @@ export const getBarrabesCli = (
   barrabesCli.command('import')
     .description('Command to import urls to crawler')
     .option('-s, --stock <stock>', 'Stock File path')
+    .option('-i, --images <images>', 'Product Images File path')
     .action(async (params) => {
       console.log('Import File');
 
       if (params.stock) {
         const stream = createReadStream(params.stock).pipe(parse());
         for await (const url of stream) {
-          const productUrl = Array.isArray(url) ? url[0] : url; 
+          const productUrl = Array.isArray(url) ? url[0] : url;
           const isPro = productUrl.includes('barrabes.com/pro/');
           await enqueueStock(productUrl, isPro);
+        }
+      }
+
+      if (params.images) {
+        const stream = createReadStream(params.images).pipe(parse());
+        for await (const url of stream) {
+          const productUrl = Array.isArray(url) ? url[0] : url;
+          await enqueueProductImage(productUrl);
         }
       }
 

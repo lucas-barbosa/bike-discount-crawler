@@ -10,6 +10,7 @@ export type TranslationFoundCallback = (translation: ProductTranslation) => Prom
 export type QueueParams = {
   onCategoriesFound: CategoriesFoundCallback;
   onProductFound: ProductFoundCallback;
+  onProductImageFound?: ProductFoundCallback;
   onStockFound: StockFoundCallback;
   onTranslationFound: TranslationFoundCallback;
 };

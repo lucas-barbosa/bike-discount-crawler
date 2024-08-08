@@ -5,13 +5,15 @@ import { handleProductFound } from '#callbacks/handleProductFound';
 import { handleStockFound } from '#callbacks/handleStockFound';
 import { handleTranslationFound } from '#callbacks/handleTranslationFound';
 import { handleOldStockFound } from '#callbacks/handleOldStockFound';
+import { handleProductImageFound } from '#callbacks/handleProductImageFound';
 
 export const initCrawlers = async () => {
   await initBarrabes({
     onCategoriesFound: handleCategoriesFound,
     onProductFound: handleProductFound,
     onStockFound: handleStockFound,
-    onTranslationFound: handleTranslationFound
+    onTranslationFound: handleTranslationFound,
+    onProductImageFound: handleProductImageFound
   });
 
   await initBikeDiscount({
