@@ -131,7 +131,7 @@ class BarrabesProduct extends BarrabesHelper {
 		return array_unique( $categoryIds );
 	}
 
-  private function addImages( $imageUrls ) {
+  protected function addImages( $imageUrls ) {
 		static $images = array();
 		
 		$imageIds = array();
@@ -333,11 +333,15 @@ class BarrabesProduct extends BarrabesHelper {
     return $product;
   }
 
-  private function setImages( $product, array $images ) {
+  protected function setImages( $product, array $images, $should_save = false ) {
 		if ( empty( $product->get_gallery_image_ids() ) ) {
 			$imageIds = $this->addImages( array_unique( $images ) );
 			$product->set_image_id( count( $imageIds ) > 0 ? array_shift( $imageIds ) : '');
 			$product->set_gallery_image_ids( $imageIds );
+
+      if ( $should_save ) {
+        $product->save();
+      }
 		}
 
     return $product;
