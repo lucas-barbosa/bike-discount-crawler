@@ -71,6 +71,8 @@ const sportsStores = {
   28: 'nutrition'
 } as any;
 
+const addPrefixToUrl = (url: string) => `https://www.tradeinn.com${url}`;
+
 const getStoreCategories = async (store: TradeInnStore): Promise<BarrabesCategory[]> => {
   const url = `https://www.tradeinn.com/get_dades.php?tienda_super_forzada=1&id_tienda_forzada=${store.id}`;
   const { data } = await axios.get(url);
@@ -89,7 +91,7 @@ const formatSportsCategories = (categories: TradeInnStoreCategory[], storeName: 
       return {
         id: sanitizedKey,
         name: categoryName,
-        url: parentUrl,
+        url: addPrefixToUrl(parentUrl),
         childs: formatCategories((categories as any)[key], parentUrl)
       };
     });
@@ -99,27 +101,28 @@ const formatCategories = (categories: TradeInnStoreCategory[], parentUrl: string
   return Object.entries<TradeInnStoreCategory>(categories)
     .map(([categoryId, category]) => {
       const categoryName = category.por;
-      const categoryHref = `/${parentUrl}/${normalize(categoryName)}/${categoryId}/f`;
+      const categoryHref = `/${parentUrl}/${normalize(categoryName)}/${categoryId}/f?parentId=${categoryId}`;
 
-      const subcategories = formatSubcategories(category.subfamilias, categoryName, parentUrl);
+      const subcategories = formatSubcategories(category.subfamilias, categoryName, parentUrl, categoryId);
 
       return {
         id: categoryId,
         name: categoryName,
-        url: categoryHref,
+        url: addPrefixToUrl(categoryHref),
         childs: subcategories
       };
     });
 };
 
-const formatSubcategories = (categories: TradeInnStoreCategory[], parentName: string, parentUrl: string): BarrabesCategory[] => {
+const formatSubcategories = (categories: TradeInnStoreCategory[], parentName: string, parentUrl: string, parentId: string): BarrabesCategory[] => {
   return Object.entries<TradeInnStoreCategory>(categories)
     .map(([subcategoryId, subcategory]) => {
       const subcategoryName = subcategory.por;
+      const subcategoryUrl = `/${parentUrl}/${normalize(parentName)}-${normalize(subcategoryName)}/${subcategoryId}/s?parentId=${parentId}&categoryId=${subcategoryId}`;
       return {
         id: subcategoryId,
         name: subcategoryName,
-        url: `/${parentUrl}/${normalize(parentName)}-${normalize(subcategoryName)}/${subcategoryId}/s`,
+        url: addPrefixToUrl(subcategoryUrl),
         childs: []
       };
     });
