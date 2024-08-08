@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import { getBarrabesCli } from '@crawlers/barrabes/dist/cli/crawler.cli';
 import { getBikeDiscountCli } from '@crawlers/bike-discount/dist/cli/crawler.cli';
+import { getTradeinnCli } from '@crawlers/tradeinn/dist/cli/crawler.cli';
 import { publishStockChanges, publishOldStockChanges } from '#publishers/stock';
 import { publishCategoriesChange } from '#publishers/categories';
 import { publishProductChanges } from '#publishers/product';
@@ -27,7 +28,15 @@ const barrabesCli = getBarrabesCli(
   publishTranslationChanges
 );
 
+const tradeinnCli = getTradeinnCli(
+  publishStockChanges,
+  publishCategoriesChange,
+  publishProductChanges,
+  publishTranslationChanges
+);
+
 crawlersCli.addCommand(bikeDiscountCli);
 crawlersCli.addCommand(barrabesCli);
+crawlersCli.addCommand(tradeinnCli);
 
 export { crawlersCli };

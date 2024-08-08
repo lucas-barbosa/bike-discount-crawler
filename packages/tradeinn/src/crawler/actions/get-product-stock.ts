@@ -80,9 +80,9 @@ const calculatePrice = (price: number) => {
 };
 
 const getAvailability = (deliveryDate: number, tradeInnStock: number, reservedQuantity: number) => {
-  const tradeinnQuantity = tradeInnStock - reservedQuantity;
+  const tradeinnQuantity = Number(tradeInnStock) - Number(reservedQuantity);
 
-  if (tradeinnQuantity > 0 || deliveryDate === 0 || deliveryDate === 1) {
+  if (tradeinnQuantity > 0 || (!isNaN(deliveryDate) && (Number(deliveryDate) === 0 || Number(deliveryDate) === 1))) {
     return 'instock';
   }
   if (deliveryDate > 1) {

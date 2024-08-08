@@ -1,4 +1,3 @@
-// import { type ElementHandle, type Page } from 'puppeteer';
 import { getSrc, getTextNode, getUrl, runAndDispose } from '@crawlers/base/dist/crawler/utils';
 import { getCategoryTree } from '@crawlers/base/dist/infrastructure/categories-tree';
 import { Product } from '@crawlers/base/dist/types/Product';
@@ -31,7 +30,7 @@ export const getProduct = async (productUrl: string, categoryUrl: string, langua
     const product = new Product(
       stock.id,
       Number(stock.price),
-      getTitle(productJson, language),
+      getTitle(productJson, language || 'pt'),
       stock.sku,
       productUrl,
       categoryUrl
@@ -121,7 +120,11 @@ export const getDescription = async (page: Page) => {
 const getImages = async (page: Page) => {
   const elements = await page.$$('#swiper-touch .swiper-slide p img');
   return Promise.all(
-    elements.map((element) => getSrc(page, element))
+    elements.map(async (element) => {
+      const imageUrl = await getSrc(page, element);
+      if (imageUrl.startsWith('/')) return `https://www.tradeinn.com${imageUrl}`;
+      return imageUrl;
+    })
   );
 };
 

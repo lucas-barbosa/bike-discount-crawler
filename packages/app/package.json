@@ -19,6 +19,7 @@
     "crawler": "node dist/src/cli crawler",
     "crawler:bb": "node dist/src/cli crawler barrabes",
     "crawler:bd": "node dist/src/cli crawler bike-discount",
+    "crawler:tt": "node dist/src/cli crawler tradeinn",
     "dev": "tsx watch -r dotenv/config src/index.ts",
     "lint": "eslint ./**/*.ts --quiet"
   },
