@@ -4,7 +4,7 @@ import { navigate } from '@crawler/utils/navigate';
 
 import { getDescription, getTitle } from './get-product';
 import { getProductStock } from './get-product-stock';
-import { CRAWLER_ID } from '@infrastructure/utils';
+import { CRAWLER_ID } from '../../config';
 
 export const getTranslation = async (productUrl: string, language: string): Promise<ProductTranslation> => {
   const { productJson, stock } = await getProductStock(productUrl);
