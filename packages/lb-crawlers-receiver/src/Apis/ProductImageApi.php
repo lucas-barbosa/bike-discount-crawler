@@ -4,6 +4,7 @@ namespace LucasBarbosa\LbCrawlersReceiver\Apis;
 
 use LucasBarbosa\LbCrawlersReceiver\Barrabes\Api\BarrabesProductImage;
 use LucasBarbosa\LbCrawlersReceiver\Common\Authorization;
+use LucasBarbosa\LbCrawlersReceiver\TradeInn\Api\TradeInnProductImage;
 
 class ProductImageApi {
   protected $namespace = 'lb-crawlers/v1';
@@ -36,11 +37,18 @@ class ProductImageApi {
 
     $data = $body['data'];
     if ($data['crawlerId'] === 'BB') $this->update_barrabes_images( $data );
+    else if ($data['crawlerId'] === 'TT') $this->update_tradeinn_images( $data );
   }
 
   function update_barrabes_images( $data ) {
     if ( empty( $data['id'] ) && empty( $data['url'] ) ) return;
     $bd = new BarrabesProductImage();
     $bd->handleUpdateImage( $data );
+  }
+
+  function update_tradeinn_images( $data ) {
+    if ( empty( $data['id'] ) && empty( $data['sku'] ) ) return;
+    $tt = new TradeInnProductImage();
+    $tt->handleUpdateImage( $data );
   }
 }
