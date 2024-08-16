@@ -13,6 +13,7 @@
 
 use LucasBarbosa\LbCrawlersReceiver\Apis\InitApi;
 use LucasBarbosa\LbCrawlersReceiver\Barrabes\BarrabesInit;
+use LucasBarbosa\LbCrawlersReceiver\TradeInn\TradeInnInit;
 
 if ( ! defined( 'WPINC' ) ) {
   die;
@@ -24,10 +25,13 @@ define( 'LB_CRAWLERS_RECEIVER', plugin_basename( __FILE__ ) );
 define( 'LB_CRAWLERS_RECEIVER_DIR', plugin_dir_path( __FILE__ ) );
 define( 'LB_CRAWLERS_RECEIVER_FILE', __FILE__ );
 define( 'LB_CRAWLERS_RECEIVER_NAME', 'lb_crawlers_receiver' );
-define( 'LB_CRAWLERS_RECEIVER_VERSION', '1.0.0' );
+define( 'LB_CRAWLERS_RECEIVER_VERSION', '1.0.0+alpha' );
 
 $api = new InitApi();
 $api->run();
 
 $barrabes = new BarrabesInit();
 $barrabes->run();
+
+$tradeinn = new TradeInnInit();
+$tradeinn->run();
