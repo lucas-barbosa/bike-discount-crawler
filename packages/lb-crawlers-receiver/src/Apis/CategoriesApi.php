@@ -3,6 +3,7 @@
 namespace LucasBarbosa\LbCrawlersReceiver\Apis;
 
 use LucasBarbosa\LbCrawlersReceiver\Barrabes\Data\SettingsData as BarrabesSettings;
+use LucasBarbosa\LbCrawlersReceiver\TradeInn\Data\SettingsData as TradeInnSettings;
 use LucasBarbosa\LbCrawlersReceiver\Common\Authorization;
 
 class CategoriesApi {
@@ -38,6 +39,7 @@ class CategoriesApi {
 
     if ($data['crawlerId'] === 'BD') $this->update_bd( $data['data'] );
     else if ($data['crawlerId'] === 'BB') $this->update_barrabes( $data['data'] );
+    else if ($data['crawlerId'] === 'TT') $this->update_tradeinn( $data['data'] );
   }
 
   function update_barrabes( $data ) {
@@ -52,5 +54,9 @@ class CategoriesApi {
 
   function update_bd( $data ) {
     update_option( '_lb_bike_discount_categories', $data, true );
+  }
+
+  function update_tradeinn( $data ) {
+    TradeInnSettings::saveCategories( $data );
   }
 }
