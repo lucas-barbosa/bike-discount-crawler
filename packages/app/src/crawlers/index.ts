@@ -1,5 +1,6 @@
 import { initQueue as initBarrabes } from '@crawlers/barrabes';
 import { initQueue as initBikeDiscount } from '@crawlers/bike-discount';
+import { initQueue as initTradeinn } from '@crawlers/tradeinn';
 import { handleCategoriesFound } from '#callbacks/handleCategoriesFound';
 import { handleProductFound } from '#callbacks/handleProductFound';
 import { handleStockFound } from '#callbacks/handleStockFound';
@@ -22,5 +23,13 @@ export const initCrawlers = async () => {
     onStockFound: handleStockFound,
     onOldStockFound: handleOldStockFound,
     onTranslationFound: handleTranslationFound
+  });
+
+  await initTradeinn({
+    onCategoriesFound: handleCategoriesFound,
+    onProductFound: handleProductFound,
+    onStockFound: handleStockFound,
+    onTranslationFound: handleTranslationFound,
+    onProductImageFound: handleProductImageFound
   });
 };
