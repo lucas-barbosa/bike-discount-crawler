@@ -23,7 +23,8 @@ class SettingsApi {
 
     $allowed_crawler_id = [
       'BB'  => 'barrabes/settings',
-      'BD'  => 'bike-discount/settings'
+      'BD'  => 'bike-discount/settings',
+      'TT'  => 'tradeinn/settings'
     ];
 
     if ( ! isset( $allowed_actions[ $action ] ) || ! isset( $allowed_crawler_id[ $crawlerId ] ) ) {

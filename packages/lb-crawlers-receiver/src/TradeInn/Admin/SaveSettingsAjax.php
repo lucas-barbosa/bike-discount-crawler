@@ -114,7 +114,7 @@ class SaveSettingsAjax {
   }
 
   private function validate_permission() {
-    if( ! wp_verify_nonce( $_POST['nonce'], 'lb_barrabes_crawler_nonce' ) || !current_user_can( 'manage_woocommerce' ) ) {
+    if( ! wp_verify_nonce( $_POST['nonce'], 'lb_tradeinn_crawler_nonce' ) || !current_user_can( 'manage_woocommerce' ) ) {
       wp_send_json_error( 'Sem permissão para salvar!' );
       wp_die();
       return false;

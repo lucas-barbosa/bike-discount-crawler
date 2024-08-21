@@ -40,7 +40,7 @@
     }
 
     function renderTableData() {
-      if (lb_tradeinn_crawler && lb_crawlers_receiver_tradeinn.weight_settings) {
+      if (lb_crawlers_receiver_tradeinn && lb_crawlers_receiver_tradeinn.weight_settings) {
         if (lb_crawlers_receiver_tradeinn.weight_settings.length > 0) {
           lb_crawlers_receiver_tradeinn.weight_settings.map(el => renderRow(el.min_weight, el.max_weight, el.min_price, el.max_size || ''));
           return;
@@ -89,7 +89,7 @@
               ${value && selectedCategories.includes(value) ? 'checked' : ''}
               ${title ? `class="lb-tradeinn-title"` : ''}
             >
-            ${hasChilds ? name : `<a href="https://tradeinn.com/${storeName}/pt/-/${storeId}/s" target="_blank">${name}</a>`}
+            ${hasChilds ? name : `<a href="${value}" target="_blank">${name}</a>`}
             ${title && hasChilds ? `<button class="lb-tradeinn-toggle" type="button">Exibir/Ocultar</button>` : ''}
           </label>
 
@@ -117,7 +117,7 @@
         .replace(/^-+|-+$/g, '');
 
     function renderAvailableCategories() {
-      if (lb_tradeinn_crawler && lb_crawlers_receiver_tradeinn.available_categories) {
+      if (lb_crawlers_receiver_tradeinn && lb_crawlers_receiver_tradeinn.available_categories) {
         const categories = lb_crawlers_receiver_tradeinn.available_categories;
 
         const renderCategories = (items, parentSlug, parentValue) => {
@@ -126,7 +126,7 @@
             const hasChilds = item.childs && item.childs.length > 0 ? true : false;
             const parent = !parentSlug ? '' : `#lb-tradeinn-item_${parentSlug} ~ .lb-tradeinn-subitems`;
 
-            renderCategory(slug, item.name, parent, !hasChilds ? `${parentValue}|${item.id}` : '', hasChilds, hasChilds);
+            renderCategory(slug, item.name, parent, !hasChilds ? item.url : '', hasChilds, hasChilds);
 
             if (hasChilds) renderCategories(item.childs, slug, !parentValue ? `${item.name}|${item.id}` : `${parentValue}|${item.id}`);
           });
