@@ -33,6 +33,7 @@ export const productImageWorker = (onProductFound: ProductFoundCallback) => {
 };
 
 export const enqueueProductImage = async (productUrl: string) => {
+  productImageQueue();
   await queue.add(`product-image:${productUrl}`, {
     url: productUrl
   }, {
