@@ -14,7 +14,7 @@ export const productImageQueue = () => {
 export const productImageWorker = (onProductFound: ProductFoundCallback) => {
   const worker = createWorker(QUEUE_NAME, async ({ data }: Job<ProductQueueItem>) => {
     console.log('STARTED loading product image', data);
-    const result = await fetchProduct(data.url, '', 'pt');
+    const result = await fetchProduct(data.url, '', 'es');
 
     if (result) {
       if (result.images?.length) {
@@ -32,6 +32,7 @@ export const productImageWorker = (onProductFound: ProductFoundCallback) => {
 };
 
 export const enqueueProductImage = async (productUrl: string) => {
+  productImageQueue();
   await queue.add(`product-image:${productUrl}`, {
     url: productUrl
   }, {
