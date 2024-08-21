@@ -18,7 +18,7 @@ import { enqueueCategories } from '../queue/categories';
 import { enqueueCategory, enqueueSelectedCategories } from '../queue/category';
 import { enqueueStock } from '../queue/stock';
 import { CRAWLER_ID } from '../config';
-import { enqueueProductImage } from 'src/queue/product-image';
+import { enqueueProductImage } from '../queue/product-image';
 
 export const getTradeinnCli = (
   publishStock?: (stock: ProductStock) => Promise<any>,
