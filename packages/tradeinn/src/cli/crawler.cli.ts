@@ -18,6 +18,7 @@ import { enqueueCategories } from '../queue/categories';
 import { enqueueCategory, enqueueSelectedCategories } from '../queue/category';
 import { enqueueStock } from '../queue/stock';
 import { CRAWLER_ID } from '../config';
+import { enqueueProductImage } from 'src/queue/product-image';
 
 export const getTradeinnCli = (
   publishStock?: (stock: ProductStock) => Promise<any>,
@@ -69,6 +70,14 @@ export const getTradeinnCli = (
         for await (const url of stream) {
           const productUrl = Array.isArray(url) ? url[0] : url;
           await enqueueStock(productUrl);
+        }
+      }
+
+      if (params.images) {
+        const stream = createReadStream(params.images).pipe(parse());
+        for await (const url of stream) {
+          const productUrl = Array.isArray(url) ? url[0] : url;
+          await enqueueProductImage(productUrl);
         }
       }
 
