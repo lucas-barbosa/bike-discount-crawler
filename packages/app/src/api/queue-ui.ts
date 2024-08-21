@@ -3,6 +3,7 @@ import { BullAdapter } from '@bull-board/api/bullAdapter';
 import { ExpressAdapter } from '@bull-board/express';
 import { queues as barrabesQueues } from '@crawlers/barrabes';
 import { queues as bikeDiscountQueues } from '@crawlers/bike-discount';
+import { queues as tradeinnQueues } from '@crawlers/tradeinn';
 import { productQueue } from '../queue/product';
 import { productImageQueue } from '../queue/product-image';
 import { stockQueue } from '../queue/stock';
@@ -20,7 +21,8 @@ const getQueues = () => {
     productImageQueue(),
     translationQueue(),
     ...barrabesQueues(),
-    ...bikeDiscountQueues()
+    ...bikeDiscountQueues(),
+    ...tradeinnQueues()
   ];
   return queues.map(x => new BullAdapter(x));
 };
