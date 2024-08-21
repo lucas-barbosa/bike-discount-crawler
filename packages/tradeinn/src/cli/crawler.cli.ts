@@ -62,6 +62,7 @@ export const getTradeinnCli = (
   tradeinnCli.command('import')
     .description('Command to import urls to crawler')
     .option('-s, --stock <stock>', 'Stock File path')
+    .option('-i, --images <images>', 'Product Images File path')
     .action(async (params) => {
       console.log('Import File');
 
