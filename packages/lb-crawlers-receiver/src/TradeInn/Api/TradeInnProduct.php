@@ -132,7 +132,6 @@ class TradeInnProduct extends TradeInnHelper {
 
   protected function addImages( $imageUrls ) {
 		static $images = array();
-		
 		$imageIds = array();
 		
 		if ( $imageUrls ) {
@@ -142,8 +141,7 @@ class TradeInnProduct extends TradeInnHelper {
 				if ( isset( $images[$key] ) ) {
 					$imageIds[] = $images[$key];
 				} else {				
-					$id = Utils::uploadAttachment( $imageUrl, $key );
-
+					$id = Utils::uploadAttachment( $imageUrl, $key, 'TT' );
 					if ( $id ) {
 						$images[$key] = $id;
 						$imageIds[] = $id;
@@ -214,7 +212,7 @@ class TradeInnProduct extends TradeInnHelper {
 	// }
 
   // protected function sanitizeDescription( $description ) {
-	// 	$descriptionWithReplacedImage = Utils::replaceDescriptionImage( $description );
+	// 	$descriptionWithReplacedImage = Utils::replaceDescriptionImage( $description, 'TT' );
   //   return Utils::purifyHTML( $descriptionWithReplacedImage );
 	// }
 

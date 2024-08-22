@@ -143,7 +143,7 @@ class BarrabesProduct extends BarrabesHelper {
 				if ( isset( $images[$key] ) ) {
 					$imageIds[] = $images[$key];
 				} else {				
-					$id = Utils::uploadAttachment( $imageUrl, $key );
+					$id = Utils::uploadAttachment( $imageUrl, $key, 'BB' );
 
 					if ( $id ) {
 						$images[$key] = $id;
@@ -215,7 +215,7 @@ class BarrabesProduct extends BarrabesHelper {
 	}
 
   protected function sanitizeDescription( $description ) {
-		$descriptionWithReplacedImage = Utils::replaceDescriptionImage( $description );
+		$descriptionWithReplacedImage = Utils::replaceDescriptionImage( $description, 'BB' );
     return Utils::purifyHTML( $descriptionWithReplacedImage );
 	}
 

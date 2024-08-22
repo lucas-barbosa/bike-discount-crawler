@@ -47,6 +47,10 @@ class BarrabesMapper {
 		return false;
   }
 
+  static function setAttachmentId( $id, $key ) {
+    CrawlerPostMetaData::insert( $id, '_barrabes_attachment_' . $key,  $key );
+  }
+
 	static function getTermId( $name ) {
     // TODO: sql to migrate data
     $meta = CrawlerTermMetaData::getByMetaKey( '_barrabes_term_name_' . $name );

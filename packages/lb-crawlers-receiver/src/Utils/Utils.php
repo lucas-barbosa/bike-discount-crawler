@@ -2,8 +2,10 @@
 
 namespace LucasBarbosa\LbCrawlersReceiver\Utils;
 
+use LucasBarbosa\LbCrawlersReceiver\Barrabes\Data\BarrabesMapper;
 use LucasBarbosa\LbCrawlersReceiver\Data\BikeDiscountIdMapper;
 use LucasBarbosa\LbCrawlersReceiver\Data\CrawlerPostMetaData;
+use LucasBarbosa\LbCrawlersReceiver\TradeInn\Data\TradeInnMapper;
 
 class Utils {
   static function convertWeightToWoocommerceUnit( $value, $productUnit, $desirableUnit = '' ) {
@@ -64,7 +66,7 @@ class Utils {
 		return $content;
 	}
 
-  static function replaceDescriptionImage( $html ) {
+  static function replaceDescriptionImage( $html, $crawlerId = 'BD' ) {
 		if ( !$html ) {
     	return $html;
 		}
@@ -77,7 +79,7 @@ class Utils {
 			
 			if ($img) {
 				$key = base64_encode( $img );
-				$id = self::uploadAttachment( $img, $key );
+				$id = self::uploadAttachment( $img, $key, $crawlerId );
 
 				if ($id) {
 					$img = wp_get_attachment_url($id);
@@ -98,6 +100,38 @@ class Utils {
 			require_once( ABSPATH  . '/wp-admin/includes/file.php' );
 			require_once( ABSPATH  . '/wp-admin/includes/image.php' );
 		}
+
+    add_filter( 'mime_types', function($existing_mimes) {
+      $existing_mimes['webp'] = 'image/webp';
+      return $existing_mimes;
+    });
+
+    add_filter('upload_mimes', function($existing_mimes) {
+      $existing_mimes['webp'] = 'image/webp';
+      return $existing_mimes;
+    }, 1, 1 );
+
+    add_filter('woocommerce_rest_allowed_image_mime_types', function($mime_types) {
+      $mime_types['webp'] = 'image/webp';
+      return $mime_types;
+    }, 1, 1);
+
+    add_filter( 'file_is_displayable_image', function($result, $path) {
+      if ($result === false) {
+        $displayable_image_types = array(IMAGETYPE_WEBP);
+        $info = @getimagesize($path);
+      
+        if (empty($info)) {
+          $result = false;
+        } elseif (!in_array($info[2], $displayable_image_types)) {
+          $result = false;
+        } else {
+          $result = true;
+        }
+      }
+    
+      return $result;
+    }, 10, 2 );
 	}
 
   private static function getDomObject( $content ) {
@@ -198,13 +232,21 @@ class Utils {
 	}
 
 
-  static function uploadAttachment( $url, $key, $upload_for = 'product_image' ) {
+  static function uploadAttachment( $url, $key, $crawler = 'BD', $upload_for = 'product_image' ) {
 		if ( empty( $url ) ) {
 			return 0;
 		}
 		
 		set_time_limit( 300 );
-		$id = BikeDiscountIdMapper::getAttachmentId( $key );
+    $id = 0;
+
+    if ( $crawler === 'BB' ) {
+      $id = BarrabesMapper::getAttachmentId( $key );
+    } else if ( $crawler === 'TT' ) {
+      $id = TradeInnMapper::getAttachmentId( $key );
+    } else {
+		  $id = BikeDiscountIdMapper::getAttachmentId( $key );
+    }
 
 		if ( $id ) {
 			return $id;
@@ -220,7 +262,13 @@ class Utils {
 			return 0;
 		}
 
-		BikeDiscountIdMapper::setAttachmentId( $id, $key );
+    if ( $crawler === 'BB' ) {
+      BarrabesMapper::setAttachmentId( $id, $key );
+    } else if ( $crawler === 'TT' ) {
+      TradeInnMapper::setAttachmentId( $id, $key );
+    } else {
+		  BikeDiscountIdMapper::setAttachmentId( $id, $key );
+    }
 
 		return $id;
   }

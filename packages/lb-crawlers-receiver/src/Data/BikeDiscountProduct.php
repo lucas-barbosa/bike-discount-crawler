@@ -141,7 +141,7 @@ class BikeDiscountProduct extends BikeDiscountHelper {
 				if ( isset( $images[$key] ) ) {
 					$imageIds[] = $images[$key];
 				} else {				
-					$id = Utils::uploadAttachment( $imageUrl, $key );
+					$id = Utils::uploadAttachment( $imageUrl, $key, 'BD' );
 
 					if ( $id ) {
 						$images[$key] = $id;
@@ -231,7 +231,7 @@ class BikeDiscountProduct extends BikeDiscountHelper {
 	}
 
   protected function sanitizeDescription( $description ) {
-		$descriptionWithReplacedImage = Utils::replaceDescriptionImage( $description );
+		$descriptionWithReplacedImage = Utils::replaceDescriptionImage( $description, 'BD' );
     return Utils::purifyHTML( $descriptionWithReplacedImage );
 	}
 

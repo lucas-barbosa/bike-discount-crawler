@@ -132,31 +132,6 @@ class BikeDiscountHelper {
 	// 	return array_unique( $categoryIds );
 	// }
 
-  // private function addImages( $imageUrls ) {
-	// 	static $images = array();
-		
-	// 	$imageIds = array();
-		
-	// 	if ( $imageUrls ) {
-	// 		foreach ( $imageUrls as $imageUrl ) {
-	// 			$key = base64_encode( $imageUrl );
-
-	// 			if ( isset( $images[$key] ) ) {
-	// 				$imageIds[] = $images[$key];
-	// 			} else {				
-	// 				$id = Utils::uploadAttachment( $imageUrl, $key );
-
-	// 				if ( $id ) {
-	// 					$images[$key] = $id;
-	// 					$imageIds[] = $id;
-	// 				}					
-	// 			}
-	// 		}
-	// 	}
-				
-	// 	return $imageIds;
-	// }
-
   protected function addTaxonomyIfNotExists( $taxonomyLabel, $taxonomySlug, $values = array() ) {
 		$attribute_id = $this->getAttributeTaxonomyId( $taxonomyLabel );
 
@@ -490,11 +465,6 @@ class BikeDiscountHelper {
 
     return $formattedAttributes;
   }
-
-	// protected function sanitizeDescription( $description ) {
-	// 	$descriptionWithReplacedImage = Utils::replaceDescriptionImage( $description );
-  //   return Utils::purifyHTML( $descriptionWithReplacedImage );
-	// }
 
   protected function saveProduct( $product, bool $changed, $price, $availability ) {
     do_action( 'lb_multi_inventory_remove_stock_hooks' );

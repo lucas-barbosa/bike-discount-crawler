@@ -17,6 +17,10 @@ class TradeInnMapper {
 		return false;
   }
 
+  static function setAttachmentId( $id, $key ) {
+    CrawlerPostMetaData::insert( $id, '_tradeinn_attachment_' . $key,  $key );
+  }
+
 	static function getAttributeId( $id ) {
     $value = CrawlerOptions::get( 'tradeinn_attribute_' . $id );
 
