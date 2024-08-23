@@ -5,6 +5,7 @@ namespace LucasBarbosa\LbCrawlersReceiver\Apis;
 use LucasBarbosa\LbCrawlersReceiver\Barrabes\Api\BarrabesProduct;
 use LucasBarbosa\LbCrawlersReceiver\Common\Authorization;
 use LucasBarbosa\LbCrawlersReceiver\Data\BikeDiscountProduct;
+use LucasBarbosa\LbCrawlersReceiver\TradeInn\Api\TradeInnProduct;
 
 class ProductApi {
   protected $namespace = 'lb-crawlers/v1';
@@ -38,6 +39,7 @@ class ProductApi {
     $data = $body['data'];
     if ($data['crawlerId'] === 'BB') $this->create_barrabes_product( $data );
     else if ($data['crawlerId'] === 'BD') $this->create_bike_discount_product( $data );
+    else if ($data['crawlerId'] === 'TT') $this->create_tradeinn_product( $data );
   }
 
   function create_barrabes_product( $data ) {
@@ -49,6 +51,12 @@ class ProductApi {
   function create_bike_discount_product( $data ) {
     if ( empty( $data['id'] ) ) return;
     $bd = new BikeDiscountProduct();
+    $bd->handleCreateProduct( $data );
+  }
+
+  function create_tradeinn_product( $data ) {
+    if ( empty( $data['id'] ) ) return;
+    $bd = new TradeInnProduct();
     $bd->handleCreateProduct( $data );
   }
 }
