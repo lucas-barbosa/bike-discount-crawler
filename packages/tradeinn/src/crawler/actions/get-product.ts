@@ -68,6 +68,7 @@ const getAttributes = async (productJson: any, page: Page): Promise<ProductAttri
   for (let i = 0; i < elements.length; i += 2) {
     const name = await getTextNode(page, elements[i]);
     const value = await getTextNode(page, elements[i + 1]);
+    if (name === 'Cor' || !name) continue;
     productAttributes.push({ name, value: [value], variable: false });
   }
 

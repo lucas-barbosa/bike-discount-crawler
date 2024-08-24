@@ -10,7 +10,7 @@ use LucasBarbosa\LbCrawlersReceiver\Utils\Utils;
 
 class TradeInnProduct extends TradeInnHelper {
   function __construct() { 
-    parent::loadParams('lb_tradeinn_stock');
+    parent::loadParams();
   }
 
   function handleCreateProduct( $data ) {
@@ -46,9 +46,7 @@ class TradeInnProduct extends TradeInnHelper {
 		$this->setCrossSelledProducts( $wc_product, $data['crossSelledProducts'] );
   }
 
-  private function is_product_variable( $data ) {
-    return false;
-    
+  private function is_product_variable( $data ) {    
     if ( count( $data['variations'] ) > 1 ) {
       return true;
     }

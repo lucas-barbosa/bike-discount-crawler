@@ -71,14 +71,19 @@ class TradeInnMapper {
 		return null;
 	}
 
-	static function getVariationId( $id, $store ) {
-		$meta = CrawlerPostMetaData::getByMeta( '_tradeinn_variation_id_' . $id, $store );
+	static function getVariationId( $id ) {
+		$meta = CrawlerPostMetaData::getByMetaKey( '_tradeinn_variation_id_' . $id );
 
 		if ( ! empty( $meta ) && isset( $meta['post_id'] ) ) {
 			return $meta['post_id'];
 		}
 
 		return null;
+	}
+
+	static function setVariationId( $post_id, $variation_id ) {
+		if ( empty( $variation_id ) ) return;
+		CrawlerPostMetaData::insert( $post_id, '_tradeinn_variation_id_' . $variation_id, $variation_id );
 	}
 
 	static function setTermId( $term, $id ) {

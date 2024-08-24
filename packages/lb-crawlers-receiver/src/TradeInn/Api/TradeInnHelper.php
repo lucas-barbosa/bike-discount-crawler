@@ -3,14 +3,15 @@
 namespace LucasBarbosa\LbCrawlersReceiver\TradeInn\Api;
 
 use LucasBarbosa\LbCrawlersReceiver\Data\CrawlerOptions;
+use LucasBarbosa\LbCrawlersReceiver\TradeInn\Data\SettingsData;
 use LucasBarbosa\LbCrawlersReceiver\TradeInn\Data\TradeInnMapper;
 
 class TradeInnHelper {
   private array $taxonomies = [];
   protected string $stock = '';
   
-	protected function loadParams( $stockName ) {
-		$this->stock = get_option( $stockName, '' );
+	protected function loadParams() {
+		$this->stock = SettingsData::getStock();
 	}
 
   protected function addTaxonomyIfNotExists( $taxonomySlug, $taxonomyLabel, $values = array() ) {
@@ -67,6 +68,7 @@ class TradeInnHelper {
 		$this->setPriceAndStock( $wc_variation, $price, $stock );
 		$this->saveProduct( $wc_variation, true, $price, $stock );
 
+		TradeInnMapper::setVariationId( $wc_variation->get_id(), $variation['id'] );
 		return $wc_variation->get_id();
 	}
 
@@ -166,6 +168,11 @@ class TradeInnHelper {
 
   protected function getVariationId( $variationSku, $variationAttributes, $wc_product ) {
     if ( ! empty( $variationSku ) ) {
+			$variationId = TradeInnMapper::getVariationId( $variationSku );
+			if ( ! empty( $variationId ) ) {	
+				return $variationId;
+			}
+
       $variationIdBySku = wc_get_product_id_by_sku( 'TT-' . $variationSku, 32 );
       if ( ! empty( $variationIdBySku ) ) {
         return $variationIdBySku;
