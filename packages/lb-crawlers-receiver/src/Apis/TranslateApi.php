@@ -5,6 +5,7 @@ namespace LucasBarbosa\LbCrawlersReceiver\Apis;
 use LucasBarbosa\LbCrawlersReceiver\Barrabes\Api\BarrabesTranslation;
 use LucasBarbosa\LbCrawlersReceiver\Common\Authorization;
 use LucasBarbosa\LbCrawlersReceiver\Data\BikeDiscountTranslation;
+use LucasBarbosa\LbCrawlersReceiver\TradeInn\Api\TradeInnTranslation;
 
 class TranslateApi {
   protected $namespace = 'lb-crawlers/v1';
@@ -38,6 +39,7 @@ class TranslateApi {
     $data = $body['data'];
     if ($data['crawlerId'] === 'BB') $this->barrabes( $data );
     else if ($data['crawlerId'] === 'BD') $this->bike_discount( $data );
+    else if ($data['crawlerId'] === 'TT') $this->tradeinn( $data );
   }
 
   function barrabes( $data ) {
@@ -49,6 +51,12 @@ class TranslateApi {
   function bike_discount( $data ) {
     if ( empty( $data['id'] ) ) return;
     $bd = new BikeDiscountTranslation();
+    $bd->handleTranslateProduct( $data );
+  }
+
+  function tradeinn( $data ) {
+    if ( empty( $data['id'] ) ) return;
+    $bd = new TradeInnTranslation();
     $bd->handleTranslateProduct( $data );
   }
 }
