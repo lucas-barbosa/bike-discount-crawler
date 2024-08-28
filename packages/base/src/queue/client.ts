@@ -1,4 +1,4 @@
-import { Queue, Worker } from 'bullmq';
+import { Queue, Worker, WorkerOptions } from 'bullmq';
 
 export const queueConnection = {
   connection: {
@@ -14,9 +14,10 @@ export const createQueue = (queueName: string) => {
   });
 };
 
-export const createWorker = (queueName: string, queueHandler: any) => {
+export const createWorker = (queueName: string, queueHandler: any, options: WorkerOptions | {} = {}) => {
   return new Worker(queueName, queueHandler, {
-    ...queueConnection
+    ...queueConnection,
+    ...options
   });
 };
 

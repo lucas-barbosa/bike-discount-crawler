@@ -20,6 +20,11 @@ export const translationWorker = (onTranslationFound: TranslationFoundCallback) 
       await onTranslationFound(result);
     }
     console.log('FINISHED loading translation');
+  }, {
+    limiter: {
+      max: 10,
+      duration: 1000
+    }
   });
   return worker;
 };

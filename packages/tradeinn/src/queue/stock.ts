@@ -21,6 +21,11 @@ export const stockWorker = (onStockFound: StockFoundCallback) => {
       await onStockFound(result);
     }
     console.log('FINISHED loading stock');
+  }, {
+    limiter: {
+      max: 10,
+      duration: 1000
+    }
   });
   return worker;
 };
