@@ -7,11 +7,15 @@
     "build": "tsc && tsc-alias"
   },
   "devDependencies": {
+    "@types/axios": "^0.14.0",
     "@types/node": "^20.11.16",
     "tsc-alias": "^1.8.8",
+    "tsx": "^4.7.0",
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "aws-sdk": "^2.1684.0",
+    "axios": "^1.6.8",
     "bullmq": "^5.4.6",
     "puppeteer": "^22.0.0",
     "puppeteer-extra": "^3.3.6",

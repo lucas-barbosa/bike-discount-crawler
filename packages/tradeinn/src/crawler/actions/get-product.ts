@@ -11,7 +11,7 @@ import { type ProductAttribute } from '@crawlers/base/dist/types/ProductAttribut
 export const getProduct = async (productUrl: string, categoryUrl: string, language: string = 'pt'): Promise<Product> => {
   const { stock, productJson } = await getProductStock(productUrl);
   const { page, browser } = await navigate(productUrl, language);
-  console.log(await page.content())
+
   return runAndDispose(async () => {
     const [
       attributes,
@@ -143,7 +143,3 @@ const getWeight = (productJson: any) => {
     unit: 'kg'
   };
 };
-
-getProduct('https://www.tradeinn.com/basketball/pt/adidas-tenis-de-basquete-own-the-game-2.0/138104488/p', '')
-.then(console.log)
-.catch(err => console.log('Falho', err))
