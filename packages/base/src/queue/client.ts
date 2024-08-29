@@ -15,6 +15,7 @@ export const createQueue = (queueName: string) => {
     ...queueConnection,
   });
   queue.setGlobalConcurrency(isNaN(Number(process.env.MAX_QUEUE)) ? DEFAULT_MAX_QUEUE : Number(process.env.MAX_QUEUE));
+  return queue;
 };
 
 export const createWorker = (queueName: string, queueHandler: any, options: WorkerOptions | {} = {}) => {
