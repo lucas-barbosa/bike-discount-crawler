@@ -119,6 +119,7 @@ export const getAttributes = async (page: Page): Promise<ProductAttribute[]> => 
 
   const promises = sizeElements.map(async (size) => {
     const labelElement = await size.$('label');
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const label = await getTextNode(page, labelElement!);
     const inputElement = await size.$('input:not(:disabled)');
     return { label, stock: !!inputElement };
