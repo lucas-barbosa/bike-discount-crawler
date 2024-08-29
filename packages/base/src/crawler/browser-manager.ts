@@ -15,7 +15,6 @@ class BrowserManager {
   }
 
   public async getPage(browser: Browser) {
-    await browser.pages().then(pages => console.log(pages.length))
     const page = await browser.newPage();
     return page;
   }
