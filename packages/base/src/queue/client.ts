@@ -1,6 +1,6 @@
 import { Queue, Worker, WorkerOptions } from 'bullmq';
 
-const DEFAULT_MAX_QUEUE = 6;
+const DEFAULT_MAX_QUEUE = 1;
 
 export const queueConnection = {
   connection: {
