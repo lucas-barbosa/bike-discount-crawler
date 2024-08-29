@@ -16,7 +16,7 @@
   "dependencies": {
     "aws-sdk": "^2.1684.0",
     "axios": "^1.6.8",
-    "bullmq": "^5.4.6",
+    "bullmq": "^5.12.12",
     "puppeteer": "^22.0.0",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",

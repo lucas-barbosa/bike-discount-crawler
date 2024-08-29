@@ -1,5 +1,7 @@
 import { Queue, Worker, WorkerOptions } from 'bullmq';
 
+const DEFAULT_MAX_QUEUE = 6;
+
 export const queueConnection = {
   connection: {
     host: process.env.QUEUE_HOST,
@@ -9,9 +11,10 @@ export const queueConnection = {
 };
 
 export const createQueue = (queueName: string) => {
-  return new Queue(queueName, {
+  const queue = new Queue(queueName, {
     ...queueConnection,
   });
+  queue.setGlobalConcurrency(isNaN(Number(process.env.MAX_QUEUE)) ? DEFAULT_MAX_QUEUE : Number(process.env.MAX_QUEUE));
 };
 
 export const createWorker = (queueName: string, queueHandler: any, options: WorkerOptions | {} = {}) => {
