@@ -1,5 +1,6 @@
 import { type CookieParam, type Browser, type Page, type ElementHandle } from 'puppeteer';
-import { getCrawlerClient } from './client';
+import { getBrowserPool } from './browser-pool';
+import { getBrowserManager } from './browser-manager';
 
 export const runAndDispose = async (callback: () => Promise<any>, page: Page, browser: Browser) => {
   try {
@@ -13,9 +14,10 @@ export const runAndDispose = async (callback: () => Promise<any>, page: Page, br
 };
 
 export const startCrawler = async (initialBrowser?: Browser) => {
-  const client = getCrawlerClient();
-  const browser = initialBrowser ?? await client.launch();
-  const page = await browser.newPage();
+  const manager = getBrowserManager();
+  const browser = initialBrowser ?? await manager.acquireBrowser()
+
+  const page = await manager.getPage(browser);
   await page.setViewport({ width: 1366, height: 768 });
 
   return { browser, page };
@@ -23,7 +25,7 @@ export const startCrawler = async (initialBrowser?: Browser) => {
 
 export const disposeCrawler = async (page: Page, browser: Browser) => {
   await page.close();
-  await browser.close();
+  // await pool.releaseBrowser(browser);
 };
 
 export const exportCookies = async (page: Page) => {
