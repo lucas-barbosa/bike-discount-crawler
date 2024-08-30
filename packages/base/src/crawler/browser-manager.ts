@@ -1,9 +1,15 @@
-import { Browser } from "puppeteer";
+import { Browser, Page } from "puppeteer";
+import { createPool, Pool } from "generic-pool";
 import { getCrawlerClient } from "./client";
+import { MAX_PAGE_NUM } from "../config";
 
 class BrowserManager {
   private browser: Browser | null = null;
-  private readonly inactivityTimeout: number = 30000;
+  private pagePool: Pool<Page>;
+
+  constructor() {
+    this.pagePool = this.createPagePool();
+  }
 
   public async acquireBrowser() {
     if (!this.browser || !this.browser.connected) {
@@ -14,19 +20,35 @@ class BrowserManager {
     return this.browser;
   }
 
-  public async getPage(browser: Browser) {
-    const page = await browser.newPage();
-    return page;
+  private createPagePool(): Pool<Page> {
+    return createPool({
+      create: async () => {
+        const browser = await this.acquireBrowser();
+        const page = await browser!.newPage();
+        return page;
+      },
+      destroy: async (page: Page) => {
+        await page.close();
+      },
+    }, {
+      max: MAX_PAGE_NUM,
+      idleTimeoutMillis: 60000,
+    });
+  }
+
+  public async acquirePage(): Promise<Page> {
+    return await this.pagePool.acquire();
+  }
+
+  public async releasePage(page: Page) {
+    await this.pagePool.destroy(page);
   }
 
   public async cleanUp() {
     if (!this.browser) return;
 
-    const pages = await this.browser?.pages()
-    for (const page of pages) {
-      await page.close();
-    }
-    
+    await this.pagePool.drain();
+    await this.pagePool.clear();    
     await this.browser.close();
     this.browser = null;
   }

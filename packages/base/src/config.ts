@@ -6,3 +6,5 @@ export const DIGITAL_OCEAN = {
   ACCESS_KEY: process.env.DIGITAL_OCEAN_ACCESS_KEY,
   SECRET_KEY: process.env.DIGITAL_OCEAN_SECRET
 };
+
+export const MAX_PAGE_NUM = Number(process.env.MAX_PAGE_NUM) || 1;

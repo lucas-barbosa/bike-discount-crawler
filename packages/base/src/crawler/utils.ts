@@ -15,17 +15,16 @@ export const runAndDispose = async (callback: () => Promise<any>, page: Page, br
 
 export const startCrawler = async (initialBrowser?: Browser) => {
   const manager = getBrowserManager();
-  const browser = initialBrowser ?? await manager.acquireBrowser()
 
-  const page = await manager.getPage(browser);
+  const page = await manager.acquirePage();
   await page.setViewport({ width: 1366, height: 768 });
 
-  return { browser, page };
+  return { browser: page.browser(), page };
 };
 
 export const disposeCrawler = async (page: Page, browser: Browser) => {
-  await page.close();
-  // await pool.releaseBrowser(browser);
+  const manager = getBrowserManager();
+  await manager.releasePage(page)
 };
 
 export const exportCookies = async (page: Page) => {

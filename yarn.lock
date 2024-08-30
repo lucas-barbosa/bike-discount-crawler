@@ -139,6 +139,7 @@ __metadata:
     aws-sdk: "npm:^2.1684.0"
     axios: "npm:^1.6.8"
     bullmq: "npm:^5.12.12"
+    generic-pool: "npm:^3.9.0"
     puppeteer: "npm:^22.0.0"
     puppeteer-extra: "npm:^3.3.6"
     puppeteer-extra-plugin-stealth: "npm:^2.11.2"
@@ -3017,7 +3018,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"generic-pool@npm:3.9.0":
+"generic-pool@npm:3.9.0, generic-pool@npm:^3.9.0":
   version: 3.9.0
   resolution: "generic-pool@npm:3.9.0"
   checksum: 10c0/6b314d0d71170d5cbaf7162c423f53f8d6556b2135626a65bcdc03c089840b0a2f59eeb2d907939b8200e945eaf71ceb6630426f22d2128a1d242aec4b232aa7
