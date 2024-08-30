@@ -1,19 +1,19 @@
-import { type CookieParam, type Browser, type Page, type ElementHandle } from 'puppeteer';
-import { startCrawler as baseStartCrawler } from '@crawlers/base/dist/crawler/utils';
+import { type CookieParam, type Page, type ElementHandle } from 'puppeteer';
+import { startCrawler as baseStartCrawler, disposeOnFail } from '@crawlers/base/dist/crawler/utils';
 import { getCookies } from '@infrastructure/cookies';
 
-export const startCrawler = async (initialBrowser?: Browser, initialCookies?: string) => {
-  const { browser, page } = await baseStartCrawler(initialBrowser);
+export const startCrawler = async (initialCookies?: string) => {
+  const { browser, page } = await baseStartCrawler();
 
-  const cookies = initialCookies ?? await getCookies();
-  if (cookies) await importCookies(page, cookies);
+  return disposeOnFail(async () => {
+    const cookies = initialCookies ?? await getCookies();
+    if (cookies) await importCookies(page, cookies);
 
-  return { browser, page };
-};
-
-export const disposeCrawler = async (page: Page, browser: Browser) => {
-  await page.close();
-  await browser.close();
+    return {
+      page,
+      browser
+    };
+  }, page, browser);
 };
 
 export const exportCookies = async (page: Page) => {

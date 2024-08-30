@@ -1,6 +1,15 @@
 import { type CookieParam, type Browser, type Page, type ElementHandle } from 'puppeteer';
-import { getBrowserPool } from './browser-pool';
 import { getBrowserManager } from './browser-manager';
+
+export const disposeOnFail = async (callback: () => Promise<any>, page: Page, browser: Browser) => {
+  try {
+    const result = await callback();
+    return result;
+  } catch (err) {
+    await disposeCrawler(page, browser);
+    throw err;
+  }
+}
 
 export const runAndDispose = async (callback: () => Promise<any>, page: Page, browser: Browser) => {
   try {
@@ -13,7 +22,7 @@ export const runAndDispose = async (callback: () => Promise<any>, page: Page, br
   }
 };
 
-export const startCrawler = async (initialBrowser?: Browser) => {
+export const startCrawler = async () => {
   const manager = getBrowserManager();
 
   const page = await manager.acquirePage();
