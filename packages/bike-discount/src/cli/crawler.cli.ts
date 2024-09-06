@@ -24,7 +24,8 @@ export const getBikeDiscountCli = (
   publishOldStock: (data: OldStockResult) => Promise<any>,
   publishCategories: (categories: any) => Promise<any>,
   publishProduct: (product: Product) => Promise<any>,
-  publishTranslation: (translation: Translation) => Promise<any>
+  publishTranslation: (translation: Translation) => Promise<any>,
+  deleteStockCache: (productId: string, crawlerId: string) => Promise<any>
 ) => {
   const bikeDiscountCli = new Command();
 
@@ -94,6 +95,20 @@ export const getBikeDiscountCli = (
       }
 
       console.log('Finished');
+    });
+
+  bikeDiscountCli.command('remove-cache')
+    .description('Remove Stock cache')
+    .option('-o, --oldStock <oldStock>', 'Old Stock File path')
+    .action(async (params) => {
+      if (params.oldStock) {
+        const stream = createReadStream(params.oldStock).pipe(parse());
+
+        for await (const [id, url, variation] of stream) {
+          if (!id || !url || !variation) continue;
+          await deleteStockCache(id, 'BD');
+        }
+      }
     });
 
   bikeDiscountCli.command('stock')

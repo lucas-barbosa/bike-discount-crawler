@@ -6,6 +6,7 @@ import { publishStockChanges, publishOldStockChanges } from '#publishers/stock';
 import { publishCategoriesChange } from '#publishers/categories';
 import { publishProductChanges } from '#publishers/product';
 import { publishTranslationChanges } from '#publishers/translation';
+import { deleteStockCache } from '#infrastructure/stock-cache';
 
 const crawlersCli = new Command();
 
@@ -18,7 +19,8 @@ const bikeDiscountCli = getBikeDiscountCli(
   publishOldStockChanges,
   publishCategoriesChange,
   publishProductChanges,
-  publishTranslationChanges
+  publishTranslationChanges,
+  deleteStockCache
 );
 
 const barrabesCli = getBarrabesCli(

@@ -9,6 +9,11 @@ export const getRedis = (columnPrefix: string) => {
     return cookies;
   };
 
+  const deleteByKey = async (key: string) => {
+    const redis = await getRedisClient();
+    await redis.del(getColumnName(key));
+  }
+
   const saveByKey = async (key: string, value: any) => {
     const redis = await getRedisClient();
     await redis.set(getColumnName(key), value);
@@ -21,6 +26,7 @@ export const getRedis = (columnPrefix: string) => {
   };
 
   return {
+    deleteByKey,
     getColumnName,
     getByKey,
     saveByKey,

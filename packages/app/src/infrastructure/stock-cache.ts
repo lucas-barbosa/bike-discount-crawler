@@ -1,6 +1,6 @@
 import { type ProductStock } from '@crawlers/base/dist/types/ProductStock';
 import { type OldStockResult } from '@crawlers/bike-discount/src/queue/old-stock';
-import { getByKey, saveByKey } from './redis';
+import { getByKey, saveByKey, deleteByKey } from './redis';
 
 const COLUMN_NAME = 'stock-cache';
 
@@ -13,6 +13,8 @@ const getStockId = (stock: ProductStock) => {
 export const addStockToCache = async (stock: ProductStock) => {
   await saveByKey(getColumName(getStockId(stock), stock.crawlerId), JSON.stringify(stock));
 };
+
+export const deleteStockCache = async (id: string, crawlerId: string) => deleteByKey(getColumName(id, crawlerId));
 
 export const addOldStockToCache = async ({ items }: OldStockResult) => {
   await Promise.all(items.map(stock => saveByKey(getColumName(stock.id, stock.crawlerId), JSON.stringify(stock))));
