@@ -32,6 +32,7 @@ export const getProductStock = async (productUrl: string, dispose?: boolean, lan
     );
 
     stock.crawlerId = 'BD';
+    stock.url = productUrl;
 
     if (dispose) await disposeCrawler(page, browser);
     return {
