@@ -344,17 +344,29 @@ class BikeDiscountHelper {
 		return $attribute_id;
 	}
 
-  protected function getProductId($id, $sku) {
-    $productId = BikeDiscountIdMapper::getProductId( $id );
+  protected function getProductId($id, $sku, $url) {
+    if ( ! empty( $id ) ) {
+      $productId = BikeDiscountIdMapper::getProductId( $id );
 
-    if ( ! empty( $productId ) ) {
-      return $productId;
+      if ( ! empty( $productId ) ) {
+        return $productId;
+      }
     }
 
-    $id_by_sku = wc_get_product_id_by_sku('BD-' . $sku);
+    if ( ! empty ( $url ) ) {
+      $productIdByUrl = BikeDiscountIdMapper::getProductIdByUrl( $url );
 
-    if (!empty($id_by_sku)) {
-      return $id_by_sku;
+      if ( ! empty( $productIdByUrl ) ) {
+        return $productIdByUrl;
+      }
+    }
+
+    if ( ! empty( $sku ) ) {
+      $id_by_sku = wc_get_product_id_by_sku('BD-' . $sku);
+
+      if (!empty($id_by_sku)) {
+        return $id_by_sku;
+      }
     }
 
     return null;

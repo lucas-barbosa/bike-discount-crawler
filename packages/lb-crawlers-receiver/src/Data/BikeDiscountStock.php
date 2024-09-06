@@ -7,7 +7,7 @@ use LucasBarbosa\LbCrawlersReceiver\Utils\Utils;
 
 class BikeDiscountStock extends BikeDiscountHelper {
   function handleUpdateStock($data) {
-    $productId = $this->getProductId($data['id'], $data['sku']);
+    $productId = $this->getProductId($data['id'], $data['sku'], $data['url']);
 
     if (!$productId) {
       return;

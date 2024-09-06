@@ -43,7 +43,7 @@ class StockApi {
   }
 
   function update_bd_stock( $data ) {
-    if ( empty( $data['id'] ) ) return;
+    if ( empty( $data['id'] ) && empty( $data['url'] ) ) return;
     $bd = new BikeDiscountStock();
     $bd->handleUpdateStock( $data );
   }

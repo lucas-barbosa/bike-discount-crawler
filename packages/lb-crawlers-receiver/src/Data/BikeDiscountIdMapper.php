@@ -74,6 +74,16 @@ class BikeDiscountIdMapper {
 		return false;
   }
 
+  static function getProductIdByUrl( $url ) {
+		$meta = CrawlerPostMetaData::getByMeta( '_bike_discount_url', $url );
+
+		if ( ! empty( $meta ) && isset( $meta['post_id'] ) ) {
+			return $meta['post_id'];
+		}
+
+		return null;
+	}
+
 	static function getProductId( $id ) {
 		$meta = CrawlerPostMetaData::getByMetaKey( '_bike_discount_product_id_' . $id );
 

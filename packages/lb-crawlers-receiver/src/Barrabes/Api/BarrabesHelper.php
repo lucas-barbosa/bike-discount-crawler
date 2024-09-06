@@ -86,7 +86,6 @@ class BarrabesHelper {
 	}
 
   private function getAttributeTaxonomyId( $taxonomyLabel, $taxonomySlug ) {
-    // TODO -> migrate to custom table
 		$attributeIdFromCustomTable = BarrabesMapper::getAttributeId( $taxonomyLabel );
 		if ( ! empty( $attributeIdFromCustomTable ) ) {
 			return $attributeIdFromCustomTable;
