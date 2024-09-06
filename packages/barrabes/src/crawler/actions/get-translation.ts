@@ -1,4 +1,4 @@
-import { disposeCrawler, runAndDispose } from '@crawlers/base/dist/crawler/utils';
+import { runAndDispose } from '@crawlers/base/dist/crawler/utils';
 import { ProductTranslation } from '@crawlers/base/dist/types/ProductTranslation';
 import { navigate } from '@crawler/utils/navigate';
 
@@ -18,7 +18,7 @@ export const getTranslation = async (productUrl: string, language: string): Prom
       getTitle(page),
       getDescription(page)
     ]);
-  
+
     const translation = new ProductTranslation(
       sku,
       sku,
@@ -28,7 +28,7 @@ export const getTranslation = async (productUrl: string, language: string): Prom
       productUrl,
       language
     );
-  
+
     return translation;
   }, page, browser);
 };

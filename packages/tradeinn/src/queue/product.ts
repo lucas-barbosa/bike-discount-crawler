@@ -42,6 +42,11 @@ export const productWorker = (onProductFound: ProductFoundCallback) => {
       });
     }
     console.log('FINISHED loading product');
+  }, {
+    limiter: {
+      max: 10,
+      duration: 1000
+    }
   });
   return worker;
 };

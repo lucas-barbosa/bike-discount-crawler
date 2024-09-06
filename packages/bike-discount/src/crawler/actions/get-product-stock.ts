@@ -1,42 +1,45 @@
 import { type Page } from 'puppeteer';
 import { ProductStock } from '@crawlers/base/dist/types/ProductStock';
-import { disposeCrawler, getPropertyContent } from '@crawler/utils/crawler';
+import { getPropertyContent } from '@crawler/utils/crawler';
 import { ProductVariation } from '@entities/ProductVariation';
 import { navigate } from './navigate';
+import { disposeCrawler, disposeOnFail } from '@crawlers/base/dist/crawler/utils';
 
 export const getProductStock = async (productUrl: string, dispose?: boolean, language?: string) => {
   const { page, browser } = await navigate(productUrl, language);
 
-  const [
-    availability,
-    id,
-    price,
-    sku,
-    variations
-  ] = await Promise.all([
-    getAvailability(page),
-    getId(page),
-    getPrice(page),
-    getSku(page),
-    getVariations(page)
-  ]);
+  return disposeOnFail(async () => {
+    const [
+      availability,
+      id,
+      price,
+      sku,
+      variations
+    ] = await Promise.all([
+      getAvailability(page),
+      getId(page),
+      getPrice(page),
+      getSku(page),
+      getVariations(page)
+    ]);
 
-  const stock = new ProductStock(
-    id,
-    Number(price),
-    sku,
-    availability,
-    variations
-  );
+    const stock = new ProductStock(
+      id,
+      Number(price),
+      sku,
+      availability,
+      variations
+    );
 
-  stock.crawlerId = 'BD';
+    stock.crawlerId = 'BD';
 
-  if (dispose) await disposeCrawler(page, browser);
-  return {
-    stock,
-    page,
-    browser
-  };
+    if (dispose) await disposeCrawler(page, browser);
+    return {
+      stock,
+      page,
+      browser
+    };
+  }, page, browser);
 };
 
 const getAvailability = async (page: Page) => {

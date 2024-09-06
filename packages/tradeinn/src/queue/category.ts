@@ -24,6 +24,11 @@ export const categoryWorker = () => {
     if (result?.productLinks.length) await enqueueProducts(result.productLinks, data.categoryUrl);
     if (result?.hasNextPage) await enqueueNextCategoryPage(data);
     console.log('FINISHED fetching products');
+  }, {
+    limiter: {
+      max: 10,
+      duration: 1000
+    }
   });
   return worker;
 };

@@ -1,18 +1,20 @@
-import { startCrawler } from '@crawlers/base/dist/crawler/utils';
+import { disposeOnFail, startCrawler } from '@crawlers/base/dist/crawler/utils';
 
 export const navigate = async (productUrl: string, language: string = 'pt') => {
   const { page, browser } = await startCrawler();
 
-  if (language) {
-    productUrl = getTranslatedProductUrl(productUrl, language);
-  }
+  return disposeOnFail(async () => {
+    if (language) {
+      productUrl = getTranslatedProductUrl(productUrl, language);
+    }
 
-  await page.goto(productUrl);
+    await page.goto(productUrl);
 
-  return {
-    page,
-    browser
-  };
+    return {
+      page,
+      browser
+    };
+  }, page, browser);
 };
 
 const getTranslatedProductUrl = (productUrl: string, language: string) => {

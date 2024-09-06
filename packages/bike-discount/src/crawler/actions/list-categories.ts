@@ -115,53 +115,53 @@ const getChildCategories = async (page: Page, categoryId: string) => {
   return subcategories;
 };
 
-const getNestedCategories = async (page: Page, url: string) => {
+const getNestedCategories = async (page: Page, url: string): Promise<BikeDiscountCategory[]> => {
   const browser = page.browser();
   const cookies = await page.cookies();
-  const { page: newPage } = await startCrawler(browser, JSON.stringify(cookies));
+  const { page: newPage } = await startCrawler(JSON.stringify(cookies));
 
-  if (url.startsWith('/')) url = 'https://bike-discount.de' + url;
+  return runAndDispose(async () => {
+    if (url.startsWith('/')) url = 'https://bike-discount.de' + url;
 
-  try {
-    const hasChilds = [];
-    await newPage.goto(url);
-    const items = await newPage.$$('xpath/.//a[contains(@class, "current--cat")]/parent::li/ul/li/a');
-    const result: BikeDiscountCategory[] = [];
+    try {
+      const hasChilds = [];
+      await newPage.goto(url);
+      const items = await newPage.$$('xpath/.//a[contains(@class, "current--cat")]/parent::li/ul/li/a');
+      const result: BikeDiscountCategory[] = [];
 
-    for (const item of items) {
-      const [name, url] = await Promise.all([getTextNode(newPage, item), getUrl(newPage, item)]);
-      const category: BikeDiscountCategory = {
-        name: name.trim(),
-        url,
-        childs: []
-      };
+      for (const item of items) {
+        const [name, url] = await Promise.all([getTextNode(newPage, item), getUrl(newPage, item)]);
+        const category: BikeDiscountCategory = {
+          name: name.trim(),
+          url,
+          childs: []
+        };
 
-      const classes = await getClasses(newPage, item);
-      if (classes.includes('link--go-forward')) {
-        hasChilds.push(category.url);
+        const classes = await getClasses(newPage, item);
+        if (classes.includes('link--go-forward')) {
+          hasChilds.push(category.url);
+        }
+
+        result.push(category);
       }
 
-      result.push(category);
-    }
-
-    const promises: Array<Promise<BikeDiscountCategory[]>> = [];
-    for (const category of result) {
-      if (hasChilds.includes(category.url)) {
-        promises.push(getNestedCategories(newPage, category.url));
-      } else {
-        promises.push(Promise.resolve([]));
+      const promises: Array<Promise<BikeDiscountCategory[]>> = [];
+      for (const category of result) {
+        if (hasChilds.includes(category.url)) {
+          promises.push(getNestedCategories(newPage, category.url));
+        } else {
+          promises.push(Promise.resolve([]));
+        }
       }
-    }
 
-    const promisesResult = await Promise.all(promises);
-    for (let i = 0; i < result.length; i++) {
-      result[i].childs = promisesResult[i];
-    }
+      const promisesResult = await Promise.all(promises);
+      for (let i = 0; i < result.length; i++) {
+        result[i].childs = promisesResult[i];
+      }
 
-    await newPage.close();
-    return result;
-  } catch {
-    await newPage.close();
-    return [];
-  }
+      return result;
+    } catch {
+      return [];
+    }
+  }, newPage, browser);
 };

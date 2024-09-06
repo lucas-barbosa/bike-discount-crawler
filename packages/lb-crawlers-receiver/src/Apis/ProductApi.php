@@ -36,6 +36,11 @@ class ProductApi {
       return false;
     }
 
+    // Do not create rejected products
+    if ( apply_filters( 'lb_crawler_check_block', false, $body['data']['url'] ) ) {
+      return false;
+    }
+
     $data = $body['data'];
     if ($data['crawlerId'] === 'BB') $this->create_barrabes_product( $data );
     else if ($data['crawlerId'] === 'BD') $this->create_bike_discount_product( $data );

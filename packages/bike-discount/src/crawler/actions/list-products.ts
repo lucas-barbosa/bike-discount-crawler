@@ -21,7 +21,7 @@ export const listProducts = async (categoryUrl: string, pageNumber: number = 1):
     ]);
 
     const hasNextPage = nextPageButton.length > 0;
-    const productLinks = await Promise.all(products.map(x => getUrl(page, x)));
+    const productLinks = await Promise.all(products.map((x: any) => getUrl(page, x)));
 
     return {
       hasNextPage,

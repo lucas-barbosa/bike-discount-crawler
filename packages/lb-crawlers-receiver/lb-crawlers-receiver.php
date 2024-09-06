@@ -13,6 +13,7 @@
 
 use LucasBarbosa\LbCrawlersReceiver\Apis\InitApi;
 use LucasBarbosa\LbCrawlersReceiver\Barrabes\BarrabesInit;
+use LucasBarbosa\LbCrawlersReceiver\CrawlerBlock\CrawlerBlockStorage;
 use LucasBarbosa\LbCrawlersReceiver\TradeInn\TradeInnInit;
 
 if ( ! defined( 'WPINC' ) ) {
@@ -26,6 +27,15 @@ define( 'LB_CRAWLERS_RECEIVER_DIR', plugin_dir_path( __FILE__ ) );
 define( 'LB_CRAWLERS_RECEIVER_FILE', __FILE__ );
 define( 'LB_CRAWLERS_RECEIVER_NAME', 'lb_crawlers_receiver' );
 define( 'LB_CRAWLERS_RECEIVER_VERSION', '1.0.0+alpha' );
+
+function lb_crawlers_receiver_activate() { 
+	CrawlerBlockStorage::createTable();
+}
+
+register_activation_hook( __FILE__, 'lb_crawlers_receiver_activate' );
+
+$blocker = new InitCrawlerBlock();
+$blocker->run();
 
 $api = new InitApi();
 $api->run();

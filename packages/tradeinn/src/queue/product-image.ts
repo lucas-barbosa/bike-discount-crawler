@@ -28,6 +28,11 @@ export const productImageWorker = (onProductFound: ProductFoundCallback) => {
       });
     }
     console.log('FINISHED loading product image');
+  }, {
+    limiter: {
+      max: 10,
+      duration: 1000
+    }
   });
   return worker;
 };

@@ -1,4 +1,6 @@
-import { Queue, Worker } from 'bullmq';
+import { Queue, Worker, WorkerOptions } from 'bullmq';
+
+const DEFAULT_MAX_QUEUE = 1;
 
 export const queueConnection = {
   connection: {
@@ -9,14 +11,17 @@ export const queueConnection = {
 };
 
 export const createQueue = (queueName: string) => {
-  return new Queue(queueName, {
+  const queue = new Queue(queueName, {
     ...queueConnection,
   });
+  queue.setGlobalConcurrency(isNaN(Number(process.env.MAX_QUEUE)) ? DEFAULT_MAX_QUEUE : Number(process.env.MAX_QUEUE));
+  return queue;
 };
 
-export const createWorker = (queueName: string, queueHandler: any) => {
+export const createWorker = (queueName: string, queueHandler: any, options: WorkerOptions | {} = {}) => {
   return new Worker(queueName, queueHandler, {
-    ...queueConnection
+    ...queueConnection,
+    ...options
   });
 };
 

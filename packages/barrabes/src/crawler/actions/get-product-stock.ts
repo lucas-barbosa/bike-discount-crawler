@@ -1,5 +1,5 @@
 import { type Page } from 'puppeteer';
-import { disposeCrawler, getTextNode } from '@crawlers/base/dist/crawler/utils';
+import { disposeCrawler, disposeOnFail, getTextNode } from '@crawlers/base/dist/crawler/utils';
 import { type ProductAttribute } from '@crawlers/base/dist/types/ProductAttribute';
 import { ProductStock } from '@crawlers/base/dist/types/ProductStock';
 import { ProductVariation } from '@crawlers/base/dist/types/ProductVariation';
@@ -9,41 +9,43 @@ import { BARRABES_PRICE_MULTIPLICATOR } from '../../config';
 export const getProductStock = async (productUrl: string, dispose?: boolean, language?: string) => {
   const { page, browser } = await navigate(productUrl, language);
 
-  const [
-    price,
-    sku,
-    attributes
-  ] = await Promise.all([
-    getPrice(page),
-    getSku(page),
-    getAttributes(page)
-  ]);
+  return disposeOnFail(async () => {
+    const [
+      price,
+      sku,
+      attributes
+    ] = await Promise.all([
+      getPrice(page),
+      getSku(page),
+      getAttributes(page)
+    ]);
 
-  const originalPrice = Number(price);
-  const calculatedPrice = calculatePrice(originalPrice);
-  const [availability, variations] = await Promise.all([
-    getAvailability(page, sku),
-    getVariations(page, attributes, sku, calculatedPrice)
-  ]);
+    const originalPrice = Number(price);
+    const calculatedPrice = calculatePrice(originalPrice);
+    const [availability, variations] = await Promise.all([
+      getAvailability(page, sku),
+      getVariations(page, attributes, sku, calculatedPrice)
+    ]);
 
-  const stock = new ProductStock(
-    sku,
-    calculatedPrice,
-    sku,
-    availability,
-    variations
-  );
+    const stock = new ProductStock(
+      sku,
+      calculatedPrice,
+      sku,
+      availability,
+      variations
+    );
 
-  stock.crawlerId = 'BB';
-  stock.url = productUrl;
-  stock.metadata.originalPrice = originalPrice;
+    stock.crawlerId = 'BB';
+    stock.url = productUrl;
+    stock.metadata.originalPrice = originalPrice;
 
-  if (dispose) await disposeCrawler(page, browser);
-  return {
-    stock,
-    page,
-    browser
-  };
+    if (dispose) await disposeCrawler(page, browser);
+    return {
+      stock,
+      page,
+      browser
+    };
+  }, page, browser);
 };
 
 const calculatePrice = (price: number) => {
@@ -119,6 +121,7 @@ export const getAttributes = async (page: Page): Promise<ProductAttribute[]> => 
 
   const promises = sizeElements.map(async (size) => {
     const labelElement = await size.$('label');
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const label = await getTextNode(page, labelElement!);
     const inputElement = await size.$('input:not(:disabled)');
     return { label, stock: !!inputElement };
