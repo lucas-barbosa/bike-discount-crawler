@@ -13,7 +13,9 @@
 
 use LucasBarbosa\LbCrawlersReceiver\Apis\InitApi;
 use LucasBarbosa\LbCrawlersReceiver\Barrabes\BarrabesInit;
+use LucasBarbosa\LbCrawlersReceiver\BikeDiscount\BikeDiscountInit;
 use LucasBarbosa\LbCrawlersReceiver\CrawlerBlock\CrawlerBlockStorage;
+use LucasBarbosa\LbCrawlersReceiver\CrawlerBlock\InitCrawlerBlock;
 use LucasBarbosa\LbCrawlersReceiver\TradeInn\TradeInnInit;
 
 if ( ! defined( 'WPINC' ) ) {
@@ -34,14 +36,17 @@ function lb_crawlers_receiver_activate() {
 
 register_activation_hook( __FILE__, 'lb_crawlers_receiver_activate' );
 
-$blocker = new InitCrawlerBlock();
-$blocker->run();
+// $blocker = new InitCrawlerBlock();
+// $blocker->run();
 
 $api = new InitApi();
 $api->run();
 
 $barrabes = new BarrabesInit();
 $barrabes->run();
+
+$bikeDiscount = new BikeDiscountInit();
+$bikeDiscount->run();
 
 $tradeinn = new TradeInnInit();
 $tradeinn->run();

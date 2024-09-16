@@ -1,5 +1,7 @@
 <?php
 
+namespace LucasBarbosa\LbCrawlersReceiver\CrawlerBlock;
+
 use LucasBarbosa\LbCrawlersReceiver\CrawlerBlock\CrawlerBlockActions;
 use LucasBarbosa\LbCrawlersReceiver\CrawlerBlock\CrawlerBlockSettings;
 
