@@ -40,9 +40,9 @@
     }
 
     function renderTableData() {
-      if (lb_bike_discount_crawler && lb_bike_discount_crawler.weight_settings) {
-        if (lb_bike_discount_crawler.weight_settings.length > 0) {
-          lb_bike_discount_crawler.weight_settings.map(el => renderRow(el.min_weight, el.max_weight, el.min_price, el.max_size || ''));
+      if (lb_crawlers_receiver_bike_discount && lb_crawlers_receiver_bike_discount.weight_settings) {
+        if (lb_crawlers_receiver_bike_discount.weight_settings.length > 0) {
+          lb_crawlers_receiver_bike_discount.weight_settings.map(el => renderRow(el.min_weight, el.max_weight, el.min_price, el.max_size || ''));
           return;
         }
       }
@@ -53,11 +53,11 @@
     $(document).on('click', '#lb-bike-discount-new-line', renderRow);
     $(document).on('click', '.lb-weight-delete', deleteRow);
 
-    const selectedCategories = lb_bike_discount_crawler.selected_categories || [];
-    const viewedCategories = lb_bike_discount_crawler.viewed_categories || [];
-    const overrideWeight = lb_bike_discount_crawler.override_weight || [];
-    const categoriesWeight = lb_bike_discount_crawler.categories_weight || {};
-    const categoriesDimension = lb_bike_discount_crawler.categories_dimension || {};
+    const selectedCategories = lb_crawlers_receiver_bike_discount.selected_categories || [];
+    const viewedCategories = lb_crawlers_receiver_bike_discount.viewed_categories || [];
+    const overrideWeight = lb_crawlers_receiver_bike_discount.override_weight || [];
+    const categoriesWeight = lb_crawlers_receiver_bike_discount.categories_weight || {};
+    const categoriesDimension = lb_crawlers_receiver_bike_discount.categories_dimension || {};
 
     const getCategoryWeight = (category) => {
       if (category && categoriesWeight[category]) return categoriesWeight[category];
@@ -109,8 +109,8 @@
         .replace(/^-+|-+$/g, '');
 
     function renderAvailableCategories() {
-      if (lb_bike_discount_crawler && lb_bike_discount_crawler.available_categories) {
-        const categories = lb_bike_discount_crawler.available_categories;
+      if (lb_crawlers_receiver_bike_discount && lb_crawlers_receiver_bike_discount.available_categories) {
+        const categories = lb_crawlers_receiver_bike_discount.available_categories;
 
         const renderCategories = (items, parentSlug) => {
           items.map(item => {
@@ -172,11 +172,11 @@
 
       $.ajax({
         type: 'POST',
-        url: lb_bike_discount_crawler.ajaxurl,
+        url: lb_crawlers_receiver_bike_discount.ajaxurl,
         data: {
           categories: $categories,
           action: 'bikediscount_process_selected_categories',
-          nonce: lb_bike_discount_crawler.nonce
+          nonce: lb_crawlers_receiver_bike_discount.nonce
         },
         dataType: 'JSON',
         success: function () {
@@ -193,11 +193,11 @@
 
       $.ajax({
         type: 'POST',
-        url: lb_bike_discount_crawler.ajaxurl,
+        url: lb_crawlers_receiver_bike_discount.ajaxurl,
         data: {
           viewed: $categories,
           action: 'bikediscount_process_viewed_categories',
-          nonce: lb_bike_discount_crawler.nonce
+          nonce: lb_crawlers_receiver_bike_discount.nonce
         },
         dataType: 'JSON',
         success: function () {
@@ -214,11 +214,11 @@
 
       $.ajax({
         type: 'POST',
-        url: lb_bike_discount_crawler.ajaxurl,
+        url: lb_crawlers_receiver_bike_discount.ajaxurl,
         data: {
           overrides: $categories,
           action: 'bikediscount_process_override_weight_categories',
-          nonce: lb_bike_discount_crawler.nonce
+          nonce: lb_crawlers_receiver_bike_discount.nonce
         },
         dataType: 'JSON',
         success: function () {
@@ -247,11 +247,11 @@
 
       $.ajax({
         type: 'POST',
-        url: lb_bike_discount_crawler.ajaxurl,
+        url: lb_crawlers_receiver_bike_discount.ajaxurl,
         data: {
           dimensions: $categories,
           action: 'bikediscount_process_categories_dimension',
-          nonce: lb_bike_discount_crawler.nonce
+          nonce: lb_crawlers_receiver_bike_discount.nonce
         },
         dataType: 'JSON',
         success: function () {
@@ -280,11 +280,11 @@
 
       $.ajax({
         type: 'POST',
-        url: lb_bike_discount_crawler.ajaxurl,
+        url: lb_crawlers_receiver_bike_discount.ajaxurl,
         data: {
           weights: $categories,
           action: 'bikediscount_process_categories_weight',
-          nonce: lb_bike_discount_crawler.nonce
+          nonce: lb_crawlers_receiver_bike_discount.nonce
         },
         dataType: 'JSON',
         success: function () {
