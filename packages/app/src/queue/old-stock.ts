@@ -16,8 +16,11 @@ export const oldStockWorker = () => {
   const worker = createWorker(QUEUE_NAME, async ({ data }: Job<OldStockResult>) => {
     console.log('START PUBLISHING old stock', data);
     if (await hasOldStockChanged(data)) {
-      await publishOldStockChanges(data);
-      await addOldStockToCache(data);
+      const results = await publishOldStockChanges(data);
+      const allFulfilled = results.every(result => result.status === 'fulfilled');
+      if (allFulfilled) {
+        await addOldStockToCache(data);
+      }
     }
     console.log('FINISHED PUBLISHING old stock');
   });

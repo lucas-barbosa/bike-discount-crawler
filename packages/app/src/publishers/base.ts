@@ -5,7 +5,7 @@ export const publish = async (path: string, data: any) => {
   const listeners = await getListeners();
   if (!listeners) {
     console.log('No listeners found!');
-    return;
+    return [];
   }
 
   const promises = listeners.map((listener) => {
@@ -17,5 +17,5 @@ export const publish = async (path: string, data: any) => {
     });
   });
 
-  await Promise.allSettled(promises);
+  return await Promise.allSettled(promises);
 };

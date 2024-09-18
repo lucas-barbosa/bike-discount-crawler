@@ -3,9 +3,9 @@ import { publish } from './base';
 import { type OldStockResult } from '@crawlers/bike-discount/src/queue/old-stock';
 
 export const publishStockChanges = async (stock: ProductStock) => {
-  await publish('stock', stock);
+  return await publish('stock', stock);
 };
 
 export const publishOldStockChanges = async (data: OldStockResult) => {
-  await publish('old-stock', data);
+  return await publish('old-stock', data);
 };
