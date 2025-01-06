@@ -28,7 +28,10 @@ export const stockWorker = () => {
 };
 
 export const enqueueStock = async (stock: ProductStock) => {
-  await queue.add(`stock:${stock.crawlerId}-${stock.id}`, stock, { ...removeOptions });
+  const prependJob =
+    (stock.variations?.length === 0 && stock.availability === 'outofstock') ||
+    (stock.variations?.length > 0 && stock.variations.some(x => x.availability === 'outofstock'));
+  await queue.add(`stock:${stock.crawlerId}-${stock.id}`, stock, { ...removeOptions, lifo: prependJob });
 };
 
 export const startStockQueue = () => {
