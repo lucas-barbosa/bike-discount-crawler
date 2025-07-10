@@ -3,6 +3,7 @@
 namespace LucasBarbosa\LbCrawlersReceiver\TradeInn\Admin;
 
 use LucasBarbosa\LbCrawlersReceiver\TradeInn\Data\SettingsData;
+use LucasBarbosa\LbCrawlersReceiver\Common\Categories;
 
 class PluginSettings {
   private $page_name = 'lb-tradeinn-v2';
@@ -39,6 +40,7 @@ class PluginSettings {
       return;
     }
 
+    wp_enqueue_style( $this->plugin_name, plugins_url( 'assets/tradeinn.admin.css', LB_CRAWLERS_RECEIVER_FILE ), array(), $this->version, 'all' );
     wp_register_script( $this->plugin_name, plugins_url( 'assets/tradeinn.admin.js', LB_CRAWLERS_RECEIVER_FILE ), [ 'jquery' ], $this->version );
 
     wp_localize_script( $this->plugin_name, $this->plugin_name, array(
@@ -49,6 +51,8 @@ class PluginSettings {
       'categories_dimension'  => SettingsData::getCategoriesDimension(),
       'categories_weight'     => SettingsData::getCategoriesWeight(),
       'override_weight'       => SettingsData::getCategoriesOverrideWeight(),
+      'override_categories'   => SettingsData::getOverrideCategories(),	
+      'all_site_categories'   => Categories::get_all_site_categories(),
       'ajaxurl'               => admin_url( 'admin-ajax.php' ),
       'nonce'                 => wp_create_nonce( 'lb_tradeinn_crawler_nonce' ),
     ) );

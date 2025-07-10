@@ -143,6 +143,8 @@ if( current_user_can( 'manage_woocommerce' ) ) {
           </ul>
         </section>
 
+        <br />
+
         <section>
           <header class="lb-barrabes-inline">  
             <h2>Categorias Encontradas na Barrabes Pro</h2>

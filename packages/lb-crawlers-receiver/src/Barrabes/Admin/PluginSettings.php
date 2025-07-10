@@ -3,6 +3,7 @@
 namespace LucasBarbosa\LbCrawlersReceiver\Barrabes\Admin;
 
 use LucasBarbosa\LbCrawlersReceiver\Barrabes\Data\SettingsData;
+use LucasBarbosa\LbCrawlersReceiver\Common\Categories;
 
 class PluginSettings {
   private $page_name = 'lb-barrabes';
@@ -43,7 +44,7 @@ class PluginSettings {
   }
 
   private function enqueue_styles() {
-		wp_enqueue_style( $this->plugin_name, plugins_url( 'assets/barrabes.admin.min.css', LB_CRAWLERS_RECEIVER_FILE ), array(), $this->version, 'all' );
+		wp_enqueue_style( $this->plugin_name, plugins_url( 'assets/barrabes.admin.css', LB_CRAWLERS_RECEIVER_FILE ), array(), $this->version, 'all' );
 	}
 
   function enqueue_scripts() {
@@ -58,6 +59,8 @@ class PluginSettings {
       'categories_dimension'  => SettingsData::getCategoriesDimension(),
       'categories_weight'     => SettingsData::getCategoriesWeight(),
       'override_weight'       => SettingsData::getCategoriesOverrideWeight(),
+      'override_categories'   => SettingsData::getOverrideCategories(),	
+      'all_site_categories'   => Categories::get_all_site_categories(),
       'ajaxurl'               => admin_url( 'admin-ajax.php' ),
       'nonce'                 => wp_create_nonce( 'lb_barrabes_crawler_nonce' ),
     ) );

@@ -20,7 +20,17 @@ class SettingsData {
     'weight_settings'       => 'lb_tradeinn_weight_settings',
     'override_weight_categories' => '_lb_tradeinn_override_weight_categories',
     'viewed_categories'     => '_lb_tradeinn_viewed_categories',
+    'override_category_names' => '_lb_tradeinn_override_category_names',
   ];
+
+  static function getOverrideCategories() {
+    $data = SettingsStorage::get( self::$options['override_category_names'] );
+    return is_null( $data ) ? [] : $data;
+  }
+
+  static function saveOverrideCategories( $categories ) {
+    SettingsStorage::insert( self::$options['override_category_names'], $categories );
+  }
 
   static function getCategories() {
     $data = SettingsStorage::get( self::$options['available_categories'] );

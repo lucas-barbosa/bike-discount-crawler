@@ -11,6 +11,7 @@ class SaveSettingsAjax {
     add_action('wp_ajax_tradeinn_process_categories_weight', array($this, 'process_categories_weight'));
     add_action('wp_ajax_tradeinn_process_viewed_categories', array($this, 'process_viewed_categories'));
     add_action('wp_ajax_tradeinn_process_override_weight_categories', array($this, 'process_override_weight_categories'));
+    add_action('wp_ajax_tradeinn_process_override_categories', array($this, 'process_override_categories'));
   }
 
   public function process_selected_categories() {
@@ -111,6 +112,25 @@ class SaveSettingsAjax {
 
     SettingsData::saveOverrideWeightCategories($overrideWeightCategories);
     do_action( 'lb_crawlers_settings_changed', 'TT', 'override_categories', $overrideWeightCategories );
+  }
+
+  public function process_override_categories() {
+    if ( ! $this->validate_permission() ) {
+      return false;
+    }
+
+    $overrideCategories = array();
+
+    if ( isset( $_POST['categories'] ) ) {
+      foreach ( $_POST['categories'] as $key => $value ) {
+        if ( $value > 0 ) $overrideCategories[$key] = sanitize_text_field( $value );
+      }
+    }
+
+    SettingsData::saveOverrideCategories($overrideCategories);
+    do_action( 'lb_crawlers_settings_changed', 'TT', 'override_category_names', $overrideCategories );
+
+    return true;
   }
 
   private function validate_permission() {

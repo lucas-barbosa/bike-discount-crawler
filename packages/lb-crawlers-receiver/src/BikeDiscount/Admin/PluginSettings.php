@@ -3,6 +3,7 @@
 namespace LucasBarbosa\LbCrawlersReceiver\BikeDiscount\Admin;
 
 use LucasBarbosa\LbCrawlersReceiver\BikeDiscount\Data\SettingsData;
+use LucasBarbosa\LbCrawlersReceiver\Common\Categories;
 
 class PluginSettings {
   private $page_name = 'lb-bike-discount';
@@ -39,7 +40,8 @@ class PluginSettings {
       return;
     }
 
-    wp_register_script( $this->plugin_name, plugins_url( 'assets/bike-discount.admin.js', LB_CRAWLERS_RECEIVER_FILE ), [ 'jquery' ], '4.2.0' );
+		wp_enqueue_style( $this->plugin_name, plugins_url( 'assets/bike-discount.admin.css', LB_CRAWLERS_RECEIVER_FILE ), array(), $this->version, 'all' );
+    wp_register_script( $this->plugin_name, plugins_url( 'assets/bike-discount.admin.js', LB_CRAWLERS_RECEIVER_FILE ), [ 'jquery' ], '4.2.1' );
 
     wp_localize_script( $this->plugin_name, $this->plugin_name, array(
       'weight_settings' => SettingsData::getWeightSettings(),
@@ -48,6 +50,8 @@ class PluginSettings {
       'available_categories'  => SettingsData::getCategories(),
       'selected_categories'   => SettingsData::getSelectedCategories(),
       'viewed_categories'     => SettingsData::getViewedCategories(),
+      'all_site_categories'   => Categories::get_all_site_categories(),
+      'override_categories'   => SettingsData::getOverrideCategories(),	
       'categories_dimension'  => SettingsData::getCategoriesDimension(),
       'categories_weight'     => SettingsData::getCategoriesWeight(),
       'override_weight'       => SettingsData::getCategoriesOverrideWeight()

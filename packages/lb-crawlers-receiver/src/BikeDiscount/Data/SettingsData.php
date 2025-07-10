@@ -18,6 +18,7 @@ class SettingsData {
     'password'              => '_lb_bike_discount_password',
     'stock'                 => '_lb_bike_discount_stock',
     'override_weight_categories' => '_lb_bike_discount_override_weight_categories',
+    'override_category_names' => '_lb_bike_discount_override_category_names',
     'selected_categories'   => '_lb_bike_discount_selected_categories',
     'viewed_categories'     => '_lb_bike_discount_viewed_categories',
     'weight_settings'       => '_lb_bike_discount_weight_settings',
@@ -25,6 +26,11 @@ class SettingsData {
 
   static function getCategories() {
     return get_option( self::$options['available_categories'], [] );
+  }
+
+  static function getOverrideCategories() {
+    $data = SettingsStorage::get( self::$options['override_category_names'] );
+    return is_null( $data ) ? [] : $data;
   }
 
   static function getCategoriesDimension() {
@@ -102,6 +108,10 @@ class SettingsData {
 
   static function saveCategoriesTree( $category, $tree ) {
     update_option( self::$options['categoriesTree'] . '_' . $category, $tree, false );
+  }
+
+  static function saveOverrideCategories( $categories ) {
+    SettingsStorage::insert( self::$options['override_category_names'], $categories );
   }
   
   static function saveCategoriesWeight( $categories ) {

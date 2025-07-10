@@ -115,24 +115,26 @@ if( current_user_can( 'manage_woocommerce' ) ) {
           </table>
         </form>
       </section>
-
-      <section>
-        <form method="POST" action="admin-post.php" id="tradeinn-categories">
-          <input type="hidden" name="action" value="lb_tradeinn_crawler_available_categories">
-          <input type="hidden" name="lb-nonce" value="<?php echo wp_create_nonce( 'lb_tradeinn_crawler_nonce' ) ?>">
-
-          <header class="lb-tradeinn-inline">  
-            <h2>Categorias Encontradas</h2>
-            <button class="button-primary" type="submit" id="lb-tradeinn-save-categories">Salvar</button>
-          </header>
-
-          <p>Selecione as categorias que deseja buscar os produtos.</p>
-
-          <ul id="lb-tradeinn-available-categories">
-          </ul>
-        </form>
-      </section>
     </div>
+
+    <hr />
+    
+    <section>
+      <form method="POST" action="admin-post.php" id="tradeinn-categories">
+        <input type="hidden" name="action" value="lb_tradeinn_crawler_available_categories">
+        <input type="hidden" name="lb-nonce" value="<?php echo wp_create_nonce( 'lb_tradeinn_crawler_nonce' ) ?>">
+
+        <header class="lb-tradeinn-inline">  
+          <h2>Categorias Encontradas</h2>
+          <button class="button-primary" type="submit" id="lb-tradeinn-save-categories">Salvar</button>
+        </header>
+
+        <p>Selecione as categorias que deseja buscar os produtos.</p>
+
+        <ul id="lb-tradeinn-available-categories">
+        </ul>
+      </form>
+    </section>
 
     <hr />
 

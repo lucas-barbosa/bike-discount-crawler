@@ -21,6 +21,16 @@ class SettingsData {
   private static $categoriesWeight = 'lb_barrabes_categories_weight';
   private static $overrideWeightCategories = 'lb_barrabes_override_weight_categories';
   private static $viewedCategories = 'lb_barrabes_viewed_categories';
+  private static $override_category_names = 'lb_barrabes_override_category_names';
+
+  static function getOverrideCategories() {
+    $data = SettingsStorage::get( self::$override_category_names );
+    return is_null( $data ) ? [] : $data;
+  }
+
+  static function saveOverrideCategories( $categories ) {
+    SettingsStorage::insert( self::$override_category_names, $categories );
+  }
 
   static function getDeniedBrands() {
     return get_option( self::$deniedBrands, '' );
