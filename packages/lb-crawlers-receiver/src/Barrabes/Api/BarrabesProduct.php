@@ -64,13 +64,19 @@ class BarrabesProduct extends BarrabesHelper {
 		return $terms_to_add;
 	}
 
-  private function addCategories( $barrabesCategories, $is_pro ) {
+  protected function addCategories( $barrabesCategories, $defaultParentId = null, $is_pro = null ) {
 		if ( ! is_array( $barrabesCategories ) ) {
 			$barrabesCategories = [];
 		}
 		
-    array_unshift( $barrabesCategories, $is_pro ? 'Profissional' : 'Esportivo' );
-    $parentId = get_option( 'lb_barrabes_category', 0 );
+		if ( !is_null( $is_pro ) ) {
+			array_unshift( $barrabesCategories, $is_pro ? 'Profissional' : 'Esportivo' );
+		}
+		
+		$parentId = is_null( $defaultParentId ) 
+		  ? $this->getParentCategory()
+			: $defaultParentId;
+
 		$categoryIds = array();
 
     if ( empty( $parentId ) ) {
@@ -353,9 +359,10 @@ class BarrabesProduct extends BarrabesHelper {
 			$wc_product->set_name( $title );
 		}
 
-		$categories = $this->addCategories( $data['categories'], $is_pro );
+		$categories = $this->addCategories( $data['categories'], null,$is_pro );
+		$originalCategories = $this->addOriginalCategories( $data['categories'], $data['categoryUrl'] );
 		$existentCategories = $wc_product->get_category_ids();
-		$wc_product->set_category_ids( array_merge( $categories, $existentCategories ) );
+		$wc_product->set_category_ids( array_merge( $categories, $existentCategories, $originalCategories ) );
 
 		if ( empty( $wc_product->get_description() ) ) {
 			$description = $this->sanitizeDescription( $data['description'] );	

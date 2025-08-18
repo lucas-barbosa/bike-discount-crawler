@@ -21,7 +21,7 @@ class BikeDiscountProduct extends BikeDiscountHelper {
 
     self::$IS_RUNNING = true;
 
-    $result = $this->getWoocommerceProduct( $data['id'], $data['sku'], is_array( $data['variations'] ) && count( $data['variations'] ) > 0 );
+    $result = $this->getWoocommerceProduct( $data['id'], $data['sku'], $data['url'], is_array( $data['variations'] ) && count( $data['variations'] ) > 0 );
 
 		$wc_product = $result[0];
 		$is_new_product = $result[1];
@@ -65,12 +65,15 @@ class BikeDiscountProduct extends BikeDiscountHelper {
 		return $terms_to_add;
 	}
 
-  private function addCategories( $bikeDiscountCategories ) {
+  protected function addCategories( $bikeDiscountCategories, $defaultParentId = null ) {
 		if ( ! is_array( $bikeDiscountCategories ) ) {
 			$bikeDiscountCategories = [];
 		}
 		
-    $parentId = get_option( '_lb_bike_discount_parent_category', 0 );
+    $parentId = is_null( $defaultParentId )
+			? get_option( '_lb_bike_discount_parent_category', 0 )
+			: $defaultParentId;
+
 		$categoryIds = array();
 
     if ( empty( $parentId ) ) {
@@ -194,7 +197,7 @@ class BikeDiscountProduct extends BikeDiscountHelper {
 	}
 
   private function deleteProductIfExists( $data ) {
-		$productId = $this->getProductId($data['id'], $data['sku']);
+		$productId = $this->getProductId($data['id'], $data['sku'], $data['url']);
 
 		if ( $productId ) {
 			if ( $this->checkProductWasAddedManually( null, $productId ) ) {
@@ -399,8 +402,9 @@ class BikeDiscountProduct extends BikeDiscountHelper {
 		}
 
 		$categories = $this->addCategories( $data['categories'] );
+		$originalCategories = $this->addOriginalCategories( $data['categories'], $data['categoryUrl'] );
 		$existentCategories = $wc_product->get_category_ids();
-		$wc_product->set_category_ids( array_merge( $categories, $existentCategories ) );
+		$wc_product->set_category_ids( array_merge( $categories, $existentCategories, $originalCategories ) );
 
 		if ( empty( $wc_product->get_description() ) ) {
 			$description = $this->sanitizeDescription( $data['description'] );

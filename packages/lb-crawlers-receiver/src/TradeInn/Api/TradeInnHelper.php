@@ -2,16 +2,30 @@
 
 namespace LucasBarbosa\LbCrawlersReceiver\TradeInn\Api;
 
+use LucasBarbosa\LbCrawlersReceiver\Common\BaseProduct;
 use LucasBarbosa\LbCrawlersReceiver\Data\CrawlerOptions;
 use LucasBarbosa\LbCrawlersReceiver\TradeInn\Data\SettingsData;
 use LucasBarbosa\LbCrawlersReceiver\TradeInn\Data\TradeInnMapper;
 
-class TradeInnHelper {
+abstract class TradeInnHelper extends BaseProduct {
   private array $taxonomies = [];
   protected string $stock = '';
   
 	protected function loadParams() {
 		$this->stock = SettingsData::getStock();
+	}
+
+	protected function getOverrideCategoryId( $categoryUrl ) {
+		$overrideCategories = SettingsData::getOverrideCategories();
+		return $overrideCategories[$categoryUrl] ?? '';
+	}
+
+	protected function getParentCategory() {
+		return SettingsData::getParentCategory();
+	}
+
+	protected function addCategories($tradeinnCategories, $defaultParentId = null) {
+		throw new \BadMethodCallException('Method addCategories() is not implemented.');
 	}
 
   protected function addTaxonomyIfNotExists( $taxonomySlug, $taxonomyLabel, $values = array() ) {

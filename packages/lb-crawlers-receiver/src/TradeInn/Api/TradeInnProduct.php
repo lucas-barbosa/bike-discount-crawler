@@ -92,12 +92,11 @@ class TradeInnProduct extends TradeInnHelper {
 		return $terms_to_add;
 	}
 
-  private function addCategories( $tradeinnCategories ) {
-		if ( ! is_array( $tradeinnCategories ) ) {
-			$tradeinnCategories = [];
-		}
-		
-    $parentId = SettingsData::getParentCategory();
+  protected function addCategories( $tradeinnCategories, $defaultParentId = null ) {
+    $parentId = is_null( $defaultParentId ) 
+		  ? $this->getParentCategory()
+			: $defaultParentId;
+
 		$categoryIds = array();
 
     if ( empty( $parentId ) ) {
@@ -376,9 +375,10 @@ class TradeInnProduct extends TradeInnHelper {
 			$wc_product->set_name( $title );
 		}
 
-		$categories = $this->addCategories( $data['categories'] );
+		$categories = $this->addCategories( $data['categories'], $data['categoryUrl'] );
+		$originalCategories = $this->addOriginalCategories( $data['categories'], $data['categoryUrl'] );
 		$existentCategories = $wc_product->get_category_ids();
-		$wc_product->set_category_ids( array_merge( $categories, $existentCategories ) );
+		$wc_product->set_category_ids( array_merge( $categories, $existentCategories, $originalCategories ) );
 
 		if ( empty( $wc_product->get_description() ) ) {
 			$description = $this->sanitizeDescription( $data['description'] );	

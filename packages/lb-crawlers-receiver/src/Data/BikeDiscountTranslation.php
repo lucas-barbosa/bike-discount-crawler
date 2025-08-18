@@ -6,7 +6,7 @@ class BikeDiscountTranslation extends BikeDiscountHelper {
   public static $IS_RUNNING = false;
   
   function handleTranslateProduct( $data ) {
-    $productId = $this->getProductId($data['id'], $data['sku']);
+    $productId = $this->getProductId($data['id'], $data['sku'], $data['url']);
 
     if ( ! $productId ) {
       return;

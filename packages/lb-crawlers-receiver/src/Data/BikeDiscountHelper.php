@@ -2,9 +2,11 @@
 
 namespace LucasBarbosa\LbCrawlersReceiver\Data;
 
+use LucasBarbosa\LbCrawlersReceiver\BikeDiscount\Data\SettingsData;
+use LucasBarbosa\LbCrawlersReceiver\Common\BaseProduct;
 use LucasBarbosa\LbCrawlersReceiver\Utils\Utils;
 
-class BikeDiscountHelper {
+abstract class BikeDiscountHelper extends BaseProduct {
 	// public static $IS_RUNNING = false;
   private array $taxonomies = [];
 	private array $translatedAttributes = [];
@@ -16,6 +18,20 @@ class BikeDiscountHelper {
 
 	protected function loadParams( $stockName ) {
 		$this->stock = get_option( $stockName, '' );
+	}
+
+	
+	protected function getOverrideCategoryId( $categoryUrl ) {
+		$overrideCategories = SettingsData::getOverrideCategories();
+		return $overrideCategories[$categoryUrl] ?? '';
+	}
+
+	protected function getParentCategory() {
+		return SettingsData::getParentCategory();
+	}
+
+	protected function addCategories($tradeinnCategories, $defaultParentId = null) {
+		throw new \BadMethodCallException('Method addCategories() is not implemented.');
 	}
 
   // public function execute( ProductEntity $productData ) {
@@ -427,8 +443,8 @@ class BikeDiscountHelper {
 	// 	return [new \WC_Product((int) $productId ), $new_product];
   // }
 
-  protected function getWoocommerceProduct( string $id, string $sku, bool $isVariable ) {
-    $productId = $this->getProductId( $id, $sku );
+  protected function getWoocommerceProduct( string $id, string $sku, string $url, bool $isVariable ) {
+    $productId = $this->getProductId( $id, $sku, $url );
 		$new_product = true;
 
 		if ( $productId ) {

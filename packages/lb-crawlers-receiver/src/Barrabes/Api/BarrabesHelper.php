@@ -5,13 +5,27 @@ namespace LucasBarbosa\LbCrawlersReceiver\Barrabes\Api;
 use LucasBarbosa\LbCrawlersReceiver\Barrabes\Data\BarrabesMapper;
 use LucasBarbosa\LbCrawlersReceiver\Barrabes\Data\SettingsData;
 use LucasBarbosa\LbCrawlersReceiver\Data\CrawlerOptions;
+use LucasBarbosa\LbCrawlersReceiver\Common\BaseProduct;
 
-class BarrabesHelper {
+abstract class BarrabesHelper extends BaseProduct {
   private array $taxonomies = [];
   protected string $stock = '';
   
 	protected function loadParams( $stockName ) {
 		$this->stock = get_option( $stockName, '' );
+	}
+
+	protected function getOverrideCategoryId( $categoryUrl ) {
+		$overrideCategories = SettingsData::getOverrideCategories();
+		return $overrideCategories[$categoryUrl] ?? '';
+	}
+
+	protected function getParentCategory() {
+		return SettingsData::getParentCategory();
+	}
+
+	protected function addCategories($tradeinnCategories, $defaultParentId = null, $is_pro = false) {
+		throw new \BadMethodCallException('Method addCategories() is not implemented.');
 	}
 
   protected function addTaxonomyIfNotExists( $taxonomySlug, $taxonomyLabel, $values = array() ) {
