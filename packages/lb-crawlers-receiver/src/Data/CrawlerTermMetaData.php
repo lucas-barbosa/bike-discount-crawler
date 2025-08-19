@@ -104,4 +104,25 @@ class CrawlerTermMetaData {
 
     return null;
   }
+
+  public static function getTermIdByMeta( $meta_key, $meta_value ) {
+    global $wpdb;
+
+    if ( empty( $meta_key ) || empty( $meta_value ) ) {
+      return null;
+    }
+
+    $table_name = self::getTableName();
+
+    $query = $wpdb->prepare(
+      "SELECT term_id FROM {$table_name} WHERE meta_key = %s AND meta_value = %s LIMIT 1",
+      $meta_key,
+      $meta_value
+    );
+
+    $term_id = $wpdb->get_var( $query );
+
+    return $term_id ? intval( $term_id ) : null;
+  }
+
 }

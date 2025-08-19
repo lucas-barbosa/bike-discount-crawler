@@ -2,6 +2,7 @@
 
 namespace LucasBarbosa\LbCrawlersReceiver\TradeInn\Admin;
 
+use LucasBarbosa\LbCrawlersReceiver\Jobs\CategoryBackfill;
 use LucasBarbosa\LbCrawlersReceiver\TradeInn\Data\SettingsData;
 
 class SaveSettingsAjax {
@@ -127,9 +128,21 @@ class SaveSettingsAjax {
       }
     }
 
-    SettingsData::saveOverrideCategories($overrideCategories);
-    do_action( 'lb_crawlers_settings_changed', 'TT', 'override_category_names', $overrideCategories );
+    $oldCategories = SettingsData::getOverrideCategories();
+    if ( ! is_array( $oldCategories ) ) {
+        $oldCategories = [];
+    }
 
+    SettingsData::saveOverrideCategories($overrideCategories);
+    $newCategories = array_diff( $overrideCategories, $oldCategories );
+
+    if ( ! empty( $newCategories ) ) {
+      foreach ( $newCategories as $url => $termId ) {
+        CategoryBackfill::dispatch( $url, $termId );
+      }
+    }
+
+    do_action( 'lb_crawlers_settings_changed', 'TT', 'override_category_names', $overrideCategories );
     return true;
   }
 

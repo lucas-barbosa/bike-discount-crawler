@@ -16,6 +16,7 @@ use LucasBarbosa\LbCrawlersReceiver\Barrabes\BarrabesInit;
 use LucasBarbosa\LbCrawlersReceiver\BikeDiscount\BikeDiscountInit;
 use LucasBarbosa\LbCrawlersReceiver\CrawlerBlock\CrawlerBlockStorage;
 use LucasBarbosa\LbCrawlersReceiver\CrawlerBlock\InitCrawlerBlock;
+use LucasBarbosa\LbCrawlersReceiver\Jobs\JobsInit;
 use LucasBarbosa\LbCrawlersReceiver\TradeInn\TradeInnInit;
 
 if ( ! defined( 'WPINC' ) ) {
@@ -50,3 +51,6 @@ $bikeDiscount->run();
 
 $tradeinn = new TradeInnInit();
 $tradeinn->run();
+
+$jobs = new JobsInit();
+$jobs->run();
