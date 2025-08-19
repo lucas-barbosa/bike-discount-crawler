@@ -7,6 +7,10 @@ use LucasBarbosa\LbCrawlersReceiver\Utils\Utils;
 
 class BikeDiscountStock extends BikeDiscountHelper {
   function handleUpdateStock($data) {
+    if ( isset( $data[ 'url' ]) && is_array( $data['url'] ) && count( $data['url'] ) > 0) {
+      $data['url'] = $data['url'][0];
+    }
+
     $productId = $this->getProductId($data['id'], $data['sku'], $data['url']);
 
     if (!$productId) {
