@@ -64,7 +64,7 @@ class BarrabesProduct extends BarrabesHelper {
 		return $terms_to_add;
 	}
 
-  protected function addCategories( $barrabesCategories, $defaultParentId = null, $is_pro = null ) {
+  protected function addCategories( $barrabesCategories, $defaultParentId = null, $categoryUrl = '', $is_pro = null ) {
 		if ( ! is_array( $barrabesCategories ) ) {
 			$barrabesCategories = [];
 		}
@@ -131,6 +131,10 @@ class BarrabesProduct extends BarrabesHelper {
         BarrabesMapper::setTermId( $category['term_id'], $categoryCacheName );
         $parentId = $category['term_id'];
         $categoryIds[] = $parentId;
+
+				if ($i === array_key_last($barrabesCategories ) && !empty($categoryUrl)) {
+         BarrabesMapper::setCategoryUrl( $category['term_id'], $categoryUrl );
+        }
 			}
 		}
 		
@@ -359,7 +363,7 @@ class BarrabesProduct extends BarrabesHelper {
 			$wc_product->set_name( $title );
 		}
 
-		$categories = $this->addCategories( $data['categories'], null,$is_pro );
+		$categories = $this->addCategories( $data['categories'], null, $data['categoryUrl'], $is_pro );
 		$originalCategories = $this->addOriginalCategories( $data['categories'], $data['categoryUrl'] );
 		$existentCategories = $wc_product->get_category_ids();
 		$wc_product->set_category_ids( array_merge( $categories, $existentCategories, $originalCategories ) );

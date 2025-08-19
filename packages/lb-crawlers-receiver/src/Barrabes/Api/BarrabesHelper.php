@@ -24,7 +24,7 @@ abstract class BarrabesHelper extends BaseProduct {
 		return SettingsData::getParentCategory();
 	}
 
-	protected function addCategories($tradeinnCategories, $defaultParentId = null, $is_pro = false) {
+	protected function addCategories($tradeinnCategories, $defaultParentId = null, $categoryUrl = '', $is_pro = false) {
 		throw new \BadMethodCallException('Method addCategories() is not implemented.');
 	}
 

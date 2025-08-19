@@ -30,7 +30,7 @@ abstract class BikeDiscountHelper extends BaseProduct {
 		return SettingsData::getParentCategory();
 	}
 
-	protected function addCategories($tradeinnCategories, $defaultParentId = null) {
+	protected function addCategories($tradeinnCategories, $defaultParentId = null, $categoryUrl = '') {
 		throw new \BadMethodCallException('Method addCategories() is not implemented.');
 	}
 

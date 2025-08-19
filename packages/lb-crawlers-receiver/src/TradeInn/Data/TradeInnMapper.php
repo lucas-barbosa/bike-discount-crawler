@@ -90,6 +90,10 @@ class TradeInnMapper {
 		CrawlerTermMetaData::insert( $term, '_tradeinn_term_id_' . $id, $id );
 	}
 
+	static function setCategoryUrl( $term, $url ) {
+		CrawlerTermMetaData::insert( $term, '_category_url', $url );
+	}
+
 	static function setTermKey( $term, $key ) {
 		CrawlerTermMetaData::insert( $term, $key, $key );
 	}

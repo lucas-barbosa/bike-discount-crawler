@@ -4,7 +4,7 @@ namespace LucasBarbosa\LbCrawlersReceiver\Common;
 
 abstract class BaseProduct {
   abstract protected function getOverrideCategoryId( $categoryUrl );
-  abstract protected function addCategories( $crawlerCategories, $defaultParentId = null );
+  abstract protected function addCategories( $crawlerCategories, $defaultParentId = null, $categoryUrl = '' );
   abstract protected function getParentCategory();
 
   protected function mapCategory( $categoryUrl ) {
@@ -64,10 +64,11 @@ abstract class BaseProduct {
 			$mappedCategories = $this->mapCategory( $crawlerCategories[0] );
 		}
 
-		$parentId = is_numeric( $mappedCategories )
-			? $mappedCategories
-			: $this->getParentCategory();
+		if ( ! is_numeric( $mappedCategories ) ) {
+			return [];
+		}
 
-		return $this->addCategories( $crawlerCategories, $parentId );
+		$parentId = $mappedCategories;
+		return $this->addCategories( $crawlerCategories, $parentId, $categoryUrl );
 	}
 }

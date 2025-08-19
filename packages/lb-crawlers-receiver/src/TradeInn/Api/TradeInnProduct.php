@@ -92,7 +92,7 @@ class TradeInnProduct extends TradeInnHelper {
 		return $terms_to_add;
 	}
 
-  protected function addCategories( $tradeinnCategories, $defaultParentId = null ) {
+  protected function addCategories( $tradeinnCategories, $defaultParentId = null, $categoryUrl = '' ) {
     $parentId = is_null( $defaultParentId ) 
 		  ? $this->getParentCategory()
 			: $defaultParentId;
@@ -146,6 +146,10 @@ class TradeInnProduct extends TradeInnHelper {
         TradeInnMapper::setTermId( $category['term_id'], $categoryCacheName );
         $parentId = $category['term_id'];
         $categoryIds[] = $parentId;
+
+				if ($i === array_key_last($tradeinnCategories) && !empty($categoryUrl)) {
+          TradeInnMapper::setCategoryUrl( $category['term_id'], $categoryUrl );
+        }
 			}
 		}
 		
@@ -375,7 +379,7 @@ class TradeInnProduct extends TradeInnHelper {
 			$wc_product->set_name( $title );
 		}
 
-		$categories = $this->addCategories( $data['categories'], $data['categoryUrl'] );
+		$categories = $this->addCategories( $data['categories'], null, $data['categoryUrl'] );
 		$originalCategories = $this->addOriginalCategories( $data['categories'], $data['categoryUrl'] );
 		$existentCategories = $wc_product->get_category_ids();
 		$wc_product->set_category_ids( array_merge( $categories, $existentCategories, $originalCategories ) );

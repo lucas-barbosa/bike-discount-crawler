@@ -65,4 +65,8 @@ class BarrabesMapper {
   static function setTermId( $term, $id ) {
     CrawlerTermMetaData::insert( $term, '_barrabes_term_name_' . $id, $id );
 	}
+
+	static function setCategoryUrl( $term, $url ) {
+		CrawlerTermMetaData::insert( $term, '_category_url', $url );
+	}
 }

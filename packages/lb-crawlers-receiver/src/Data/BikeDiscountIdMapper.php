@@ -108,6 +108,10 @@ class BikeDiscountIdMapper {
 		update_term_meta( $term, '_bike_discount_term_id_' . $id, $id );
 	}
 
+	static function setCategoryUrl( $term, $url ) {
+		CrawlerTermMetaData::insert( $term, '_category_url', $url );
+	}
+
 	static function setTermKey( $term, $key ) {
 		update_term_meta( $term, $key, $key );
 	}

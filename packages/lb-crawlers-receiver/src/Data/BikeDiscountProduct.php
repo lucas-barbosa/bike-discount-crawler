@@ -65,7 +65,7 @@ class BikeDiscountProduct extends BikeDiscountHelper {
 		return $terms_to_add;
 	}
 
-  protected function addCategories( $bikeDiscountCategories, $defaultParentId = null ) {
+  protected function addCategories( $bikeDiscountCategories, $defaultParentId = null, $categoryUrl = '') {
 		if ( ! is_array( $bikeDiscountCategories ) ) {
 			$bikeDiscountCategories = [];
 		}
@@ -82,7 +82,7 @@ class BikeDiscountProduct extends BikeDiscountHelper {
       $categoryIds[] = $parentId;
     }
     
-		foreach ( $bikeDiscountCategories as $categoryName ) {
+		foreach ( $bikeDiscountCategories as $i => $categoryName ) {
 			$parentName = $parentId !== 0 ? "$parentId-" : '';
 
 			$categoryCacheName = $parentName . $categoryName;
@@ -123,9 +123,12 @@ class BikeDiscountProduct extends BikeDiscountHelper {
 
       if ( ! is_wp_error( $category ) && isset( $category['term_id'] ) ) {
 				BikeDiscountIdMapper::setTermId( $category['term_id'], $categoryCacheName );
-
         $parentId = $category['term_id'];
         $categoryIds[] = $parentId;
+
+				if ($i === array_key_last($bikeDiscountCategories ) && !empty($categoryUrl)) {
+          BikeDiscountIdMapper::setCategoryUrl( $category['term_id'], $categoryUrl );
+        }
 			}
 		}
 		
@@ -401,7 +404,7 @@ class BikeDiscountProduct extends BikeDiscountHelper {
 			$wc_product->set_name( trim( $translatedTitle ) );
 		}
 
-		$categories = $this->addCategories( $data['categories'] );
+		$categories = $this->addCategories( $data['categories'], null, $data['categoryUrl'] );
 		$originalCategories = $this->addOriginalCategories( $data['categories'], $data['categoryUrl'] );
 		$existentCategories = $wc_product->get_category_ids();
 		$wc_product->set_category_ids( array_merge( $categories, $existentCategories, $originalCategories ) );
