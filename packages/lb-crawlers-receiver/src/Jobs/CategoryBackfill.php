@@ -43,7 +43,7 @@ class CategoryBackfill {
       $term_id = CrawlerTermMetaData::getTermIdByMeta('_category_url', $url);
 
       if ( ! $term_id ) {
-        error_log('No term id found');
+        // error_log('No term id found');
         return;
       }
     }

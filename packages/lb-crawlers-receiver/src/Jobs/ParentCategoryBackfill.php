@@ -5,6 +5,7 @@ namespace LucasBarbosa\LbCrawlersReceiver\Jobs;
 
 use LucasBarbosa\LbCrawlersReceiver\Barrabes\Data\SettingsData as BarrabesSettingsData;
 use LucasBarbosa\LbCrawlersReceiver\BikeDiscount\Data\SettingsData as BikeDiscountSettingsData;
+use LucasBarbosa\LbCrawlersReceiver\Data\CrawlerTermMetaData;
 use LucasBarbosa\LbCrawlersReceiver\TradeInn\Data\SettingsData as TradeinnSettingsData;
 
 class ParentCategoryBackfill {
@@ -16,7 +17,7 @@ class ParentCategoryBackfill {
      * Dispara o job inicial com categoria pai externa, categoria WooCommerce pai e código do crawler
      */
     public static function dispatch(string $parent_external_cat_name, int $wc_parent_term_id, string $crawler_code) {
-      $args = [$parent_external_cat_name, $wc_parent_term_id, $crawler_code, 0];
+      $args = [$parent_external_cat_name, $wc_parent_term_id, $crawler_code, 0, []];
       $existing = as_next_scheduled_action(self::$hook_name, $args, 'lb-crawler');
 
       if (!$existing) {
@@ -28,7 +29,7 @@ class ParentCategoryBackfill {
      * Registra o hook para processar a fila
      */
     public static function register() {
-      add_action(self::$hook_name, [__CLASS__, 'handle'], 10, 4);
+      add_action(self::$hook_name, [__CLASS__, 'handle'], 10, 5);
     }
 
     /**
@@ -40,13 +41,19 @@ class ParentCategoryBackfill {
      * @param string $crawler_code              Código do crawler ('BB', 'TT', 'BD')
      * @param int    $offset                    Offset para paginação dos produtos
      */
-    public static function handle(string $parent_external_cat_name, int $wc_parent_term_id, string $crawler_code, int $offset = 0) {
+    public static function handle(string $parent_external_cat_name, int $wc_parent_term_id, string $crawler_code, int $offset = 0, $cached_terms = [] ) {
         global $wpdb;
 
         // Obter lista completa de categorias externa pelo código do crawler
         $all_external_categories = self::getExternalCategoriesByCrawlerCode($crawler_code);
         if (empty($all_external_categories)) {
           // "Nenhuma categoria externa encontrada para crawler code {$crawler_code}"
+          return;
+        }
+
+        $all_selected_categories = self::getSelectedCategoriesByCrawlerCode($crawler_code);
+        if (empty($all_selected_categories)) {
+          // "Nenhuma categoria selecionada para crawler code {$crawler_code}"
           return;
         }
 
@@ -61,40 +68,48 @@ class ParentCategoryBackfill {
           $leaf_url = $item['url'];
           $hierarchy = $item['hierarchy'];
 
-          error_log( $leaf_url );
-          error_log(print_r($hierarchy, true));
-          // // Cria hierarquia de categorias WooCommerce e obtém todos term_ids para associação
-          // $term_ids = self::create_wc_category_full_hierarchy($hierarchy, $wc_parent_term_id);
+          if ( ! in_array( $leaf_url, $all_selected_categories ) ) {
+            // Categoria não selecionada para crawler
+            continue;
+          }
 
-          // // Busca produtos que tem _category_url igual à leaf_url, em lote paginado
-          // $product_ids = $wpdb->get_col(
-          //   $wpdb->prepare(
-          //       "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_category_url' AND meta_value = %s LIMIT %d OFFSET %d",
-          //       $leaf_url,
-          //       self::$batch_size,
-          //       $offset
-          //   )
-          // );
+          // Cria hierarquia de categorias WooCommerce e obtém todos term_ids para associação
+          $term_ids = empty( $cached_terms )
+            ? self::createWcCategoryFullHierarchy($hierarchy, $wc_parent_term_id)
+            : $cached_terms;
+          
+          if ( empty( $term_ids ) ) {
+            continue;
+          }
 
-          // if (empty($product_ids)) {
-          //   continue;
-          // }
+          $term_id = CrawlerTermMetaData::getTermIdByMeta('_category_url', $leaf_url);
+          if ( ! $term_id ) {
+            continue;
+          }
 
-          // // Associa cada produto a todos os termos da hierarquia
-          // foreach ($product_ids as $product_id) {
-          //   wp_set_object_terms($product_id, $term_ids, 'product_cat', true);
-          // }
+          $product_ids = $wpdb->get_col( $wpdb->prepare("
+              SELECT tr.object_id
+              FROM {$wpdb->term_relationships} tr
+              INNER JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+              WHERE tt.taxonomy = 'product_cat'
+                AND tt.term_id = %d
+              LIMIT %d OFFSET %d
+          ", $term_id, self::$batch_size, $offset ) );
 
-          // // Se lotou, reagenda para próximo batch
-          // if (count($product_ids) === self::$batch_size) {
-          //   as_schedule_single_action(
-          //     time() + 5,
-          //     self::$hook_name,
-          //     [$parent_external_cat_name, $wc_parent_term_id, $crawler_code, $offset + self::$batch_size],
-          //     'lb-crawler'
-          //   );
-          //   break; // pausa para próxima execução
-          // }
+          if ( empty( $product_ids ) ) {
+            // "[CategoryBackfill] Nenhum produto restante para term_id: $term_id"
+            continue;
+          }
+          
+          foreach ( $product_ids as $product_id ) {
+            wp_set_object_terms( $product_id, $term_ids, 'product_cat', true );
+          }
+      
+          // Se ainda há mais produtos, reagenda o próximo batch
+          if ( count( $product_ids ) === self::$batch_size ) {
+            $args = [$parent_external_cat_name, $wc_parent_term_id, $crawler_code, $offset + self::$batch_size, $term_ids];
+            as_schedule_single_action( time() + 5, self::$hook_name, $args, 'lb-crawler' );
+          }
         }
     }
 
@@ -124,6 +139,25 @@ class ParentCategoryBackfill {
       return $all_external_categories;
     }
 
+     protected static function getSelectedCategoriesByCrawlerCode(string $crawler_code) {
+      switch ($crawler_code) {
+        case 'BB':
+          $result = BarrabesSettingsData::getSelectedCategories();
+          break;
+        case 'TT':
+          $result = TradeinnSettingsData::getSelectedCategories();
+          break;
+        case 'BD':
+          $result = BikeDiscountSettingsData::getSelectedCategories();
+          break;
+        default:
+          $result = [];
+          break;
+      }
+
+      return $result;
+    }
+
     /**
      * Retorna array de folhas com hierarquia completa a partir da categoria pai externa (nome)
      * Cada item: ['url' => string, 'hierarchy' => array de objetos categoria desde raiz até folha]
@@ -132,7 +166,7 @@ class ParentCategoryBackfill {
       // Busca o objeto raiz pelo nome
       $root = null;
       foreach ($categories as $cat) {
-        if ($cat['name'] === $selected_parent_name) {
+        if ( self::slugify( $cat['name'] ) === $selected_parent_name) {
           $root = $cat;
           break;
         }
@@ -145,9 +179,9 @@ class ParentCategoryBackfill {
       $results = [];
 
       $traverse = function ($node, $path) use (&$traverse, &$results) {
-        $current_path = array_merge($path, [$node]);
+        $current_path = array_merge($path, [$node['name']]);
 
-        if (empty($node['childs'] ?? [])) {
+        if (empty($node['childs'] ?? [])) {          
           // Nó folha
           $results[] = [
             'url' => $node['url'],
@@ -170,34 +204,44 @@ class ParentCategoryBackfill {
     /**
      * Cria a hierarquia completa WooCommerce e retorna array com todos os term_ids
      */
-    protected static function create_wc_category_full_hierarchy(array $hierarchy, int $wc_parent_term_id) {
+    protected static function createWcCategoryFullHierarchy(array $hierarchy, int $wc_parent_term_id) {
         $parent_id = $wc_parent_term_id;
         $term_ids = [];
 
         foreach ($hierarchy as $cat) {
-            $cat_name = $cat['name']; // Usa nome amigável
-            $existing_terms = get_terms([
-                'taxonomy' => 'product_cat',
-                'hide_empty' => false,
-                'parent' => $parent_id,
-                'name' => $cat_name,
-                'fields' => 'all',
-            ]);
-            $term = (is_array($existing_terms) && count($existing_terms)) ? $existing_terms[0] : null;
+          $existing_terms = get_terms([
+            'taxonomy' => 'product_cat',
+            'hide_empty' => false,
+            'parent' => $parent_id,
+            'name' => $cat,
+            'fields' => 'all',
+          ]);
 
-            if (!$term) {
-                $new_term = wp_insert_term($cat_name, 'product_cat', ['parent' => $parent_id]);
-                if (is_wp_error($new_term)) {
-                    continue;
-                }
-                $parent_id = $new_term['term_id'];
-            } else {
-                $parent_id = $term->term_id;
+          $term = (is_array($existing_terms) && count($existing_terms)) ? $existing_terms[0] : null;
+
+          if (!$term) {
+            $new_term = wp_insert_term($cat, 'product_cat', ['parent' => $parent_id]);
+            if (is_wp_error($new_term)) {
+              continue;
             }
 
-            $term_ids[] = $parent_id;
+            $parent_id = $new_term['term_id'];
+          } else {
+            $parent_id = $term->term_id;
+          }
+
+          $term_ids[] = $parent_id;
         }
 
         return $term_ids;
     }
+
+  private static function slugify($str) {
+    $str = mb_strtolower($str, 'UTF-8'); // minúsculas
+    $str = trim($str); // remove espaços extras
+    $str = preg_replace('/[^\w\s-]/u', '', $str); // remove caracteres não permitidos
+    $str = preg_replace('/[\s_-]+/', '-', $str); // substitui espaço/underscore repetido por "-"
+    $str = preg_replace('/^-+|-+$/', '', $str); // remove "-" do início/fim
+    return $str;
+  }
 }

@@ -4,6 +4,7 @@ namespace LucasBarbosa\LbCrawlersReceiver\BikeDiscount\Admin;
 
 use LucasBarbosa\LbCrawlersReceiver\BikeDiscount\Data\SettingsData;
 use LucasBarbosa\LbCrawlersReceiver\Jobs\CategoryBackfill;
+use LucasBarbosa\LbCrawlersReceiver\Jobs\ParentCategoryBackfill;
 
 class SaveSettingsAjax {
   public function run() {
@@ -135,13 +136,16 @@ class SaveSettingsAjax {
     }
 
     SettingsData::saveOverrideCategories($overrideCategories);
-    $newCategories = array_diff( $overrideCategories, $oldCategories );
+    $newCategories = array_diff_assoc( $overrideCategories, $oldCategories );
 
     if ( ! empty( $newCategories ) ) {
       foreach ( $newCategories as $url => $termId ) {
-        error_log( $url );
-        error_log( $termId );
-        CategoryBackfill::dispatch( $url, $termId );
+        if ( strpos( $termId, '|root' ) !== false ) {
+          $newTermId = str_replace( '|root', '', $termId );
+          ParentCategoryBackfill::dispatch( $url, $newTermId, 'BD' );
+        } else {
+          CategoryBackfill::dispatch( $url, $termId );
+        }
       }
     }
 

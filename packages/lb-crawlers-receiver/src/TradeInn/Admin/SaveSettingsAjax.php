@@ -3,6 +3,7 @@
 namespace LucasBarbosa\LbCrawlersReceiver\TradeInn\Admin;
 
 use LucasBarbosa\LbCrawlersReceiver\Jobs\CategoryBackfill;
+use LucasBarbosa\LbCrawlersReceiver\Jobs\ParentCategoryBackfill;
 use LucasBarbosa\LbCrawlersReceiver\TradeInn\Data\SettingsData;
 
 class SaveSettingsAjax {
@@ -134,11 +135,16 @@ class SaveSettingsAjax {
     }
 
     SettingsData::saveOverrideCategories($overrideCategories);
-    $newCategories = array_diff( $overrideCategories, $oldCategories );
+    $newCategories = array_diff_assoc( $overrideCategories, $oldCategories );
 
     if ( ! empty( $newCategories ) ) {
       foreach ( $newCategories as $url => $termId ) {
-        CategoryBackfill::dispatch( $url, $termId );
+        if ( strpos( $termId, '|root' ) !== false ) {
+          $newTermId = str_replace( '|root', '', $termId );
+          ParentCategoryBackfill::dispatch( $url, $newTermId, 'TT' );
+        } else {
+          CategoryBackfill::dispatch( $url, $termId );
+        }
       }
     }
 
