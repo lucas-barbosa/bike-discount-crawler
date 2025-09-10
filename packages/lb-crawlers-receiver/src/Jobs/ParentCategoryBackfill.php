@@ -178,11 +178,11 @@ class ParentCategoryBackfill {
 
       $results = [];
 
-      $traverse = function ($node, $path) use (&$traverse, &$results) {
-        $current_path = array_merge($path, [$node['name']]);
+      $traverse = function ($node, $path, $isRoot = false) use (&$traverse, &$results) {
+        // só adiciona o nome se NÃO for o nó raiz
+        $current_path = $isRoot ? $path : array_merge($path, [$node['name']]);
 
         if (empty($node['childs'] ?? [])) {          
-          // Nó folha
           $results[] = [
             'url' => $node['url'],
             'hierarchy' => $current_path,
@@ -191,12 +191,12 @@ class ParentCategoryBackfill {
         }
 
         foreach ($node['childs'] as $child) {
-          $traverse($child, $current_path);
+          $traverse($child, $current_path, false);
         }
       };
 
-      // A função precisa de filhos (childs) para o nó, monta-os para todos os nós
-      $traverse($root, []);
+      // chama com flag indicando que o primeiro é raiz
+$traverse($root, [], true);
 
       return $results;
     }

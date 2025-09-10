@@ -3,19 +3,31 @@
 namespace LucasBarbosa\LbCrawlersReceiver\Common;
 
 class Categories {
-  static function get_all_site_categories() {
-    $cache_key = 'all_site_categories_hierarchy';
+  private static $cache_key = 'all_site_categories_hierarchy';
 
+  static function init() {
+    // limpa cache quando categorias são criadas ou removidas
+    add_action('created_product_cat', [__CLASS__, 'reset_categories_cache']);
+    add_action('delete_product_cat', [__CLASS__, 'reset_categories_cache']); 
+    add_action('edited_product_cat', [__CLASS__, 'reset_categories_cache']);
+  }
+
+  static function reset_categories_cache() {
+    delete_transient(self::$cache_key);
+  }
+
+
+  static function get_all_site_categories() {
     // tenta pegar do cache
-    $categories = get_transient($cache_key);
+    $categories = get_transient(self::$cache_key);
     if ($categories !== false) {
-        return $categories;
+      return $categories;
     }
 
     // caso não tenha no cache, gera normalmente
     $wp_categories = get_terms([
-        'taxonomy'   => 'product_cat',
-        'hide_empty' => false,
+      'taxonomy'   => 'product_cat',
+      'hide_empty' => false,
     ]);
 
     if (is_wp_error($wp_categories)) {
@@ -52,7 +64,7 @@ class Categories {
     });
 
     // salva no cache por 12h (pode ajustar o tempo conforme necessidade)
-    set_transient($cache_key, $categories, 12 * HOUR_IN_SECONDS);
+    set_transient(self::$cache_key, $categories, 12 * HOUR_IN_SECONDS);
 
     return $categories;
   }

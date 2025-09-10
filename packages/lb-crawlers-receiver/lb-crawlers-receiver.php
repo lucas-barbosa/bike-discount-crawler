@@ -14,6 +14,7 @@
 use LucasBarbosa\LbCrawlersReceiver\Apis\InitApi;
 use LucasBarbosa\LbCrawlersReceiver\Barrabes\BarrabesInit;
 use LucasBarbosa\LbCrawlersReceiver\BikeDiscount\BikeDiscountInit;
+use LucasBarbosa\LbCrawlersReceiver\Common\Categories;
 use LucasBarbosa\LbCrawlersReceiver\CrawlerBlock\CrawlerBlockStorage;
 use LucasBarbosa\LbCrawlersReceiver\CrawlerBlock\InitCrawlerBlock;
 use LucasBarbosa\LbCrawlersReceiver\Jobs\JobsInit;
@@ -54,3 +55,5 @@ $tradeinn->run();
 
 $jobs = new JobsInit();
 $jobs->run();
+
+Categories::init();

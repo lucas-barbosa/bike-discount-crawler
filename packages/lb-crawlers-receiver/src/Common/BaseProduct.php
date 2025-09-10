@@ -69,6 +69,10 @@ abstract class BaseProduct {
 		}
 
 		$parentId = $mappedCategories;
-		return $this->addCategories( $crawlerCategories, $parentId, $categoryUrl );
+		return $this->addCategories(
+      count($crawlerCategories) > 1 ? array_slice($crawlerCategories, 1) : $crawlerCategories,
+      $parentId,
+      $categoryUrl
+    );
 	}
 }
