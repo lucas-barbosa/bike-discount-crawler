@@ -139,6 +139,8 @@ class SaveSettingsAjax {
 
     if ( ! empty( $newCategories ) ) {
       foreach ( $newCategories as $url => $termId ) {
+        error_log( $url );
+        error_log( $termId );
         CategoryBackfill::dispatch( $url, $termId );
       }
     }

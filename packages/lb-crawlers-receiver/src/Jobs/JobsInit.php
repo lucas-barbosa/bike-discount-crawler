@@ -5,5 +5,6 @@ namespace LucasBarbosa\LbCrawlersReceiver\Jobs;
 class JobsInit {
   public function run() {
     CategoryBackfill::register();
+    ParentCategoryBackfill::register();
   }
 }
