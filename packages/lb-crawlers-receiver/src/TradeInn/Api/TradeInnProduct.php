@@ -102,7 +102,16 @@ class TradeInnProduct extends TradeInnHelper {
     if ( empty( $parentId ) ) {
       $parentId = 0;
     } else {
-      $categoryIds[] = $parentId;
+      $current_id = $parentId;
+      while ( $current_id != 0 ) {
+        $term = get_term($current_id, 'product_cat');
+        if (!$term || is_wp_error($term)) {
+          break;
+        }
+        // prepend to get top-down order
+        array_unshift($categoryIds, $term->term_id);
+        $current_id = $term->parent;
+      }
     }
     
 		foreach ( $tradeinnCategories as $i => $categoryName ) {
