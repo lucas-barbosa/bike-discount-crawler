@@ -41,7 +41,7 @@ class PluginSettings {
     }
 
 		wp_enqueue_style( $this->plugin_name, plugins_url( 'assets/bike-discount.admin.css', LB_CRAWLERS_RECEIVER_FILE ), array(), $this->version, 'all' );
-    wp_register_script( $this->plugin_name, plugins_url( 'assets/bike-discount.admin.js', LB_CRAWLERS_RECEIVER_FILE ), [ 'jquery' ], '4.2.1' );
+    wp_register_script( $this->plugin_name, plugins_url( 'assets/bike-discount.admin.js', LB_CRAWLERS_RECEIVER_FILE ), [ 'jquery' ], '4.2.2' );
 
     wp_localize_script( $this->plugin_name, $this->plugin_name, array(
       'weight_settings' => SettingsData::getWeightSettings(),

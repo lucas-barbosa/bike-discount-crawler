@@ -323,7 +323,7 @@
         },
         dataType: 'JSON',
         success: function () {
-          processOverrideCategories();
+          processOverrideCategoriesWeight();
         },
         error: function (jqXHR, textStatus, errorThrown) {
           handleError(errorThrown);
@@ -331,7 +331,7 @@
       });
     }
 
-    function processOverrideCategories() {
+    function processOverrideCategoriesWeight() {
       const $categories = getValues('input[name="ow_cat[]"]:checked');
 
       $.ajax({
