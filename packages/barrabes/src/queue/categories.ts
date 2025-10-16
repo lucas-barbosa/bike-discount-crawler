@@ -1,7 +1,7 @@
 import { type Queue } from 'bullmq';
 import { fetchCategories } from '@usecases/fetch-categories';
 import { createQueue, createWorker } from '@crawlers/base/dist/queue/client';
-import { CategoriesFoundCallback } from '@crawlers/base/dist/types/Queue';
+import { type CategoriesFoundCallback } from '@crawlers/base/dist/types/Queue';
 
 const QUEUE_NAME = 'barrabes.categories';
 

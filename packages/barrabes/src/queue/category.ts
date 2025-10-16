@@ -2,7 +2,7 @@ import { type Job, type Queue } from 'bullmq';
 import { fetchProductList } from '@usecases/fetch-product-list';
 import { isProductSearched } from '@usecases/searched-products';
 import { createQueue, createWorker, removeOptions } from '@crawlers/base/dist/queue/client';
-import { CategoryQueueItem } from '@crawlers/base/dist/types/Queue';
+import { type CategoryQueueItem } from '@crawlers/base/dist/types/Queue';
 import { enqueueProduct } from './product';
 import { crawlerSettings } from '@infrastructure/crawler-settings';
 
