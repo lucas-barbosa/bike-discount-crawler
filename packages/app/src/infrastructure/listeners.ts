@@ -11,7 +11,7 @@ export interface Listener {
 };
 
 export const addListener = async (name: string, url: string, authenticationKey?: string) => {
-  const urlPattern = /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$/;
+  const urlPattern = /^https?:\/\/(?:localhost|\d{1,3}(?:\.\d{1,3}){3}|(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})(?::\d{1,5})?(?:\/[^\s]*)?$/;
 
   if (!urlPattern.test(url)) {
     console.warn('Invalid url!', url);
