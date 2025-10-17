@@ -183,6 +183,7 @@ __metadata:
     "@types/axios": "npm:^0.14.0"
     "@types/express": "npm:^4.17.21"
     "@types/node": "npm:^20.11.16"
+    async-sema: "npm:^3.1.1"
     axios: "npm:^1.6.8"
     bullmq: "npm:^5.12.12"
     cheerio: "npm:^1.0.0-rc.12"
@@ -1198,6 +1199,13 @@ __metadata:
   dependencies:
     tslib: "npm:^2.0.1"
   checksum: 10c0/3a1a409764faa1471601a0ad01b3aa699292991aa9c8a30c7717002cabdf5d98008e7b53ae61f6e058f757fc6ba965e147967a93c13e62692c907d79cfb245f8
+  languageName: node
+  linkType: hard
+
+"async-sema@npm:^3.1.1":
+  version: 3.1.1
+  resolution: "async-sema@npm:3.1.1"
+  checksum: 10c0/a16da9f7f2dbdd00a969bf264b7ad331b59df3eac2b38f529b881c5cc8662594e68ed096d927ec2aabdc13454379cdc6d677bcdb0a3d2db338fb4be17957832b
   languageName: node
   linkType: hard
 

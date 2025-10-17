@@ -1,28 +1,22 @@
 import axios from 'axios';
 import { type CheerioAPI, load } from 'cheerio';
-import { type Category } from '@crawlers/base/dist/types/Category';
 import { normalize } from '@crawler/utils/normalize';
 
-interface BarrabesCategory extends Category {
-  id: string
-  childs: BarrabesCategory[]
-}
-
-interface TradeInnStore {
+export interface TradeInnStore {
   id: string
   name: string
   url: string
   childs: TradeInnStore[]
 }
 
-export const listCategories = async (): Promise<Category[]> => {
+export const listCategories = async (): Promise<TradeInnStore[]> => {
   const url = 'https://www.tradeinn.com/pt';
   const { data } = await axios.get(url);
   const $ = load(data);
 
   const stores = await listStores($);
 
-  const categories = await Promise.all(stores.map(async (store): Promise<BarrabesCategory> => {
+  const categories = await Promise.all(stores.map(async (store): Promise<TradeInnStore> => {
     const childs = await getStoreCategories(store);
     return {
       ...store,
@@ -73,7 +67,7 @@ const sportsStores = {
 
 const addPrefixToUrl = (url: string) => `https://www.tradeinn.com${url}`;
 
-const getStoreCategories = async (store: TradeInnStore): Promise<BarrabesCategory[]> => {
+const getStoreCategories = async (store: TradeInnStore): Promise<TradeInnStore[]> => {
   const url = `https://www.tradeinn.com/get_dades.php?tienda_super_forzada=1&id_tienda_forzada=${store.id}`;
   const { data } = await axios.get(url);
   if (Number(store.id) > 17) {
@@ -97,7 +91,7 @@ const formatSportsCategories = (categories: TradeInnStoreCategory[], storeName: 
     });
 };
 
-const formatCategories = (categories: TradeInnStoreCategory[], parentUrl: string): BarrabesCategory[] => {
+const formatCategories = (categories: TradeInnStoreCategory[], parentUrl: string): TradeInnStore[] => {
   return Object.entries<TradeInnStoreCategory>(categories)
     .map(([categoryId, category]) => {
       const categoryName = category.por;
@@ -114,7 +108,7 @@ const formatCategories = (categories: TradeInnStoreCategory[], parentUrl: string
     });
 };
 
-const formatSubcategories = (categories: TradeInnStoreCategory[], parentName: string, parentUrl: string, parentId: string): BarrabesCategory[] => {
+const formatSubcategories = (categories: TradeInnStoreCategory[], parentName: string, parentUrl: string, parentId: string): TradeInnStore[] => {
   return Object.entries<TradeInnStoreCategory>(categories)
     .map(([subcategoryId, subcategory]) => {
       const subcategoryName = subcategory.por;

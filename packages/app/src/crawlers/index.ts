@@ -7,6 +7,7 @@ import { handleStockFound } from '#callbacks/handleStockFound';
 import { handleTranslationFound } from '#callbacks/handleTranslationFound';
 import { handleOldStockFound } from '#callbacks/handleOldStockFound';
 import { handleProductImageFound } from '#callbacks/handleProductImageFound';
+import { handleAttributesFound } from '#callbacks/handleAttributesFound';
 
 export const initCrawlers = async () => {
   await initBarrabes({
@@ -14,7 +15,8 @@ export const initCrawlers = async () => {
     onProductFound: handleProductFound,
     onStockFound: handleStockFound,
     onTranslationFound: handleTranslationFound,
-    onProductImageFound: handleProductImageFound
+    onProductImageFound: handleProductImageFound,
+    onAttributesFound: handleAttributesFound
   });
 
   await initBikeDiscount({
@@ -30,6 +32,7 @@ export const initCrawlers = async () => {
     onProductFound: handleProductFound,
     onStockFound: handleStockFound,
     onTranslationFound: handleTranslationFound,
-    onProductImageFound: handleProductImageFound
+    onProductImageFound: handleProductImageFound,
+    onAttributesFound: handleAttributesFound
   });
 };

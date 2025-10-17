@@ -11,9 +11,10 @@ export const initQueue = async ({
   onProductFound,
   onProductImageFound,
   onStockFound,
-  onTranslationFound
+  onTranslationFound,
+  onAttributesFound
 }: QueueParams) => {
-  await startCategoriesQueue(onCategoriesFound);
+  await startCategoriesQueue(onCategoriesFound, onAttributesFound);
   startStockQueue(onStockFound);
   startProductQueue(onProductFound);
   startTranslationQueue(onTranslationFound);

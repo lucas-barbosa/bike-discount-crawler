@@ -3,12 +3,14 @@ import { ProductStock } from "./ProductStock";
 import { ProductTranslation } from "./ProductTranslation";
 
 export type CategoriesFoundCallback = (categories: any) => Promise<any>;
+export type CategoryAttributesFoundCallback = (attributes: any) => Promise<any>;
 export type ProductFoundCallback = (product: Product) => Promise<any>;
 export type StockFoundCallback = (stock: ProductStock) => Promise<any>;
 export type TranslationFoundCallback = (translation: ProductTranslation) => Promise<any>;
 
 export type QueueParams = {
   onCategoriesFound: CategoriesFoundCallback;
+  onAttributesFound: CategoryAttributesFoundCallback;
   onProductFound: ProductFoundCallback;
   onProductImageFound?: ProductFoundCallback;
   onStockFound: StockFoundCallback;

@@ -4,6 +4,7 @@ import { startProductQueue } from './product';
 import { startStockQueue } from './stock';
 import { startTranslationQueue } from './translation';
 import { startProductImageQueue } from './product-image';
+import { startAttributeQueue } from './attributes';
 
 export const initQueue = () => {
   startCategoryQueue();
@@ -12,4 +13,5 @@ export const initQueue = () => {
   startStockQueue();
   startOldStockQueue();
   startTranslationQueue();
+  startAttributeQueue();
 };

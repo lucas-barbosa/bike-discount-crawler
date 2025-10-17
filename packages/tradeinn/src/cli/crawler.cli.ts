@@ -19,12 +19,14 @@ import { enqueueCategory, enqueueSelectedCategories } from '../queue/category';
 import { enqueueStock } from '../queue/stock';
 import { CRAWLER_ID } from '../config';
 import { enqueueProductImage } from '../queue/product-image';
+import { getAttributes } from '@infrastructure/attributes';
 
 export const getTradeinnCli = (
   publishStock?: (stock: ProductStock) => Promise<any>,
   publishCategories?: (categories: any) => Promise<any>,
   publishProduct?: (product: Product) => Promise<any>,
-  publishTranslation?: (translation: ProductTranslation) => Promise<any>
+  publishTranslation?: (translation: ProductTranslation) => Promise<any>,
+  publishAttributes?: (attributes: any) => Promise<any>
 ) => {
   const tradeinnCli = new Command();
 
@@ -135,10 +137,15 @@ export const getTradeinnCli = (
       if (params.publish) {
         console.log('Loading from DB');
         let categories = await getCategories();
+        let attributes = await getAttributes();
 
         if (!categories && params.search) {
           console.log('Loading from Site');
-          categories = await fetchCategories();
+
+          const result = await fetchCategories();
+          categories = result.categories;
+          attributes = result.attributes;
+
           console.log('Loaded');
         }
 
@@ -148,7 +155,16 @@ export const getTradeinnCli = (
             crawlerId: CRAWLER_ID
           });
         }
+
+        if (publishAttributes && attributes && attributes?.length > 0) {
+          await publishAttributes({
+            data: attributes,
+            crawlerId: CRAWLER_ID
+          });
+        }
+
         console.log(categories);
+        console.log(attributes);
       } else if (params.enqueue) {
         await enqueueCategories();
         console.log('Categories enqueued');

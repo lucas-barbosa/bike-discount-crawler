@@ -155,51 +155,50 @@ const getCategoryFilter = (categoryId: string) => ({
 //   };
 // };
 
-// const getAttributesAggregation = (categoryFilter: any) => {
-//   const base = {
-//     nested: {
-//       path: 'atributos_padre'
-//     },
-//     aggs: {
-//       id_atributo: {
-//         terms: {
-//           field: 'atributos_padre.id_atribut_pare',
-//           size: 1e3
-//         },
-//         aggs: {
-//           valor_atributos: {
-//             nested: {
-//               path: 'atributos_padre.atributos'
-//             },
-//             aggs: {
-//               ids_atributos_valor: {
-//                 terms: {
-//                   field: 'atributos_padre.atributos.id_atribut_valor',
-//                   size: 1e3
-//                 }
-//               }
-//             }
-//           }
-//         }
-//       }
-//     }
-//   };
+const getAttributesAggregation = (categoryFilter: any) => {
+  const base = {
+    nested: {
+      path: 'atributos_padre'
+    },
+    aggs: {
+      id_atributo: {
+        terms: {
+          field: 'atributos_padre.id_atribut_pare',
+          size: 1000
+        },
+        aggs: {
+          valor_atributos: {
+            nested: {
+              path: 'atributos_padre.atributos'
+            },
+            aggs: {
+              ids_atributos_valor: {
+                terms: {
+                  field: 'atributos_padre.atributos.id_atribut_valor',
+                  size: 1000
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  };
 
-//   return {
-//     filter: {
-//       bool: {
-//         must: [categoryFilter]
-//       }
-//     },
-//     aggs: {
-//       atributos: base
-//     }
-//   };
-// };
+  return {
+    filter: {
+      bool: {
+        must: [categoryFilter]
+      }
+    },
+    aggs: {
+      atributos: base
+    }
+  };
+};
 
-export const getRequestBody = (pageNumber: number, parentId: string, categoryId: string) => {
+export const getRequestBody = (pageNumber: number, parentId: string, categoryId: string, includeAggregations: boolean = false) => {
   const startFrom = (pageNumber - 1) * PAGE_SIZE;
-  // const categoriesAggregation = getCategoriesAggregation(parentId);
   const categoryFilter = getCategoryFilter(categoryId);
   return {
     from: startFrom,
@@ -325,7 +324,12 @@ export const getRequestBody = (pageNumber: number, parentId: string, categoryId:
       bool: {
         filter: [categoryFilter]
       }
-    }
+    },
+    ...(includeAggregations && {
+      aggregations: {
+        group_by_atributos: getAttributesAggregation(categoryFilter)
+      }
+    })
     // aggregations: {
     //   group_by_marca: getBrandsAggregation(categoryFilter),
     //   group_by_categorias: categoriesAggregation,

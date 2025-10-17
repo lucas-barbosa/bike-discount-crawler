@@ -1,6 +1,6 @@
 import { type Queue } from 'bullmq';
 import { createQueue, createWorker } from '@crawlers/base/dist/queue/client';
-import { type CategoriesFoundCallback } from '@crawlers/base/dist/types/Queue';
+import { type CategoryAttributesFoundCallback, type CategoriesFoundCallback } from '@crawlers/base/dist/types/Queue';
 import { fetchCategories } from '@usecases/fetch-categories';
 import { CRAWLER_ID, CRAWLER_NAME } from '../config';
 
@@ -31,24 +31,34 @@ export const enqueueCategories = async () => {
   console.log('Finished');
 };
 
-export const categoriesWorker = (onCategoriesFound: CategoriesFoundCallback) => {
+export const categoriesWorker = (onCategoriesFound: CategoriesFoundCallback, onAttributesFound: CategoryAttributesFoundCallback) => {
   const worker = createWorker(QUEUE_NAME, async () => {
     console.log('Categories worker');
-    const result = await fetchCategories();
-    if (result) {
+    const { categories, attributes } = await fetchCategories();
+
+    if (categories) {
       console.log('Categories found');
       await onCategoriesFound({
-        data: result,
+        data: categories,
         crawlerId: CRAWLER_ID
       });
     }
+
+    if (attributes) {
+      console.log('Attributes found');
+      await onAttributesFound({
+        data: attributes,
+        crawlerId: CRAWLER_ID
+      });
+    }
+
     console.log('Categories worker finished');
   });
   return worker;
 };
 
-export const startCategoriesQueue = async (onCategoriesFound: CategoriesFoundCallback) => {
+export const startCategoriesQueue = async (onCategoriesFound: CategoriesFoundCallback, onAttributesFound: CategoryAttributesFoundCallback) => {
   categoriesQueue();
-  categoriesWorker(onCategoriesFound);
+  categoriesWorker(onCategoriesFound, onAttributesFound);
   await enqueueInitialCategories();
 };

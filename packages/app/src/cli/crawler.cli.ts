@@ -7,6 +7,7 @@ import { publishCategoriesChange } from '#publishers/categories';
 import { publishProductChanges } from '#publishers/product';
 import { publishTranslationChanges } from '#publishers/translation';
 import { deleteStockCache } from '#infrastructure/stock-cache';
+import { publishAttributesChange } from '#publishers/attributes';
 
 const crawlersCli = new Command();
 
@@ -34,7 +35,8 @@ const tradeinnCli = getTradeinnCli(
   publishStockChanges,
   publishCategoriesChange,
   publishProductChanges,
-  publishTranslationChanges
+  publishTranslationChanges,
+  publishAttributesChange
 );
 
 crawlersCli.addCommand(bikeDiscountCli);
