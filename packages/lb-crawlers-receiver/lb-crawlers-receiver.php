@@ -17,6 +17,10 @@ use LucasBarbosa\LbCrawlersReceiver\BikeDiscount\BikeDiscountInit;
 use LucasBarbosa\LbCrawlersReceiver\Common\Categories;
 use LucasBarbosa\LbCrawlersReceiver\CrawlerBlock\CrawlerBlockStorage;
 use LucasBarbosa\LbCrawlersReceiver\CrawlerBlock\InitCrawlerBlock;
+use LucasBarbosa\LbCrawlersReceiver\Data\CrawlerOptions;
+use LucasBarbosa\LbCrawlersReceiver\Data\CrawlerPostMetaData;
+use LucasBarbosa\LbCrawlersReceiver\Data\CrawlerTermMetaData;
+use LucasBarbosa\LbCrawlersReceiver\Data\SettingsStorage;
 use LucasBarbosa\LbCrawlersReceiver\Jobs\JobsInit;
 use LucasBarbosa\LbCrawlersReceiver\TradeInn\TradeInnInit;
 
@@ -34,6 +38,10 @@ define( 'LB_CRAWLERS_RECEIVER_VERSION', '1.0.1+beta' );
 
 function lb_crawlers_receiver_activate() { 
 	CrawlerBlockStorage::createTable();
+  CrawlerOptions::createTable();
+  SettingsStorage::createTable();
+  CrawlerPostMetaData::createTable();
+  CrawlerTermMetaData::createTable();
 }
 
 register_activation_hook( __FILE__, 'lb_crawlers_receiver_activate' );
