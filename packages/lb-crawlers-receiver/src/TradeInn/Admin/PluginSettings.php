@@ -45,6 +45,7 @@ class PluginSettings {
 
     wp_localize_script( $this->plugin_name, $this->plugin_name, array(
       'weight_settings' => SettingsData::getWeightSettings(),
+      'category_attributes'   => SettingsData::getCategoriesAttributes(),
       'available_categories'  => SettingsData::getCategories(),
       'selected_categories'   => SettingsData::getSelectedCategories(),
       'viewed_categories'     => SettingsData::getViewedCategories(),

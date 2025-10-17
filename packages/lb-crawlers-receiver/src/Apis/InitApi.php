@@ -11,5 +11,6 @@ class InitApi {
     new ProductApi();
     new ProductImageApi();
     new TranslateApi();
+    new AttributesApi();
   }
 }

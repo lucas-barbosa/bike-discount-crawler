@@ -7,6 +7,7 @@ use LucasBarbosa\LbCrawlersReceiver\Data\SettingsStorage;
 class SettingsData {
   private static $options = [
     'available_categories'  => 'lb_tradeinn_categories',
+    'categories_attributes' => 'lb_tradeinn_category_attributes',
     'categoriesDimension'   => '_lb_tradeinn_cat_dimension',
     'categoriesWeight'      => '_lb_tradeinn_cat_weight',
     'deniedBrands'          => 'lb_tradeinn_denied_brands',
@@ -34,6 +35,11 @@ class SettingsData {
 
   static function getCategories() {
     $data = SettingsStorage::get( self::$options['available_categories'] );
+    return is_null( $data ) ? [] : $data;
+  }
+
+  static function getCategoriesAttributes() {
+    $data = SettingsStorage::get( self::$options['categories_attributes'] );
     return is_null( $data ) ? [] : $data;
   }
 
@@ -103,6 +109,10 @@ class SettingsData {
 
   static function saveCategories( $categories ) {
     SettingsStorage::insert( self::$options['available_categories'], $categories );
+  }
+
+  static function saveCategoriesAttributes( $attributes ) {
+    SettingsStorage::insert( self::$options['categories_attributes'], $attributes );
   }
 
   static function saveCategoriesDimension( $categories ) {

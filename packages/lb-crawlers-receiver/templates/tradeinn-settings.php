@@ -20,8 +20,10 @@ if( current_user_can( 'manage_woocommerce' ) ) {
 
   $stocks = [];
 
-  foreach ( $terms as $term ) {
-    $stocks[$term->term_id] = $term->name;
+  if ( ! is_wp_error( $terms ) ) {
+    foreach ( $terms as $term ) {
+      $stocks[$term->term_id] = $term->name;
+    }
   }
 
   ?>
