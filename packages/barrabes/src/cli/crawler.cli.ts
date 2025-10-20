@@ -136,7 +136,7 @@ export const getBarrabesCli = (
         console.log('Loading from DB');
         let categories = await getCategories();
 
-        if (!categories && params.search) {
+        if ((!categories?.barrabes?.length) && params.search) {
           console.log('Loading from Site');
           categories = await fetchCategories();
           console.log('Loaded');
