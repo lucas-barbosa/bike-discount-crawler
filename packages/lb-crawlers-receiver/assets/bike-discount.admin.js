@@ -224,11 +224,11 @@
 
     const slugify = str =>
       str
-        .toLowerCase()
-        .trim()
-        .replace(/[^\w\s-]/g, '')
-        .replace(/[\s_-]+/g, '-')
-        .replace(/^-+|-+$/g, '');
+        .toLocaleLowerCase('pt-BR')              // minúsculas (com suporte a acentos)
+        .trim()                                  // remove espaços extras
+        .replace(/[^\p{L}\p{N}\s-]/gu, '')       // remove caracteres não permitidos (Unicode)
+        .replace(/[\s_-]+/g, '-')                // substitui espaço/underscore repetido por "-"
+        .replace(/^-+|-+$/g, '');                // remove "-" do início/fim
 
     function renderAvailableCategories() {
       if (lb_crawlers_receiver_bike_discount && lb_crawlers_receiver_bike_discount.available_categories) {
