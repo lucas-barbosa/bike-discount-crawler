@@ -3,8 +3,8 @@ import { type CategorySearch } from '@crawlers/base/dist/types/CategorySearch';
 import { getRequestBody, PAGE_SIZE } from '@crawler/utils/list-products-request-body';
 import { normalize } from '@crawler/utils/normalize';
 
-export const listProducts = async (parentId: string, categoryId: string, categoryUrl: string, pageNumber: number = 1): Promise<CategorySearch> => {
-  const products = await requestProducts(parentId, categoryId, pageNumber, categoryUrl);
+export const listProducts = async (parentId: string, categoryId: string, categoryUrl: string, attributeId?: string, pageNumber: number = 1): Promise<CategorySearch> => {
+  const products = await requestProducts(parentId, categoryId, pageNumber, categoryUrl, attributeId);
   const hasNextPage = products.length === PAGE_SIZE;
   const storeUrl = getStoreUrl(categoryUrl);
   const productLinks = products.map(({ _source: product }: any) => {
@@ -27,8 +27,8 @@ const getStoreUrl = (url: string) => {
   return parsedUrl.origin + '/' + basePathArray[0] + '/' + basePathArray[1];
 };
 
-const requestProducts = async (parentId: string, categoryId: string, pageNumber: number, categoryUrl: string) => {
-  const body = getRequestBody(pageNumber, parentId, categoryId);
+const requestProducts = async (parentId: string, categoryId: string, pageNumber: number, categoryUrl: string, attributeId?: string) => {
+  const body = getRequestBody(pageNumber, parentId, categoryId, false, attributeId);
   const { data } = await axios.post('https://sr.tradeinn.com/', body, {
     headers: {
       referer: categoryUrl,

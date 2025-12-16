@@ -8,7 +8,7 @@ export const fetchProductList = async (categoryUrl: string, page: number = 1) =>
     return null;
   }
 
-  return listProducts(params.parentId, params.categoryId, categoryUrl, page)
+  return listProducts(params.parentId, params.categoryId, categoryUrl, params.attributeId, page)
   // Add timeout to avoid being detected by rate limit
     .then(res => new Promise<CategorySearch>(resolve => setTimeout(resolve, Math.floor(Math.random() * (2000 - 1000 + 1)) + 1000, res)))
     .catch(err => {
@@ -26,5 +26,16 @@ const getParamsFromUrl = (url: string) => {
     return null;
   }
 
-  return { parentId, categoryId };
+  // Extract attributeId from hash fragment if present
+  // Pattern: atributos=X_Y_Z where Y is the attributeId
+  let attributeId: string | undefined;
+  const hash = urlObj.hash;
+  if (hash) {
+    const atributosMatch = hash.match(/atributos=(\d+)_(\d+)_(\d+)/);
+    if (atributosMatch) {
+      attributeId = atributosMatch[2]; // Second number is the attributeId
+    }
+  }
+
+  return { parentId, categoryId, attributeId };
 };

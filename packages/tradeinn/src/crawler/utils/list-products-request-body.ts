@@ -13,6 +13,23 @@ const getCategoryFilter = (categoryId: string) => ({
   }
 });
 
+const getAttributesFilter = (attributeId: string) => ({
+  nested: {
+    path: 'atributos_padre.atributos',
+    query: {
+      bool: {
+        should: [
+          {
+            term: {
+              'atributos_padre.atributos.id_atribut_valor': attributeId
+            }
+          }
+        ],
+        minimum_should_match: 1
+      }
+    }
+  }
+});
 // const getCategoriesAggregation = (parentId: string) => {
 //   const base = {
 //     subfamilias: {
@@ -197,9 +214,11 @@ const getAttributesAggregation = (categoryFilter: any) => {
   };
 };
 
-export const getRequestBody = (pageNumber: number, parentId: string, categoryId: string, includeAggregations: boolean = false) => {
+export const getRequestBody = (pageNumber: number, parentId: string, categoryId: string, includeAggregations: boolean = false, attributeId?: string) => {
   const startFrom = (pageNumber - 1) * PAGE_SIZE;
   const categoryFilter = getCategoryFilter(categoryId);
+  const attributesFilter = attributeId ? [getAttributesFilter(attributeId)] : [];
+
   return {
     from: startFrom,
     size: PAGE_SIZE,
@@ -322,7 +341,7 @@ export const getRequestBody = (pageNumber: number, parentId: string, categoryId:
     }],
     post_filter: {
       bool: {
-        filter: [categoryFilter]
+        filter: [categoryFilter, ...attributesFilter]
       }
     },
     ...(includeAggregations && {
