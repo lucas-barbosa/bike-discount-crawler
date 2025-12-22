@@ -30,17 +30,9 @@ export const cleanQueueCategory = async () => {
   await queue.drain(true);
 };
 
-export const enqueueCategory = async (params: CategoryQueueItem, recurring: number = 0) => {
+export const enqueueCategory = async (params: CategoryQueueItem) => {
   categoryQueue();
-  await queue.add(`category:${params.categoryUrl}:${params.page ?? 1}`, params, {
-    ...(!!recurring && {
-      repeat: {
-        every: recurring,
-        startDate: new Date()
-      }
-    }),
-    ...removeOptions
-  });
+  await queue.add(`category:${params.categoryUrl}:${params.page ?? 1}`, params, removeOptions);
 };
 
 export const enqueueSelectedCategories = async () => {
@@ -51,7 +43,7 @@ export const enqueueSelectedCategories = async () => {
     await enqueueCategory({
       categoryUrl: category,
       page: 1
-    }, 30 * 24 * 60 * 60 * 1000); // (days * hours * minutes * seconds * milliseconds)"
+    });
   };
 };
 

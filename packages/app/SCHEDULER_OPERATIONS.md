@@ -185,14 +185,36 @@ redis-cli
 
 ## Configuration
 
-Edit [`packages/app/src/queue/scheduler.ts`](file:///Users/lucas-barbosa/Development/Ariel/apps/crawlers/packages/app/src/queue/scheduler.ts) to adjust:
+### Environment Variables
+
+Create a `.env` file in `packages/app/` with the following options:
+
+```bash
+# Stock Scheduler Configuration
+# How often the stock scheduler runs (in days, default: 2)
+STOCK_SCHEDULER_INTERVAL_DAYS=2
+
+# Skip products if stock changed within this time (in hours, default: 24)
+STOCK_SKIP_IF_CHANGED_WITHIN_HOURS=24
+
+# Category Scheduler Configuration (for future use)
+# How often the category scheduler runs (in days, default: 30)
+CATEGORY_SCHEDULER_INTERVAL_DAYS=30
+```
+
+**Defaults:**
+- Stock scheduler runs every **2 days** (48 hours)
+- Skips products with stock changes in last **24 hours**
+- Category scheduler runs every **30 days** (when implemented)
+
+### Code Configuration
+
+You can also edit [`packages/app/src/queue/scheduler.ts`](file:///Users/lucas-barbosa/Development/Ariel/apps/crawlers/packages/app/src/queue/scheduler.ts) directly:
 
 ```typescript
-// How often scheduler runs
-const SCHEDULER_INTERVAL = 48 * 60 * 60 * 1000; // 48 hours
-
-// Skip products if stock changed within this time
-const SKIP_IF_CHANGED_WITHIN = 24 * 60 * 60 * 1000; // 24 hours
+// These read from environment variables with defaults
+const SCHEDULER_INTERVAL_DAYS = parseInt(process.env.STOCK_SCHEDULER_INTERVAL_DAYS || '2', 10);
+const SKIP_IF_CHANGED_WITHIN_HOURS = parseInt(process.env.STOCK_SKIP_IF_CHANGED_WITHIN_HOURS || '24', 10);
 ```
 
 **Recommendations:**

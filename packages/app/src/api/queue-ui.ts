@@ -10,6 +10,7 @@ import { stockQueue } from '../queue/stock';
 import { translationQueue } from '../queue/translation';
 import { oldStockQueue } from '#queue/old-stock';
 import { schedulerQueue } from '#queue/scheduler';
+import { categorySchedulerQueue } from '#queue/category-scheduler';
 
 const serverAdapter = new ExpressAdapter();
 serverAdapter.setBasePath('/admin/queues');
@@ -22,6 +23,7 @@ const getQueues = () => {
     productImageQueue(),
     translationQueue(),
     schedulerQueue(),
+    categorySchedulerQueue(),
     ...barrabesQueues(),
     ...bikeDiscountQueues(),
     ...tradeinnQueues()

@@ -34,17 +34,9 @@ export const cleanQueueCategory = async () => {
   await queue.drain(true);
 };
 
-export const enqueueCategory = async (params: Category, recurring: number = 0) => {
+export const enqueueCategory = async (params: Category) => {
   categoryQueue();
-  await queue.add(`category:${params.categoryUrl}:${params.page ?? 1}`, params, {
-    ...(!!recurring && {
-      repeat: {
-        every: recurring,
-        startDate: new Date()
-      }
-    }),
-    ...removeOptions
-  });
+  await queue.add(`category:${params.categoryUrl}:${params.page ?? 1}`, params, removeOptions);
 };
 
 const enqueueNextCategoryPage = async (params: Category) => {

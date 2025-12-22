@@ -6,6 +6,7 @@ import { startTranslationQueue } from './translation';
 import { startProductImageQueue } from './product-image';
 import { startAttributeQueue } from './attributes';
 import { startSchedulerQueue } from './scheduler';
+import { startCategorySchedulerQueue } from './category-scheduler';
 
 export const initQueue = async () => {
   startCategoryQueue();
@@ -16,4 +17,5 @@ export const initQueue = async () => {
   startTranslationQueue();
   startAttributeQueue();
   await startSchedulerQueue();
+  await startCategorySchedulerQueue();
 };
