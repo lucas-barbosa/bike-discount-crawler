@@ -5,7 +5,7 @@ import { initCrawlers } from './crawlers';
 import { initQueue } from './queue';
 
 const init = async () => {
-  initQueue();
+  await initQueue();
   await initCrawlers();
   api.listen(3000, () => {
     console.log('Server running...');
@@ -15,8 +15,8 @@ const init = async () => {
 const gracefulShutdown = () => {
   console.log('Shutting down gracefully...');
   const browserPool = getBrowserManager();
-  void browserPool.cleanUp().catch(() => {});
-  void closeRedis().catch(() => {});
+  void browserPool.cleanUp().catch(() => { });
+  void closeRedis().catch(() => { });
 };
 
 process.on('SIGTERM', gracefulShutdown);

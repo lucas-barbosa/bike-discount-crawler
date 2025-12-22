@@ -36,9 +36,6 @@ export const enqueueStock = async (productUrl: string) => {
   await queue.add(`stock:${productUrl}`, {
     url: productUrl
   }, {
-    repeat: {
-      every: 48 * 60 * 60 * 1000 // (hours * minutes * seconds * milliseconds)
-    },
     ...removeOptions
   }).catch(err => { console.log(`An error happened: ${err.message}`); });
 };

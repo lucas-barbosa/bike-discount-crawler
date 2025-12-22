@@ -5,8 +5,9 @@ import { startStockQueue } from './stock';
 import { startTranslationQueue } from './translation';
 import { startProductImageQueue } from './product-image';
 import { startAttributeQueue } from './attributes';
+import { startSchedulerQueue } from './scheduler';
 
-export const initQueue = () => {
+export const initQueue = async () => {
   startCategoryQueue();
   startProductQueue();
   startProductImageQueue();
@@ -14,4 +15,5 @@ export const initQueue = () => {
   startOldStockQueue();
   startTranslationQueue();
   startAttributeQueue();
+  await startSchedulerQueue();
 };

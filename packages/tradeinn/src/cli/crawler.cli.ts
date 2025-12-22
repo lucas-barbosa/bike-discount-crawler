@@ -26,7 +26,8 @@ export const getTradeinnCli = (
   publishCategories?: (categories: any) => Promise<any>,
   publishProduct?: (product: Product) => Promise<any>,
   publishTranslation?: (translation: ProductTranslation) => Promise<any>,
-  publishAttributes?: (attributes: any) => Promise<any>
+  publishAttributes?: (attributes: any) => Promise<any>,
+  registerProduct?: (crawlerId: string, productUrl: string, type?: 'stock' | 'old-stock', metadata?: any) => Promise<void>
 ) => {
   const tradeinnCli = new Command();
 
@@ -68,12 +69,15 @@ export const getTradeinnCli = (
     .action(async (params) => {
       console.log('Import File');
 
-      if (params.stock) {
+      if (params.stock && registerProduct) {
         const stream = createReadStream(params.stock).pipe(parse());
+        let count = 0;
         for await (const url of stream) {
           const productUrl = Array.isArray(url) ? url[0] : url;
-          await enqueueStock(productUrl);
+          await registerProduct('tradeinn', productUrl, 'stock');
+          count++;
         }
+        console.log(`Registered ${count} stock products`);
       }
 
       if (params.images) {

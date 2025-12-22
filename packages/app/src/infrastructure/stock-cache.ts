@@ -12,12 +12,21 @@ const getStockId = (stock: ProductStock) => {
 
 export const addStockToCache = async (stock: ProductStock) => {
   await saveByKey(getColumName(getStockId(stock), stock.crawlerId), JSON.stringify(stock));
+  // Store timestamp when stock changes
+  await saveByKey(`${getColumName(getStockId(stock), stock.crawlerId)}-timestamp`, Date.now().toString());
 };
 
 export const deleteStockCache = async (id: string, crawlerId: string) => deleteByKey(getColumName(id, crawlerId));
 
 export const addOldStockToCache = async ({ items }: OldStockResult) => {
-  await Promise.all(items.map(stock => saveByKey(getColumName(stock.id, stock.crawlerId), JSON.stringify(stock))));
+  const timestamp = Date.now().toString();
+  await Promise.all(items.map(stock => {
+    const promises = [
+      saveByKey(getColumName(stock.id, stock.crawlerId), JSON.stringify(stock)),
+      saveByKey(`${getColumName(stock.id, stock.crawlerId)}-timestamp`, timestamp)
+    ];
+    return Promise.all(promises);
+  }));
 };
 
 export const retrieveStockFromCache = async (id: string, crawlerId: string) => {
@@ -65,4 +74,14 @@ const isCachedStockUpdated = (currentStock: ProductStock, cachedStock: ProductSt
   }
 
   return false;
+};
+
+/**
+ * Get the timestamp when stock last changed
+ * Returns null if no timestamp exists (stock never changed or not cached)
+ */
+export const getStockLastChangedTimestamp = async (id: string, crawlerId: string): Promise<number | null> => {
+  const timestampStr = await getByKey(`${getColumName(id, crawlerId)}-timestamp`);
+  if (!timestampStr) return null;
+  return parseInt(timestampStr, 10);
 };

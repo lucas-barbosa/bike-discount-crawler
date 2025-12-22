@@ -23,7 +23,8 @@ export const getBarrabesCli = (
   publishStock?: (stock: ProductStock) => Promise<any>,
   publishCategories?: (categories: any) => Promise<any>,
   publishProduct?: (product: Product) => Promise<any>,
-  publishTranslation?: (translation: ProductTranslation) => Promise<any>
+  publishTranslation?: (translation: ProductTranslation) => Promise<any>,
+  registerProduct?: (crawlerId: string, productUrl: string, type?: 'stock' | 'old-stock', metadata?: any) => Promise<void>
 ) => {
   const barrabesCli = new Command();
 
@@ -65,13 +66,16 @@ export const getBarrabesCli = (
     .action(async (params) => {
       console.log('Import File');
 
-      if (params.stock) {
+      if (params.stock && registerProduct) {
         const stream = createReadStream(params.stock).pipe(parse());
+        let count = 0;
         for await (const url of stream) {
           const productUrl = Array.isArray(url) ? url[0] : url;
           const isPro = productUrl.includes('barrabes.com/pro/');
-          await enqueueStock(productUrl, isPro);
+          await registerProduct('barrabes', productUrl, 'stock', { isPro });
+          count++;
         }
+        console.log(`Registered ${count} stock products`);
       }
 
       if (params.images) {

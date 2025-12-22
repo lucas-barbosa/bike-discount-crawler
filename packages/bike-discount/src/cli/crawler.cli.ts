@@ -9,10 +9,9 @@ import { generateCategoriesTree } from '@usecases/generate-categories-tree';
 import { type Product } from '@entities/Product';
 import { type Translation } from '@entities/Translation';
 import { getCategories } from '@infrastructure/categories';
-import { enqueueStock } from '../queue/stock/index';
 import { enqueueCategories } from '../queue/categories';
 import { enqueueCategory } from '../queue/category';
-import { enqueueOldStock, type OldStockResult } from '../queue/old-stock';
+import { type OldStockResult } from '../queue/old-stock';
 import { validateProduct } from '@usecases/validate-product';
 import { fetchTranslation } from '@usecases/fetch-translation';
 import { fetchOldStocks } from '@usecases/fetch-old-stocks';
@@ -25,7 +24,8 @@ export const getBikeDiscountCli = (
   publishCategories: (categories: any) => Promise<any>,
   publishProduct: (product: Product) => Promise<any>,
   publishTranslation: (translation: Translation) => Promise<any>,
-  deleteStockCache: (productId: string, crawlerId: string) => Promise<any>
+  deleteStockCache: (productId: string, crawlerId: string) => Promise<any>,
+  registerProduct: (crawlerId: string, productUrl: string, type?: 'stock' | 'old-stock', metadata?: any) => Promise<void>
 ) => {
   const bikeDiscountCli = new Command();
 
@@ -69,9 +69,12 @@ export const getBikeDiscountCli = (
 
       if (params.stock) {
         const stream = createReadStream(params.stock).pipe(parse());
+        let count = 0;
         for await (const url of stream) {
-          await enqueueStock(url);
+          await registerProduct('bike-discount', url, 'stock');
+          count++;
         }
+        console.log(`Registered ${count} stock products`);
       } else if (params.oldStock) {
         const stream = createReadStream(params.oldStock).pipe(parse());
         const grouped: Record<string, {
@@ -91,7 +94,15 @@ export const getBikeDiscountCli = (
           }
         }
 
-        await Promise.all(Object.entries(grouped).map(([k, v]) => enqueueOldStock(k, v.items)));
+        let count = 0;
+        for (const [url, data] of Object.entries(grouped)) {
+          await registerProduct('bike-discount', url, 'old-stock', {
+            url: data.url,
+            variations: data.items
+          });
+          count++;
+        }
+        console.log(`Registered ${count} old-stock products`);
       }
 
       console.log('Finished');

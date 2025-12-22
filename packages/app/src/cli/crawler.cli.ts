@@ -8,6 +8,7 @@ import { publishProductChanges } from '#publishers/product';
 import { publishTranslationChanges } from '#publishers/translation';
 import { deleteStockCache } from '#infrastructure/stock-cache';
 import { publishAttributesChange } from '#publishers/attributes';
+import { registerProduct } from '#infrastructure/product-registry';
 
 const crawlersCli = new Command();
 
@@ -21,14 +22,16 @@ const bikeDiscountCli = getBikeDiscountCli(
   publishCategoriesChange,
   publishProductChanges,
   publishTranslationChanges,
-  deleteStockCache
+  deleteStockCache,
+  registerProduct
 );
 
 const barrabesCli = getBarrabesCli(
   publishStockChanges,
   publishCategoriesChange,
   publishProductChanges,
-  publishTranslationChanges
+  publishTranslationChanges,
+  registerProduct
 );
 
 const tradeinnCli = getTradeinnCli(
@@ -36,7 +39,8 @@ const tradeinnCli = getTradeinnCli(
   publishCategoriesChange,
   publishProductChanges,
   publishTranslationChanges,
-  publishAttributesChange
+  publishAttributesChange,
+  registerProduct
 );
 
 crawlersCli.addCommand(bikeDiscountCli);
