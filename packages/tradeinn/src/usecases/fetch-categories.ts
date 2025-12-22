@@ -27,7 +27,6 @@ export const fetchCategories = async () => {
 
   if (categories) {
     await saveCategories(categories);
-    await generateCategoriesTree();
   }
 
   const lastCategories = categories?.flatMap(root => collectLastCategories(root, root.id, root.id));
@@ -47,6 +46,10 @@ export const fetchCategories = async () => {
 
   if (attributes) {
     await saveAttributes(attributes);
+  }
+
+  if (categories) {
+    await generateCategoriesTree();
   }
 
   return { categories, attributes };

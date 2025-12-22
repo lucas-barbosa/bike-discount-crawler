@@ -20,15 +20,24 @@ export const fetchProductList = async (categoryUrl: string, page: number = 1) =>
 const getParamsFromUrl = (url: string) => {
   const urlObj = new URL(url);
   const parentId = urlObj.searchParams.get('parentId');
-  const categoryId = urlObj.searchParams.get('categoryId');
+  let categoryId = urlObj.searchParams.get('categoryId');
 
   if (parentId === null || categoryId === null) {
     return null;
   }
 
-  // Extract attributeId from hash fragment if present
-  // Pattern: atributos=X_Y_Z where Y is the attributeId
   let attributeId: string | undefined;
+
+  // Check if categoryId has pipe-separated format first
+  // Pattern: categoryId=X|Y|Z where X is the real categoryId and Z is the attributeId
+  const categoryParts = categoryId.split('|');
+  if (categoryParts.length === 3) {
+    categoryId = categoryParts[0]; // First number is the real categoryId
+    attributeId = categoryParts[2]; // Last number is the attributeId
+  }
+
+  // Extract attributeId from hash fragment if present (overrides pipe format)
+  // Pattern: atributos=X_Y_Z where Y is the attributeId
   const hash = urlObj.hash;
   if (hash) {
     const atributosMatch = hash.match(/atributos=(\d+)_(\d+)_(\d+)/);
