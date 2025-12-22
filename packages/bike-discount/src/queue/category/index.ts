@@ -1,5 +1,5 @@
 import { type Job, type Queue } from 'bullmq';
-import { createQueue, createWorker } from '../client';
+import { createQueue, createWorker } from '@crawlers/base/dist/queue/client';
 import { fetchProductList } from '@usecases/fetch-product-list';
 import { enqueueProduct } from '../product';
 import { isProductSearched } from '@usecases/searched-products';

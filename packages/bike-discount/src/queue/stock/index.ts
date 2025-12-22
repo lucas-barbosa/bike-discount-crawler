@@ -1,6 +1,6 @@
 import { type Job, type Queue } from 'bullmq';
 import { type ProductStock } from '@crawlers/base/dist/types/ProductStock';
-import { createQueue, createWorker } from '../client';
+import { createQueue, createWorker } from '@crawlers/base/dist/queue/client';
 import { fetchStock } from '@usecases/fetch-stock';
 import { removeOptions } from '@crawlers/base/dist/queue/client';
 

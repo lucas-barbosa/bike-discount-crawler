@@ -9,6 +9,6 @@ export const enqueueSelectedCategories = async () => {
     await enqueueCategory({
       categoryUrl: category,
       page: 1
-    }, 30 * 24 * 60 * 60 * 1000); // (days * hours * minutes * seconds * milliseconds)"
+    });
   };
 };

@@ -1,5 +1,5 @@
 import { fetchCategories } from '@usecases/fetch-categories';
-import { createQueue, createWorker } from '../client';
+import { createQueue, createWorker } from '@crawlers/base/dist/queue/client';
 import { type Queue } from 'bullmq';
 
 const QUEUE_NAME = 'bike_discount.categories';
@@ -43,6 +43,8 @@ export const categoriesWorker = (onCategoriesFound: CategoriesFoundCallback) => 
       });
     }
     console.log('Categories worker finished');
+  }, {
+    lockDuration: 60 * 60 * 1000 // 60 minutes for long-running category jobs
   });
   return worker;
 };

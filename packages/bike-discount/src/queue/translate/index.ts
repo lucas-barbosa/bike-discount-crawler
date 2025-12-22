@@ -1,6 +1,6 @@
 import { type Job, type Queue } from 'bullmq';
 import { removeOptions } from '@crawlers/base/dist/queue/client';
-import { createQueue, createWorker } from '../client';
+import { createQueue, createWorker } from '@crawlers/base/dist/queue/client';
 import { type Translation } from '@entities/Translation';
 import { fetchTranslation } from '@usecases/fetch-translation';
 

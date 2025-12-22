@@ -42,6 +42,8 @@ export const categoriesWorker = (onCategoriesFound: CategoriesFoundCallback) => 
       });
     }
     console.log('Categories worker finished');
+  }, {
+    lockDuration: 60 * 60 * 1000 // 60 minutes for long-running category jobs
   });
   return worker;
 };

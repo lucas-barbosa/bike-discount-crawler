@@ -33,6 +33,7 @@ class BrowserManager {
     }, {
       max: MAX_PAGE_NUM,
       idleTimeoutMillis: 60000,
+      acquireTimeoutMillis: 30000, // Wait max 30 seconds for a page
     });
   }
 
@@ -48,7 +49,7 @@ class BrowserManager {
     if (!this.browser) return;
 
     await this.pagePool.drain();
-    await this.pagePool.clear();    
+    await this.pagePool.clear();
     await this.browser.close();
     this.browser = null;
   }
