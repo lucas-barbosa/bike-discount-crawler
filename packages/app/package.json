@@ -23,7 +23,8 @@
     "dev": "tsx watch -r dotenv/config src/index.ts",
     "lint": "eslint ./**/*.ts --quiet",
     "cleanup:repeatable-jobs": "tsx src/scripts/cleanup-repeatable-jobs.ts",
-    "cleanup:category-repeatable-jobs": "tsx src/scripts/cleanup-category-repeatable-jobs.ts"
+    "cleanup:category-repeatable-jobs": "tsx src/scripts/cleanup-category-repeatable-jobs.ts",
+    "cleanup:stuck-jobs": "tsx src/scripts/cleanup-stuck-jobs.ts"
   },
   "devDependencies": {
     "@types/axios": "^0.14.0",

@@ -1,5 +1,5 @@
 import { getByKey, saveByKey } from './utils';
-import { BarrabesCategories } from '@entities/BarrabesCategories';
+import { type BarrabesCategories } from '@entities/BarrabesCategories';
 
 const COLUMN_NAME = 'categories';
 

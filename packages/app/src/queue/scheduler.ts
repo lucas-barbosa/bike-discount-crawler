@@ -10,8 +10,8 @@ import { enqueueStock as enqueueTradeinnStock } from '@crawlers/tradeinn/dist/qu
 const QUEUE_NAME = 'crawlers.stock_scheduler';
 
 // Configuration from environment variables with defaults
-const SCHEDULER_INTERVAL_DAYS = parseInt(process.env.STOCK_SCHEDULER_INTERVAL_DAYS || '2', 10);
-const SKIP_IF_CHANGED_WITHIN_HOURS = parseInt(process.env.STOCK_SKIP_IF_CHANGED_WITHIN_HOURS || '24', 10);
+const SCHEDULER_INTERVAL_DAYS = parseInt(process.env.STOCK_SCHEDULER_INTERVAL_DAYS ?? '2', 10);
+const SKIP_IF_CHANGED_WITHIN_HOURS = parseInt(process.env.STOCK_SKIP_IF_CHANGED_WITHIN_HOURS ?? '24', 10);
 
 const SCHEDULER_INTERVAL = SCHEDULER_INTERVAL_DAYS * 24 * 60 * 60 * 1000; // Convert days to ms
 const SKIP_IF_CHANGED_WITHIN = SKIP_IF_CHANGED_WITHIN_HOURS * 60 * 60 * 1000; // Convert hours to ms

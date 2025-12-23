@@ -11,17 +11,17 @@ import { crawlerSettings as tradeinnSettings } from '@crawlers/tradeinn/dist/inf
 const QUEUE_NAME = 'crawlers.category_scheduler';
 
 // Configuration from environment variables with defaults
-const SCHEDULER_INTERVAL_DAYS = parseInt(process.env.CATEGORY_SCHEDULER_INTERVAL_DAYS || '30', 10);
+const SCHEDULER_INTERVAL_DAYS = parseInt(process.env.CATEGORY_SCHEDULER_INTERVAL_DAYS ?? '30', 10);
 const SCHEDULER_INTERVAL = SCHEDULER_INTERVAL_DAYS * 24 * 60 * 60 * 1000; // Convert days to ms
 
 interface SchedulerJobData {
-  crawlerId?: string; // Optional: if set, only schedule for this crawler
+  crawlerId?: string // Optional: if set, only schedule for this crawler
 }
 
 interface SchedulerStats {
-  crawlerId: string;
-  total: number;
-  enqueued: number;
+  crawlerId: string
+  total: number
+  enqueued: number
 }
 
 let queue: Queue;
@@ -45,7 +45,7 @@ const getSelectedCategories = async (crawlerId: string): Promise<string[]> => {
     categories = await tradeinnSettings.getSelectedCategories();
   }
 
-  return categories || [];
+  return categories ?? [];
 };
 
 /**
@@ -171,4 +171,3 @@ export const triggerCategoryScheduler = async (crawlerId?: string) => {
 
   console.log('Category scheduler job enqueued successfully');
 };
-

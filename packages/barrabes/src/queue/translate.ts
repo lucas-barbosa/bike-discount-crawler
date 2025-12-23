@@ -1,6 +1,6 @@
 import { type Job, type Queue } from 'bullmq';
 import { createQueue, createWorker, removeOptions } from '@crawlers/base/dist/queue/client';
-import { TranslationFoundCallback, TranslationQueueItem } from '@crawlers/base/dist/types/Queue';
+import { type TranslationFoundCallback, type TranslationQueueItem } from '@crawlers/base/dist/types/Queue';
 import { fetchTranslation } from '@usecases/fetch-translation';
 
 const QUEUE_NAME = 'barrabes.translation';

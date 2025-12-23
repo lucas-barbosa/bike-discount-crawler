@@ -16,7 +16,6 @@ import { fetchTranslation } from '@usecases/fetch-translation';
 import { validateProduct } from '@usecases/validate-product';
 import { enqueueCategories } from '../queue/categories';
 import { enqueueCategory, enqueueSelectedCategories } from '../queue/category';
-import { enqueueStock } from '../queue/stock';
 import { enqueueProductImage } from '../queue/product-image';
 
 export const getBarrabesCli = (

@@ -1,5 +1,4 @@
 import { Queue } from 'bullmq';
-import { getRedisClient, } from '@crawlers/base/dist/infrastructure/redis';
 import { queueConnection } from '@crawlers/base/dist/queue/client';
 
 /**
@@ -7,8 +6,6 @@ import { queueConnection } from '@crawlers/base/dist/queue/client';
  * This removes the old recurring jobs (200k individual jobs)
  */
 const cleanupRepeatableJobs = async () => {
-  const redis = await getRedisClient();
-
   const queueNames = [
     'barrabes.product_stock',
     'bike_discount.product_stock',

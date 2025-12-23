@@ -1,9 +1,8 @@
 import { type Job, type Queue } from 'bullmq';
-import { createQueue, createWorker } from '@crawlers/base/dist/queue/client';
+import { createQueue, createWorker, removeOptions } from '@crawlers/base/dist/queue/client';
 import { fetchProductList } from '@usecases/fetch-product-list';
 import { enqueueProduct } from '../product';
 import { isProductSearched } from '@usecases/searched-products';
-import { removeOptions } from '@crawlers/base/dist/queue/client';
 
 interface Category {
   categoryUrl: string
