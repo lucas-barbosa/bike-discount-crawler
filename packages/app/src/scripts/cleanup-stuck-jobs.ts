@@ -126,13 +126,30 @@ const cleanupStuckJobs = async () => {
               totalCleaned++;
               console.log('    ✅ Removed');
             } catch (err: any) {
-              // If remove fails, try to retry the job
-              try {
-                await job.retry();
-                totalCleaned++;
-                console.log('    ✅ Retried');
-              } catch {
-                console.error(`    ❌ Failed to clean job ${job.id}: ${err.message}`);
+              // If remove fails because of lock, try to force unlock and remove again
+              if (err.message && err.message.includes('locked')) {
+                try {
+                  const client = await queue.client;
+                  const lockKey = `${queue.opts.prefix || 'bull'}:${queueName}:${job.id}:lock`;
+                  await client.del(lockKey);
+                  console.log(`    🔓 Force unlocked (key: ${lockKey})`);
+
+                  // Try remove again
+                  await job.remove();
+                  totalCleaned++;
+                  console.log('    ✅ Removed (after unlock)');
+                } catch (unlockErr: any) {
+                  console.error(`    ❌ Failed to force unlock/remove job ${job.id}: ${unlockErr.message}`);
+                }
+              } else {
+                // If remove fails for other reasons, try to retry the job
+                try {
+                  await job.retry();
+                  totalCleaned++;
+                  console.log('    ✅ Retried');
+                } catch {
+                  console.error(`    ❌ Failed to clean job ${job.id}: ${err.message}`);
+                }
               }
             }
           }
