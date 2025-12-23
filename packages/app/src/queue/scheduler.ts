@@ -155,7 +155,7 @@ export const startSchedulerQueue = async () => {
   await Promise.all(crawlers.map(async crawler => {
     // Add recurring job
     await queue.add(
-      'stock-scheduler',
+      `stock-scheduler-${crawler}`,
       { crawlerId: crawler },
       {
         repeat: {
