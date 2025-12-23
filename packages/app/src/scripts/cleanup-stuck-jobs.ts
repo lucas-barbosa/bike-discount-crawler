@@ -97,7 +97,7 @@ const cleanupStuckJobs = async () => {
         if (!job) continue;
 
         // Check how long the job has been active
-        const processedOn = job.processedOn ?? job.timestamp;
+        const processedOn = job.processedOn || job.timestamp;
         const activeTime = now - processedOn;
 
         if (activeTime > thresholdMs) {
@@ -113,7 +113,7 @@ const cleanupStuckJobs = async () => {
         totalStuck += stuckJobs.length;
 
         for (const job of stuckJobs) {
-          const processedOn = job.processedOn ?? job.timestamp;
+          const processedOn = job.processedOn || job.timestamp;
           const activeMinutes = Math.round((now - processedOn) / 60000);
 
           console.log(`    - Job ${job.id} (active for ${activeMinutes} min)`);
@@ -127,7 +127,7 @@ const cleanupStuckJobs = async () => {
               console.log('    ✅ Removed');
             } catch (err: any) {
               // If remove fails because of lock, try to force unlock and remove again
-              if (err.message && err.message.includes('locked')) {
+              if (err.message?.includes('locked')) {
                 try {
                   const client = await queue.client;
                   const lockKey = `${queue.opts.prefix || 'bull'}:${queueName}:${job.id}:lock`;

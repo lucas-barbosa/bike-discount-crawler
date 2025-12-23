@@ -150,17 +150,21 @@ export const startSchedulerQueue = async () => {
   schedulerQueue();
   schedulerWorker();
 
-  // Add recurring job
-  await queue.add(
-    'stock-scheduler',
-    {},
-    {
-      repeat: {
-        every: SCHEDULER_INTERVAL
-      },
-      ...removeOptions
-    }
-  );
+  const crawlers = ['barrabes', 'bike-discount', 'tradeinn'];
+
+  await Promise.all(crawlers.map(async crawler => {
+    // Add recurring job
+    await queue.add(
+      'stock-scheduler',
+      { crawlerId: crawler },
+      {
+        repeat: {
+          every: SCHEDULER_INTERVAL
+        },
+        ...removeOptions
+      }
+    );
+  }));
 
   console.log(`Stock scheduler initialized (runs every ${SCHEDULER_INTERVAL / 1000 / 60 / 60}h)`);
 };
