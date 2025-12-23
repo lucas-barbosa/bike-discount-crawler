@@ -70,7 +70,7 @@ export const getTitle = async (page: Page) => {
 };
 
 const getBrand = async (page: Page) => {
-  const element = await page.$$('.product--header-brand');
+  const element = await page.$$('.product--header-brand #productLogoText');
 
   if (element.length < 1) {
     return '';
