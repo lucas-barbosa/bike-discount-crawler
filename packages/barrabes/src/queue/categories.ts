@@ -2,6 +2,7 @@ import { type Queue } from 'bullmq';
 import { fetchCategories } from '@usecases/fetch-categories';
 import { createQueue, createWorker } from '@crawlers/base/dist/queue/client';
 import { type CategoriesFoundCallback } from '@crawlers/base/dist/types/Queue';
+import { logger } from '@crawlers/base';
 
 const QUEUE_NAME = 'barrabes.categories';
 
@@ -24,24 +25,24 @@ export const enqueueInitialCategories = async () => {
 };
 
 export const enqueueCategories = async () => {
-  console.log('Enqueuing categories');
+  logger.info('Enqueuing categories');
   categoriesQueue();
   await queue.add(`find-categories:${new Date().toISOString()}`, {});
-  console.log('Finished');
+  logger.info('Finished');
 };
 
 export const categoriesWorker = (onCategoriesFound: CategoriesFoundCallback) => {
   const worker = createWorker(QUEUE_NAME, async () => {
-    console.log('Categories worker');
+    logger.info('Categories worker started');
     const result = await fetchCategories();
     if (result) {
-      console.log('Categories found');
+      logger.info('Categories found');
       await onCategoriesFound({
         data: result,
         crawlerId: 'BB'
       });
     }
-    console.log('Categories worker finished');
+    logger.info('Categories worker finished');
   }, {
     lockDuration: 60 * 60 * 1000 // 60 minutes for long-running category jobs
   });

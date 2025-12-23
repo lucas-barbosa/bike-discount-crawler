@@ -1,5 +1,6 @@
 import { addListener, deleteListener, updateListener } from '#infrastructure/listeners';
 import { Command } from 'commander';
+import { logger } from '@crawlers/base';
 
 const listenerCli = new Command();
 
@@ -13,18 +14,18 @@ listenerCli.command('add')
   .requiredOption('-u, --url <url>', 'Listener Url')
   .requiredOption('-a, --authentication <authentication>', 'Authentication Key')
   .action(async (params) => {
-    console.log('Registering a new listener');
+    logger.info('Registering a new listener');
     const result = await addListener(params.name, params.url, params.authentication);
-    console.log(result);
+    logger.info({ result }, 'Listener registered');
   });
 
 listenerCli.command('rm')
   .description('Remove an existing listener')
   .requiredOption('-i, --id <id>', 'Listener ID')
   .action(async (params) => {
-    console.log('Deleting an existing listener');
+    logger.info('Deleting an existing listener');
     const result = await deleteListener(params.id);
-    console.log(result);
+    logger.info({ result }, 'Listener deleted');
   });
 
 listenerCli.command('update')
@@ -34,9 +35,9 @@ listenerCli.command('update')
   .option('-u, --url <url>', 'Listener Url')
   .option('-a, --authentication <authentication>', 'Authentication Key')
   .action(async (params) => {
-    console.log('Updating an existing listener');
+    logger.info('Updating an existing listener');
     const result = await updateListener(params.id, params.name, params.url, params.authentication);
-    console.log(result);
+    logger.info({ result }, 'Listener updated');
   });
 
 export { listenerCli };

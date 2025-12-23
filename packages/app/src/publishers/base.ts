@@ -1,10 +1,11 @@
 import { getListeners } from '#infrastructure/listeners';
 import { request } from '#infrastructure/request';
+import { logger } from '@crawlers/base';
 
 export const publish = async (path: string, data: any) => {
   const listeners = await getListeners();
   if (!listeners) {
-    console.log('No listeners found!');
+    logger.warn('No listeners found!');
     return [];
   }
 

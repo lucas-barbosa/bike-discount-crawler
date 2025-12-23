@@ -1,5 +1,6 @@
 import { type Job, type Queue } from 'bullmq';
 import { removeOptions, createQueue, createWorker } from '@crawlers/base/dist/queue/client';
+import { logger } from '@crawlers/base';
 import { type Translation } from '@entities/Translation';
 import { fetchTranslation } from '@usecases/fetch-translation';
 
@@ -20,12 +21,12 @@ export const translationQueue = () => {
 
 export const translationWorker = (onTranslationFound: TranslationFoundCallback) => {
   const worker = createWorker(QUEUE_NAME, async ({ data }: Job<TranslationQueueItem>) => {
-    console.log('STARTED loading translation', data);
+    logger.info({ url: data.url, language: data.language }, 'STARTED loading translation');
     const result = await fetchTranslation(data.url, data.language);
     if (result) {
       await onTranslationFound(result);
     }
-    console.log('FINISHED loading translation');
+    logger.info({ url: data.url }, 'FINISHED loading translation');
   });
   return worker;
 };

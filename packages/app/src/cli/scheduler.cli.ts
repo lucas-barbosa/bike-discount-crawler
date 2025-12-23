@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 import { triggerScheduler } from '#queue/scheduler';
+import { logger } from '@crawlers/base';
 
 const schedulerCli = new Command();
 
@@ -11,9 +12,9 @@ schedulerCli.command('trigger')
   .description('Manually trigger the stock scheduler')
   .option('-c, --crawler-id <crawlerId>', 'Trigger scheduler for a specific crawler (barrabes, bike-discount, tradeinn)')
   .action(async (params) => {
-    console.log('Triggering stock scheduler...');
+    logger.info('Triggering stock scheduler...');
     await triggerScheduler(params.crawlerId);
-    console.log('Scheduler job enqueued successfully');
+    logger.info('Scheduler job enqueued successfully');
     process.exit(0);
   });
 

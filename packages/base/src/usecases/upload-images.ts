@@ -3,6 +3,8 @@ import axios from "axios";
 import { PassThrough } from "node:stream";
 import { DIGITAL_OCEAN } from '../config';
 
+import { logger } from '../utils/logger';
+
 const s3 = new aws.S3({
   endpoint: new aws.Endpoint('https://nyc3.digitaloceanspaces.com'),
   accessKeyId: DIGITAL_OCEAN.ACCESS_KEY,
@@ -32,7 +34,7 @@ const uploadImageFromUrl = async (url: string) => {
     }).promise();
     return result.Location;
   } catch (error: any) {
-    console.error('Error uploading image:', error.message);
+    logger.error({ err: error }, 'Error uploading image');
     return null;
   }
 }

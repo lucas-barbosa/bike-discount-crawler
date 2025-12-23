@@ -1,5 +1,6 @@
 import { type Job, type Queue } from 'bullmq';
 import { createQueue, createWorker, removeOptions } from '@crawlers/base/dist/queue/client';
+import { logger } from '@crawlers/base';
 import { type ProductStock } from '@crawlers/base/dist/types/ProductStock';
 import { type OldProductRequest } from '@crawler/actions/get-old-product-stock';
 import { fetchOldStocks } from '@usecases/fetch-old-stocks';
@@ -22,13 +23,13 @@ export const oldStockQueue = () => {
 
 export const oldStockWorker = (onOldStockFound: OldStockFoundCallback) => {
   const worker = createWorker(QUEUE_NAME, async ({ data }: Job<OldStockQueueItem>) => {
-    console.log('STARTED loading old stock', data);
+    logger.info({ url: data.url }, 'STARTED loading old stock');
     const result = await fetchOldStocks(data.url, data.variations);
     if (result) {
-      console.log('Stocks: ', result);
+      logger.debug(result, 'Stocks found');
       await onOldStockFound(result);
     }
-    console.log('FINISHED loading old stock');
+    logger.info({ url: data.url }, 'FINISHED loading old stock');
   });
   return worker;
 };
@@ -40,7 +41,7 @@ export const enqueueOldStock = async (productUrl: string, variations: OldProduct
     variations
   }, {
     ...removeOptions
-  }).catch(err => { console.log(`An error happened: ${err.message}`); });
+  }).catch(err => { logger.error({ err }, 'Failed to enqueue old-stock'); });
 };
 
 export const startOldStockQueue = (onStocksFound: OldStockFoundCallback) => {

@@ -1,5 +1,6 @@
 import { type Job, type Queue } from 'bullmq';
 import { createQueue, createWorker, removeOptions } from '@crawlers/base/dist/queue/client';
+import { logger } from '@crawlers/base';
 import { publishAttributesChange } from '#publishers/attributes';
 
 const QUEUE_NAME = 'crawlers.main.attributes';
@@ -12,9 +13,9 @@ export const attributeQueue = () => {
 
 export const attributeWorker = () => {
   const worker = createWorker(QUEUE_NAME, async ({ data }: Job<any>) => {
-    console.log('STARTED PUBLISHING attribute');
+    logger.info('STARTED PUBLISHING attribute');
     await publishAttributesChange(data);
-    console.log('FINISHED PUBLISHING attribute');
+    logger.info('FINISHED PUBLISHING attribute');
   });
   return worker;
 };

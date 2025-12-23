@@ -2,6 +2,7 @@ import { type Job, type Queue } from 'bullmq';
 import { fetchStock } from '@usecases/fetch-stock';
 import { createQueue, createWorker, removeOptions } from '@crawlers/base/dist/queue/client';
 import { type StockFoundCallback, type StockQueueItem } from '@crawlers/base/dist/types/Queue';
+import { logger } from '@crawlers/base';
 
 const QUEUE_NAME = 'barrabes.product_stock';
 
@@ -17,13 +18,13 @@ export const stockQueue = () => {
 
 export const stockWorker = (onStockFound: StockFoundCallback) => {
   const worker = createWorker(QUEUE_NAME, async ({ data }: Job<BarrabesStockQueueItem>) => {
-    console.log('STARTED loading stock', data);
+    logger.info({ url: data.url }, 'STARTED loading stock');
     const result = await fetchStock(data.url, data.isPro);
     if (result) {
-      console.log('Stock: ', result);
+      logger.debug(result, 'Stock found');
       await onStockFound(result);
     }
-    console.log('FINISHED loading stock');
+    logger.info({ url: data.url }, 'FINISHED loading stock');
   });
   return worker;
 };
@@ -35,7 +36,7 @@ export const enqueueStock = async (productUrl: string, isPro?: boolean) => {
     url: productUrl
   }, {
     ...removeOptions
-  }).catch(err => { console.log(`An error happened: ${err.message}`); });
+  }).catch(err => { logger.error({ err }, 'Failed to enqueue stock'); });
 };
 
 export const startStockQueue = (onStockFound: StockFoundCallback) => {

@@ -1,6 +1,7 @@
 import { type Job, type Queue } from 'bullmq';
 import { createQueue, createWorker, removeOptions } from '@crawlers/base/dist/queue/client';
 import { type ProductStock } from '@crawlers/base/dist/types/ProductStock';
+import { logger } from '@crawlers/base';
 import { publishStockChanges } from '#publishers/stock';
 import { addStockToCache, hasStockChanged } from '#infrastructure/stock-cache';
 
@@ -14,7 +15,7 @@ export const stockQueue = () => {
 
 export const stockWorker = () => {
   const worker = createWorker(QUEUE_NAME, async ({ data }: Job<ProductStock>) => {
-    console.log('START PUBLISHING stock', data);
+    logger.info({ ...data }, 'START PUBLISHING stock');
     if (await hasStockChanged(data)) {
       const results = await publishStockChanges(data);
       const allFulfilled = results.every(result => result.status === 'fulfilled');
@@ -22,7 +23,7 @@ export const stockWorker = () => {
         await addStockToCache(data);
       }
     }
-    console.log('FINISHED PUBLISHING stock');
+    logger.info('FINISHED PUBLISHING stock');
   });
   return worker;
 };

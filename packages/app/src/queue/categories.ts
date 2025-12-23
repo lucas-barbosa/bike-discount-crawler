@@ -1,5 +1,6 @@
 import { type Job, type Queue } from 'bullmq';
 import { createQueue, createWorker, removeOptions } from '@crawlers/base/dist/queue/client';
+import { logger } from '@crawlers/base';
 import { publishCategoriesChange } from '#publishers/categories';
 
 const QUEUE_NAME = 'crawlers.main.categories';
@@ -12,9 +13,9 @@ export const categoryQueue = () => {
 
 export const categoryWorker = () => {
   const worker = createWorker(QUEUE_NAME, async ({ data }: Job<any>) => {
-    console.log('STARTED PUBLISHING category');
+    logger.info('STARTED PUBLISHING category');
     await publishCategoriesChange(data);
-    console.log('FINISHED PUBLISHING category');
+    logger.info('FINISHED PUBLISHING category');
   });
   return worker;
 };

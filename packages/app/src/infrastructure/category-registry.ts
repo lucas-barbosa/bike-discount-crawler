@@ -1,4 +1,5 @@
 import { getRedisClient } from '@crawlers/base/dist/infrastructure/redis';
+import { logger } from '@crawlers/base';
 
 /**
  * Category Registry - Manage category scheduler enable/disable flags
@@ -16,7 +17,7 @@ export const enableCategoryCrawler = async (crawlerId: string) => {
   const key = getEnabledKey(crawlerId);
 
   await redis.set(key, 'true');
-  console.log(`Category crawler enabled: ${crawlerId}`);
+  logger.info({ crawlerId }, 'Category crawler enabled');
 };
 
 /**
@@ -27,7 +28,7 @@ export const disableCategoryCrawler = async (crawlerId: string) => {
   const key = getEnabledKey(crawlerId);
 
   await redis.set(key, 'false');
-  console.log(`Category crawler disabled: ${crawlerId}`);
+  logger.info({ crawlerId }, 'Category crawler disabled');
 };
 
 /**

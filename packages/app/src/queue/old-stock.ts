@@ -1,6 +1,7 @@
 import { type Job, type Queue } from 'bullmq';
 import { createQueue, createWorker, removeOptions } from '@crawlers/base/dist/queue/client';
 import { type OldStockResult } from '@crawlers/bike-discount/src/queue/old-stock';
+import { logger } from '@crawlers/base';
 import { addOldStockToCache, hasOldStockChanged } from '#infrastructure/stock-cache';
 import { publishOldStockChanges } from '#publishers/stock';
 
@@ -14,7 +15,7 @@ export const oldStockQueue = () => {
 
 export const oldStockWorker = () => {
   const worker = createWorker(QUEUE_NAME, async ({ data }: Job<OldStockResult>) => {
-    console.log('START PUBLISHING old stock', data);
+    logger.info({ ...data }, 'START PUBLISHING old stock');
     if (await hasOldStockChanged(data)) {
       const results = await publishOldStockChanges(data);
       const allFulfilled = results.every(result => result.status === 'fulfilled');
@@ -22,7 +23,7 @@ export const oldStockWorker = () => {
         await addOldStockToCache(data);
       }
     }
-    console.log('FINISHED PUBLISHING old stock');
+    logger.info('FINISHED PUBLISHING old stock');
   });
   return worker;
 };

@@ -1,5 +1,6 @@
 import { type Job, type Queue } from 'bullmq';
 import { createQueue, createWorker, removeOptions } from '@crawlers/base/dist/queue/client';
+import { logger } from '@crawlers/base';
 import { fetchProduct } from '@usecases/fetch-product';
 import { validateProduct } from '@usecases/validate-product';
 import { type Product } from '@entities/Product';
@@ -25,7 +26,7 @@ export const productQueue = () => {
 
 export const productWorker = (onProductFound: ProductFoundCallback, registerProduct: RegisterProductCallback) => {
   const worker = createWorker(QUEUE_NAME, async ({ data }: Job<ProductQueueItem>) => {
-    console.log('STARTED loading product', data);
+    logger.info({ url: data.url }, 'STARTED loading product');
     const result = await fetchProduct(data.url, data.categoryUrl, data.language);
     if (result) {
       await validateProduct(result);
@@ -37,13 +38,13 @@ export const productWorker = (onProductFound: ProductFoundCallback, registerProd
         await onProductFound(result);
         await setProductSearched(data.url);
       }
-      console.log('Product: ', {
+      logger.debug({
         id: result.id,
         sku: result.sku,
         isValid: result.isValid
-      });
+      }, 'Product loaded');
     }
-    console.log('FINISHED loading product');
+    logger.info({ url: data.url }, 'FINISHED loading product');
   });
   return worker;
 };

@@ -1,6 +1,7 @@
 import { createReadStream } from 'node:fs';
 import { Command } from 'commander';
 import { parse } from 'csv-parse';
+import { logger } from '@crawlers/base';
 
 import { type Product } from '@crawlers/base/dist/types/Product';
 import { type ProductStock } from '@crawlers/base/dist/types/ProductStock';
@@ -37,25 +38,25 @@ export const getBarrabesCli = (
     .option('-p, --publish', 'Publish to Listeners', false)
     .option('-pp, --pro', 'Is Pro Website', false)
     .action(async (params) => {
-      console.log('Crawler Product Stock');
+      logger.info('Crawler Product Stock');
 
       const result = await fetchStock(params.url, params.pro)
         .catch((err: any) => {
-          console.error('Failed to retrieve stock!', err);
+          logger.error({ err }, 'Failed to retrieve stock!');
           return null;
         });
 
       if (!result) {
-        console.log('No result');
+        logger.info('No result');
         return;
       }
 
       if (publishStock && params.publish) {
-        console.log('Publishing');
+        logger.info('Publishing');
         await publishStock(result);
       }
 
-      console.log(result);
+      logger.info(result);
     });
 
   barrabesCli.command('import')
@@ -63,7 +64,7 @@ export const getBarrabesCli = (
     .option('-s, --stock <stock>', 'Stock File path')
     .option('-i, --images <images>', 'Product Images File path')
     .action(async (params) => {
-      console.log('Import File');
+      logger.info('Import File');
 
       if (params.stock && registerProduct) {
         const stream = createReadStream(params.stock).pipe(parse());
@@ -74,7 +75,7 @@ export const getBarrabesCli = (
           await registerProduct('barrabes', productUrl, 'stock', { isPro });
           count++;
         }
-        console.log(`Registered ${count} stock products`);
+        logger.info({ count }, 'Registered stock products');
       }
 
       if (params.images) {
@@ -85,7 +86,7 @@ export const getBarrabesCli = (
         }
       }
 
-      console.log('Finished');
+      logger.info('Finished');
     });
 
   barrabesCli.command('product')
@@ -95,7 +96,7 @@ export const getBarrabesCli = (
     .option('-l, --language <language>', 'Product Language', '')
     .option('-p, --publish', 'Publish to Listeners', false)
     .action(async (params) => {
-      console.log('Crawler Product');
+      logger.info('Crawler Product');
       const result = await fetchProduct(params.url, params.category, params.language);
 
       if (result) {
@@ -103,11 +104,11 @@ export const getBarrabesCli = (
       }
 
       if (publishProduct && params.publish && result) {
-        console.log('Publishing');
+        logger.info('Publishing');
         await publishProduct(result);
       }
 
-      console.log(result);
+      logger.info(result);
     });
 
   barrabesCli.command('translate')
@@ -116,15 +117,15 @@ export const getBarrabesCli = (
     .option('-l, --language <language>', 'Product Language', 'en')
     .option('-p, --publish', 'Publish to Listeners', false)
     .action(async (params) => {
-      console.log('Crawler Translation');
+      logger.info('Crawler Translation');
       const result = await fetchTranslation(params.url, params.language);
 
       if (publishTranslation && params.publish && result) {
-        console.log('Publishing');
+        logger.info('Publishing');
         await publishTranslation(result);
       }
 
-      console.log(result);
+      logger.info(result);
     });
 
   barrabesCli.command('categories')
@@ -133,16 +134,16 @@ export const getBarrabesCli = (
     .option('-s, --search', 'Search if not exists', false)
     .option('-e, --enqueue', 'Enqueue job', false)
     .action(async (params) => {
-      console.log('Crawler Categories');
+      logger.info('Crawler Categories');
 
       if (params.publish) {
-        console.log('Loading from DB');
+        logger.info('Loading from DB');
         let categories = await getCategories();
 
         if ((!categories?.barrabes?.length) && params.search) {
-          console.log('Loading from Site');
+          logger.info('Loading from Site');
           categories = await fetchCategories();
-          console.log('Loaded');
+          logger.info('Loaded');
         }
 
         if (publishCategories && categories) {
@@ -151,10 +152,10 @@ export const getBarrabesCli = (
             crawlerId: 'BB'
           });
         }
-        console.log(categories);
+        logger.info(categories);
       } else if (params.enqueue) {
         await enqueueCategories();
-        console.log('Categories enqueued');
+        logger.info('Categories enqueued');
       }
     });
 
@@ -165,33 +166,33 @@ export const getBarrabesCli = (
     .option('-e, --enqueue', 'Enqueue job', false)
     .option('-s, --selected', 'Enqueue selected categories', false)
     .action(async (params) => {
-      console.log('Crawler Category');
+      logger.info('Crawler Category');
 
       if (params.find) {
         const result = await fetchProductList(params.url);
-        console.log(result);
+        logger.info(result);
       }
 
       if (params.enqueue) {
         await enqueueCategory({
           categoryUrl: params.url
         });
-        console.log('Category enqueued');
+        logger.info('Category enqueued');
       }
 
       if (params.selected) {
-        console.log('Enqueuing selected-categories');
+        logger.info('Enqueuing selected-categories');
         await enqueueSelectedCategories();
-        console.log('Selected-categories enqueued');
+        logger.info('Selected-categories enqueued');
       }
     });
 
   barrabesCli.command('categories-tree')
     .description('Generate categories tree')
     .action(async () => {
-      console.log('Generating Categories Tree');
+      logger.info('Generating Categories Tree');
       await generateCategoriesTree();
-      console.log('Finished');
+      logger.info('Finished');
     });
 
   return barrabesCli;

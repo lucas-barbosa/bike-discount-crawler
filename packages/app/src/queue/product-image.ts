@@ -1,6 +1,7 @@
 import { type Job, type Queue } from 'bullmq';
 import { createQueue, createWorker, removeOptions } from '@crawlers/base/dist/queue/client';
 import { type Product } from '@crawlers/bike-discount/dist/types/Product';
+import { logger } from '@crawlers/base';
 import { publish } from '#publishers/base';
 
 const QUEUE_NAME = 'crawlers.main.product_image';
@@ -13,9 +14,9 @@ export const productImageQueue = () => {
 
 export const productImageWorker = () => {
   const worker = createWorker(QUEUE_NAME, async ({ data }: Job<Product>) => {
-    console.log('STARTED PUBLISHING  image');
+    logger.info({ productId: data.id }, 'STARTED PUBLISHING image');
     await publish('product-image', data);
-    console.log('FINISHED PUBLISHING product image');
+    logger.info({ productId: data.id }, 'FINISHED PUBLISHING product image');
   });
   return worker;
 };

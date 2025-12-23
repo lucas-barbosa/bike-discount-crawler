@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto';
 import { getByKey, saveByKey } from './redis';
+import { logger } from '@crawlers/base';
 
 const COLUMN_NAME = 'listeners';
 
@@ -14,13 +15,13 @@ export const addListener = async (name: string, url: string, authenticationKey?:
   const urlPattern = /^https?:\/\/(?:localhost|\d{1,3}(?:\.\d{1,3}){3}|(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})(?::\d{1,5})?(?:\/[^\s]*)?$/;
 
   if (!urlPattern.test(url)) {
-    console.warn('Invalid url!', url);
+    logger.warn({ url }, 'Invalid url!');
     return null;
   }
 
   const listeners = await getListeners();
   if (listeners.find(x => x.url === url)) {
-    console.warn('Url already registred!');
+    logger.warn('Url already registred!');
     return listeners;
   }
 
@@ -52,13 +53,13 @@ export const updateListener = async (id: string, name?: string, url?: string, au
   const urlPattern = /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$/;
 
   if (url && !urlPattern.test(url)) {
-    console.warn('Invalid url!', url);
+    logger.warn({ url }, 'Invalid url!');
     return null;
   }
 
   const listeners = await getListeners();
   if (url && listeners.find(x => x.url === url && x.id.toString() !== id)) {
-    console.warn('Url already registred!');
+    logger.warn('Url already registred!');
     return listeners;
   }
 

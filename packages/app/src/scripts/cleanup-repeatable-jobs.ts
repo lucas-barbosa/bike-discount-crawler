@@ -1,5 +1,6 @@
 import { Queue } from 'bullmq';
 import { queueConnection } from '@crawlers/base/dist/queue/client';
+import { logger } from '@crawlers/base';
 
 /**
  * Clean up all repeatable jobs from stock queues
@@ -13,10 +14,10 @@ const cleanupRepeatableJobs = async () => {
     'tradeinn.product_stock'
   ];
 
-  console.log('Starting cleanup of repeatable jobs...\n');
+  logger.info('Starting cleanup of repeatable jobs...');
 
   for (const queueName of queueNames) {
-    console.log(`Processing queue: ${queueName}`);
+    logger.info({ queueName }, 'Processing queue');
 
     const queue = new Queue(queueName, {
       connection: queueConnection.connection
@@ -25,7 +26,7 @@ const cleanupRepeatableJobs = async () => {
     try {
       // Get all repeatable jobs
       const repeatableJobs = await queue.getRepeatableJobs();
-      console.log(`  Found ${repeatableJobs.length} repeatable jobs`);
+      logger.info({ count: repeatableJobs.length }, 'Found repeatable jobs');
 
       // Remove each repeatable job
       let removed = 0;
@@ -36,26 +37,26 @@ const cleanupRepeatableJobs = async () => {
 
           // Log progress every 100 jobs
           if (removed % 100 === 0) {
-            console.log(`  Removed ${removed}/${repeatableJobs.length} jobs...`);
+            logger.info({ removed, total: repeatableJobs.length }, 'Progress...');
           }
         } catch (err) {
-          console.error(`  Failed to remove job ${job.key}:`, err);
+          logger.error({ err, key: job.key }, 'Failed to remove job');
         }
       }
 
-      console.log(`  ✅ Removed ${removed} repeatable jobs from ${queueName}\n`);
+      logger.info({ removed, queueName }, 'Removed repeatable jobs');
 
       await queue.close();
     } catch (err) {
-      console.error(`  ❌ Error processing ${queueName}:`, err);
+      logger.error({ err, queueName }, 'Error processing queue');
     }
   }
 
-  console.log('Cleanup complete!');
+  logger.info('Cleanup complete!');
   process.exit(0);
 };
 
 cleanupRepeatableJobs().catch(err => {
-  console.error('Fatal error:', err);
+  logger.fatal({ err }, 'Fatal error');
   process.exit(1);
 });

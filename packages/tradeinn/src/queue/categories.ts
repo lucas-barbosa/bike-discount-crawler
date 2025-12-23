@@ -3,6 +3,7 @@ import { createQueue, createWorker } from '@crawlers/base/dist/queue/client';
 import { type CategoryAttributesFoundCallback, type CategoriesFoundCallback } from '@crawlers/base/dist/types/Queue';
 import { fetchCategories } from '@usecases/fetch-categories';
 import { CRAWLER_ID, CRAWLER_NAME } from '../config';
+import { logger } from '@crawlers/base';
 
 const QUEUE_NAME = `${CRAWLER_NAME}.categories`;
 
@@ -25,19 +26,19 @@ export const enqueueInitialCategories = async () => {
 };
 
 export const enqueueCategories = async () => {
-  console.log('Enqueuing categories');
+  logger.info('Enqueuing categories');
   categoriesQueue();
   await queue.add(`find-categories:${new Date().toISOString()}`, {});
-  console.log('Finished');
+  logger.info('Categories enqueued');
 };
 
 export const categoriesWorker = (onCategoriesFound: CategoriesFoundCallback, onAttributesFound: CategoryAttributesFoundCallback) => {
   const worker = createWorker(QUEUE_NAME, async () => {
-    console.log('Categories worker');
+    logger.info('Categories worker started');
     const { categories, attributes } = await fetchCategories();
 
     if (categories) {
-      console.log('Categories found');
+      logger.info('Categories found');
       await onCategoriesFound({
         data: categories,
         crawlerId: CRAWLER_ID
@@ -45,14 +46,14 @@ export const categoriesWorker = (onCategoriesFound: CategoriesFoundCallback, onA
     }
 
     if (attributes) {
-      console.log('Attributes found');
+      logger.info('Attributes found');
       await onAttributesFound({
         data: attributes,
         crawlerId: CRAWLER_ID
       });
     }
 
-    console.log('Categories worker finished');
+    logger.info('Categories worker finished');
   }, {
     lockDuration: 180 * 60 * 1000 // 180 minutes for long-running category jobs
   });

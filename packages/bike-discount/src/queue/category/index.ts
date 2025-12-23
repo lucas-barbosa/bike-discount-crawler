@@ -1,5 +1,6 @@
 import { type Job, type Queue } from 'bullmq';
 import { createQueue, createWorker, removeOptions } from '@crawlers/base/dist/queue/client';
+import { logger } from '@crawlers/base';
 import { fetchProductList } from '@usecases/fetch-product-list';
 import { enqueueProduct } from '../product';
 import { isProductSearched } from '@usecases/searched-products';
@@ -19,11 +20,11 @@ export const categoryQueue = () => {
 
 export const categoryWorker = () => {
   const worker = createWorker(QUEUE_NAME, async ({ data }: Job<Category>) => {
-    console.log('STARTED fetching products', data);
+    logger.info({ categoryUrl: data.categoryUrl, page: data.page }, 'STARTED fetching products');
     const result = await fetchProductList(data.categoryUrl, data.page);
     if (result?.productLinks.length) await enqueueProducts(result.productLinks, data.categoryUrl);
     if (result?.hasNextPage) await enqueueNextCategoryPage(data);
-    console.log('FINISHED fetching products');
+    logger.info({ categoryUrl: data.categoryUrl }, 'FINISHED fetching products');
   });
   return worker;
 };

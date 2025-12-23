@@ -1,6 +1,7 @@
 import { Browser } from 'puppeteer';
 import { createPool, Pool } from 'generic-pool';
 import { getCrawlerClient } from './client';
+import { logger } from '../utils/logger';
 
 export class BrowserPool {
   private pool: Pool<Browser>;
@@ -8,13 +9,13 @@ export class BrowserPool {
   constructor() {
     this.pool = createPool({
       create: async () => {
-        console.log('************************** Creating');
+        logger.debug('Creating browser instance');
         const client = getCrawlerClient()
         const browser = await client.launch();
         return browser;
       },
       destroy: async (browser: Browser) => {
-        console.log('************************** Destroying')
+        logger.debug('Destroying browser instance');
         await browser.close();
       },
       validate: async (browser: Browser) => {
@@ -30,15 +31,15 @@ export class BrowserPool {
 
   // Obtém uma instância do browser do pool
   public async acquireBrowser(): Promise<Browser> {
-    console.log('************************** Acquiring');
-    console.log(this.pool.available, this.pool.borrowed)
+    logger.debug('Acquiring browser from pool');
+    logger.debug({ available: this.pool.available, borrowed: this.pool.borrowed }, 'Pool stats');
     return await this.pool.acquire();
   }
 
   // Libera uma instância do browser de volta ao pool
   public async releaseBrowser(browser: Browser): Promise<void> {
-    console.log('************************** Releasing');
-    await this.pool.release(browser).catch(() => {});
+    logger.debug('Releasing browser to pool');
+    await this.pool.release(browser).catch(() => { });
   }
 
   // Fecha e limpa o pool

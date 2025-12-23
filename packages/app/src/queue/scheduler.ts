@@ -1,5 +1,6 @@
 import { type Job, type Queue } from 'bullmq';
 import { createQueue, createWorker, removeOptions } from '@crawlers/base/dist/queue/client';
+import { logger } from '@crawlers/base';
 import { getProducts, isCrawlerEnabled, getProductMetadata } from '#infrastructure/product-registry';
 import { getStockLastChangedTimestamp } from '#infrastructure/stock-cache';
 import { enqueueStock as enqueueBarrabesStock } from '@crawlers/barrabes/dist/queue/stock';
@@ -82,7 +83,7 @@ const scheduleStockJobs = async (
       }
       stats.enqueued++;
     } catch (err) {
-      console.error(`Failed to enqueue ${type} for ${crawlerId}:${productUrl}`, err);
+      logger.error({ err, crawlerId, productUrl, type }, 'Failed to enqueue job');
     }
   }
 
@@ -91,9 +92,7 @@ const scheduleStockJobs = async (
 
 export const schedulerWorker = () => {
   const worker = createWorker(QUEUE_NAME, async ({ data }: Job<SchedulerJobData>) => {
-    console.log('========================================');
-    console.log('STOCK SCHEDULER STARTED', new Date());
-    console.log('========================================');
+    logger.info('STOCK SCHEDULER STARTED');
 
     const allStats: SchedulerStats[] = [];
     const crawlerIds = data.crawlerId ? [data.crawlerId] : ['barrabes', 'bike-discount', 'tradeinn'];
@@ -102,11 +101,11 @@ export const schedulerWorker = () => {
       // Check if crawler is enabled
       const enabled = await isCrawlerEnabled(crawlerId);
       if (!enabled) {
-        console.log(`Skipping ${crawlerId} (disabled)`);
+        logger.info({ crawlerId }, 'Skipping disabled crawler');
         continue;
       }
 
-      console.log(`\n--- Processing ${crawlerId} ---`);
+      logger.info({ crawlerId }, 'Processing crawler');
 
       // Get products for this crawler
       const stockProducts = await getProducts(crawlerId, 'stock');
@@ -116,28 +115,23 @@ export const schedulerWorker = () => {
       if (stockProducts.length > 0) {
         const stats = await scheduleStockJobs(crawlerId, 'stock', stockProducts);
         allStats.push(stats);
-        console.log(`Stock: ${stats.enqueued} enqueued, ${stats.skipped} skipped (total: ${stats.total})`);
+        logger.info(stats, 'Stock stats');
       }
 
       // Schedule old-stock jobs
       if (oldStockProducts.length > 0) {
         const stats = await scheduleStockJobs(crawlerId, 'old-stock', oldStockProducts);
         allStats.push(stats);
-        console.log(`Old-Stock: ${stats.enqueued} enqueued, ${stats.skipped} skipped (total: ${stats.total})`);
+        logger.info(stats, 'Old-Stock stats');
       }
     }
 
     // Summary
-    console.log('\n========================================');
-    console.log('SCHEDULER SUMMARY');
-    console.log('========================================');
     const totalEnqueued = allStats.reduce((sum, s) => sum + s.enqueued, 0);
     const totalSkipped = allStats.reduce((sum, s) => sum + s.skipped, 0);
     const totalProducts = allStats.reduce((sum, s) => sum + s.total, 0);
-    console.log(`Total Products: ${totalProducts}`);
-    console.log(`Enqueued: ${totalEnqueued}`);
-    console.log(`Skipped (recently changed): ${totalSkipped}`);
-    console.log('========================================');
+
+    logger.info({ totalProducts, totalEnqueued, totalSkipped }, 'SCHEDULER SUMMARY');
   });
 
   return worker;
@@ -166,7 +160,7 @@ export const startSchedulerQueue = async () => {
     );
   }));
 
-  console.log(`Stock scheduler initialized (runs every ${SCHEDULER_INTERVAL / 1000 / 60 / 60}h)`);
+  logger.info({ intervalHours: SCHEDULER_INTERVAL / 1000 / 60 / 60 }, 'Stock scheduler initialized');
 };
 
 /**
@@ -179,5 +173,5 @@ export const triggerScheduler = async (crawlerId?: string) => {
     { crawlerId },
     removeOptions
   );
-  console.log(`Scheduler triggered${crawlerId ? ` for ${crawlerId}` : ' for all crawlers'}`);
+  logger.info({ crawlerId: crawlerId ?? 'all' }, 'Scheduler triggered');
 };

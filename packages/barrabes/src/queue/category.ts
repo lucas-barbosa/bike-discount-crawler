@@ -3,6 +3,7 @@ import { fetchProductList } from '@usecases/fetch-product-list';
 import { isProductSearched } from '@usecases/searched-products';
 import { createQueue, createWorker, removeOptions } from '@crawlers/base/dist/queue/client';
 import { type CategoryQueueItem } from '@crawlers/base/dist/types/Queue';
+import { logger } from '@crawlers/base';
 import { enqueueProduct } from './product';
 import { crawlerSettings } from '@infrastructure/crawler-settings';
 
@@ -16,11 +17,11 @@ export const categoryQueue = () => {
 
 export const categoryWorker = () => {
   const worker = createWorker(QUEUE_NAME, async ({ data }: Job<CategoryQueueItem>) => {
-    console.log('STARTED fetching products', data);
+    logger.info({ categoryUrl: data.categoryUrl, page: data.page }, 'STARTED fetching products');
     const result = await fetchProductList(data.categoryUrl, data.page);
     if (result?.productLinks.length) await enqueueProducts(result.productLinks, data.categoryUrl);
     if (result?.hasNextPage) await enqueueNextCategoryPage(data);
-    console.log('FINISHED fetching products');
+    logger.info({ categoryUrl: data.categoryUrl }, 'FINISHED fetching products');
   });
   return worker;
 };

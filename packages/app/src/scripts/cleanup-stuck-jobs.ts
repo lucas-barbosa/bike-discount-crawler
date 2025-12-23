@@ -1,3 +1,4 @@
+import { logger } from '@crawlers/base';
 import { Queue, type Job } from 'bullmq';
 import { queueConnection } from '@crawlers/base/dist/queue/client';
 
@@ -67,12 +68,7 @@ const cleanupStuckJobs = async () => {
   const thresholdMs = thresholdMinutes * 60 * 1000;
   const now = Date.now();
 
-  console.log('========================================');
-  console.log('STUCK JOBS CLEANUP');
-  console.log('========================================');
-  console.log(`Threshold: ${thresholdMinutes} minutes`);
-  console.log(`Dry run: ${dryRun}`);
-  console.log('');
+  logger.info({ thresholdMinutes, dryRun }, 'Starting stuck jobs cleanup');
 
   let totalStuck = 0;
   let totalCleaned = 0;
@@ -106,9 +102,7 @@ const cleanupStuckJobs = async () => {
       }
 
       if (stuckJobs.length > 0) {
-        console.log(`[${queueName}]`);
-        console.log(`  Active jobs: ${activeJobs.length}`);
-        console.log(`  Stuck jobs (>${thresholdMinutes}min): ${stuckJobs.length}`);
+        logger.info({ queueName, activeJobs: activeJobs.length, stuckJobs: stuckJobs.length }, 'Found stuck jobs');
 
         totalStuck += stuckJobs.length;
 
@@ -116,7 +110,7 @@ const cleanupStuckJobs = async () => {
           const processedOn = job.processedOn || job.timestamp;
           const activeMinutes = Math.round((now - processedOn) / 60000);
 
-          console.log(`    - Job ${job.id} (active for ${activeMinutes} min)`);
+          logger.info({ jobId: job.id, activeMinutes }, 'Cleaning stuck job');
 
           if (!dryRun) {
             try {
@@ -124,7 +118,7 @@ const cleanupStuckJobs = async () => {
               // This is more reliable than moveToFailed which requires the lock
               await job.remove();
               totalCleaned++;
-              console.log('    ✅ Removed');
+              logger.info({ jobId: job.id }, 'Removed job');
             } catch (err: any) {
               // If remove fails because of lock, try to force unlock and remove again
               if (err.message?.includes('locked')) {
@@ -132,52 +126,42 @@ const cleanupStuckJobs = async () => {
                   const client = await queue.client;
                   const lockKey = `${queue.opts.prefix || 'bull'}:${queueName}:${job.id}:lock`;
                   await client.del(lockKey);
-                  console.log(`    🔓 Force unlocked (key: ${lockKey})`);
+                  logger.warn({ lockKey }, 'Force unlocked job');
 
                   // Try remove again
                   await job.remove();
                   totalCleaned++;
-                  console.log('    ✅ Removed (after unlock)');
+                  logger.info({ jobId: job.id }, 'Removed job after unlock');
                 } catch (unlockErr: any) {
-                  console.error(`    ❌ Failed to force unlock/remove job ${job.id}: ${unlockErr.message}`);
+                  logger.error({ err: unlockErr, jobId: job.id }, 'Failed to force unlock/remove job');
                 }
               } else {
                 // If remove fails for other reasons, try to retry the job
                 try {
                   await job.retry();
                   totalCleaned++;
-                  console.log('    ✅ Retried');
+                  logger.info({ jobId: job.id }, 'Retried job');
                 } catch {
-                  console.error(`    ❌ Failed to clean job ${job.id}: ${err.message}`);
+                  logger.error({ err, jobId: job.id }, 'Failed to clean job');
                 }
               }
             }
           }
         }
-        console.log('');
       }
 
       await queue.close();
     } catch (err: any) {
-      console.error(`Error processing ${queueName}: ${err.message}`);
+      logger.error({ err, queueName }, 'Error processing queue');
     }
   }
 
-  console.log('========================================');
-  console.log('SUMMARY');
-  console.log('========================================');
-  console.log(`Total stuck jobs found: ${totalStuck}`);
-  if (dryRun) {
-    console.log('Dry run - no jobs were cleaned');
-  } else {
-    console.log(`Total jobs cleaned: ${totalCleaned}`);
-  }
-  console.log('');
+  logger.info({ totalStuck, totalCleaned, dryRun }, 'Cleanup summary');
 
   process.exit(0);
 };
 
 cleanupStuckJobs().catch(err => {
-  console.error('Fatal error:', err);
+  logger.fatal({ err }, 'Fatal error in cleanup script');
   process.exit(1);
 });

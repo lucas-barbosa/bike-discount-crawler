@@ -2,6 +2,7 @@ import { type Job, type Queue } from 'bullmq';
 import { fetchProduct } from '@usecases/fetch-product';
 import { createQueue, createWorker, removeOptions } from '@crawlers/base/dist/queue/client';
 import { type ProductFoundCallback, type ProductQueueItem } from '@crawlers/base/dist/types/Queue';
+import { logger } from '@crawlers/base';
 
 const QUEUE_NAME = 'barrabes.product-images';
 
@@ -13,20 +14,20 @@ export const productImageQueue = () => {
 
 export const productImageWorker = (onProductFound: ProductFoundCallback) => {
   const worker = createWorker(QUEUE_NAME, async ({ data }: Job<ProductQueueItem>) => {
-    console.log('STARTED loading product image', data);
+    logger.info({ url: data.url }, 'STARTED loading product image');
     const result = await fetchProduct(data.url, '', 'es');
 
     if (result) {
       if (result.images?.length) {
         await onProductFound(result);
       }
-      console.log('Product: ', {
+      logger.debug({
         id: result.id,
         sku: result.sku,
-        images: result.images
-      });
+        imagesCount: result.images?.length
+      }, 'Product found');
     }
-    console.log('FINISHED loading product image');
+    logger.info({ url: data.url }, 'FINISHED loading product image');
   });
   return worker;
 };

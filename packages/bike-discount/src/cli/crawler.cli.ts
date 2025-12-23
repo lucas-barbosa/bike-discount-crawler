@@ -2,6 +2,7 @@ import { parse } from 'csv-parse';
 import { Command } from 'commander';
 import { createReadStream } from 'fs';
 import { exportToCsv } from '@crawlers/base/dist/file/csv';
+import { logger } from '@crawlers/base';
 import { fetchProduct } from '@usecases/fetch-product';
 import { fetchStock } from '@usecases/fetch-stock';
 import { fetchCategories } from '@usecases/fetch-categories';
@@ -36,7 +37,7 @@ export const getBikeDiscountCli = (
   const crawlerStockRequest = async (url: string, fileName?: string, withHeader = true, sendToApi = false) => {
     const result = await fetchStock(url)
       .catch((err: any) => {
-        console.error(`Failed to retrieve ${url}!`, err);
+        logger.error({ url, err }, 'Failed to retrieve stock');
         return null;
       });
 
@@ -54,10 +55,10 @@ export const getBikeDiscountCli = (
     }
 
     if (sendToApi) {
-      console.log('Publishing');
+      logger.info('Publishing');
       await publishStock(result);
     }
-    console.log(result);
+    logger.info(result, 'Result');
   };
 
   bikeDiscountCli.command('import')
@@ -65,7 +66,7 @@ export const getBikeDiscountCli = (
     .option('-s, --stock <stock>', 'Stock File path')
     .option('-o, --oldStock <oldStock>', 'Old Stock File path')
     .action(async (params) => {
-      console.log('Import File');
+      logger.info('Import File');
 
       if (params.stock) {
         const stream = createReadStream(params.stock).pipe(parse());
@@ -74,7 +75,7 @@ export const getBikeDiscountCli = (
           await registerProduct('bike-discount', url, 'stock');
           count++;
         }
-        console.log(`Registered ${count} stock products`);
+        logger.info({ count }, 'Registered stock products');
       } else if (params.oldStock) {
         const stream = createReadStream(params.oldStock).pipe(parse());
         const grouped: Record<string, {
@@ -102,10 +103,10 @@ export const getBikeDiscountCli = (
           });
           count++;
         }
-        console.log(`Registered ${count} old-stock products`);
+        logger.info({ count }, 'Registered old-stock products');
       }
 
-      console.log('Finished');
+      logger.info('Finished');
     });
 
   bikeDiscountCli.command('remove-cache')
@@ -129,7 +130,7 @@ export const getBikeDiscountCli = (
     .option('--csv', 'Export to CSV', false)
     .option('-p, --publish', 'Publish to Listeners', false)
     .action(async (params) => {
-      console.log('Crawler Product Stock');
+      logger.info('Crawler Product Stock');
       const filename = params.csv ? `stock-${Date.now()}.csv` : undefined;
 
       if (params.url) {
@@ -145,7 +146,8 @@ export const getBikeDiscountCli = (
         for await (const url of stream) {
           await crawlerStockRequest(url, filename, printHeader, params.publish);
           printHeader = false;
-          console.log(++i);
+          i++;
+          if (i % 100 === 0) logger.info({ count: i }, 'Progress...');
         }
         console.timeEnd('Processing CSV');
       }
@@ -158,13 +160,13 @@ export const getBikeDiscountCli = (
     .requiredOption('-v, --variations <variations>', 'Product Variations')
     .option('-p, --publish', 'Publish to Listeners', false)
     .action(async (params) => {
-      console.log('Crawler Old Product Stock');
+      logger.info('Crawler Old Product Stock');
 
       const ids = params.ids.split(',');
       const variations = params.variations.split(',');
 
       if (!ids.length || ids.length !== variations.length) {
-        console.warn('Forneça a mesma quantidade de ids e variações!');
+        logger.warn('Forneça a mesma quantidade de ids e variações!');
         return;
       }
 
@@ -172,11 +174,11 @@ export const getBikeDiscountCli = (
       const result = await fetchOldStocks(params.url, products);
 
       if (params.publish && result) {
-        console.log('Publishing');
+        logger.info('Publishing');
         await publishOldStock(result);
       }
 
-      console.log(result);
+      logger.info(result);
     });
 
   bikeDiscountCli.command('product')
@@ -186,7 +188,7 @@ export const getBikeDiscountCli = (
     .option('-l, --language <language>', 'Product Language', '')
     .option('-p, --publish', 'Publish to Listeners', false)
     .action(async (params) => {
-      console.log('Crawler Product');
+      logger.info('Crawler Product');
       const result = await fetchProduct(params.url, params.category, params.language);
 
       if (result) {
@@ -194,11 +196,11 @@ export const getBikeDiscountCli = (
       }
 
       if (params.publish && result) {
-        console.log('Publishing');
+        logger.info('Publishing');
         await publishProduct(result);
       }
 
-      console.log(result);
+      logger.info(result, 'Result');
     });
 
   bikeDiscountCli.command('translate')
@@ -207,13 +209,13 @@ export const getBikeDiscountCli = (
     .option('-l, --language <language>', 'Product Language', 'en')
     .option('-p, --publish', 'Publish to Listeners', false)
     .action(async (params) => {
-      console.log('Crawler Translation');
+      logger.info('Crawler Translation');
       const result = await fetchTranslation(params.url, params.language);
       if (params.publish && result) {
-        console.log('Publishing');
+        logger.info('Publishing');
         await publishTranslation(result);
       }
-      console.log(result);
+      logger.info(result, 'Result');
     });
 
   bikeDiscountCli.command('categories')
@@ -222,13 +224,13 @@ export const getBikeDiscountCli = (
     .option('-s, --search', 'Search if not exists', false)
     .option('-e, --enqueue', 'Enqueue job', false)
     .action(async (params) => {
-      console.log('Crawler Categories');
+      logger.info('Crawler Categories');
 
       if (params.publish) {
-        console.log('Loading from DB');
+        logger.info('Loading from DB');
         let categories = await getCategories();
         if (!categories && params.search) {
-          console.log('Loading from Site');
+          logger.info('Loading from Site');
           categories = await fetchCategories();
         }
         if (categories) {
@@ -236,11 +238,11 @@ export const getBikeDiscountCli = (
             data: categories,
             crawlerId: 'BD'
           });
-          console.log(categories);
+          logger.info(categories, 'Categories');
         }
       } else if (params.enqueue) {
         await enqueueCategories();
-        console.log('Categories enqueued');
+        logger.info('Categories enqueued');
       }
     });
 
@@ -250,26 +252,26 @@ export const getBikeDiscountCli = (
     .option('-e, --enqueue', 'Enqueue job', false)
     .option('-s, --selected', 'Enqueue selected categories', false)
     .action(async (params) => {
-      console.log('Crawler Category');
+      logger.info('Crawler Category');
       if (params.enqueue) {
         await enqueueCategory({
           categoryUrl: params.url
         });
-        console.log('Category enqueued');
+        logger.info('Category enqueued');
       }
       if (params.selected) {
-        console.log('Enqueuing selected-categories');
+        logger.info('Enqueuing selected-categories');
         await enqueueSelectedCategories();
-        console.log('Selected-categories enqueued');
+        logger.info('Selected-categories enqueued');
       }
     });
 
   bikeDiscountCli.command('categories-tree')
     .description('Generate categories tree')
     .action(async () => {
-      console.log('Generating Categories Tree');
+      logger.info('Generating Categories Tree');
       await generateCategoriesTree();
-      console.log('Finished');
+      logger.info('Finished');
     });
 
   return bikeDiscountCli;

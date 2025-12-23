@@ -7,6 +7,7 @@ import { enqueueCategory as enqueueTradeinnCategory } from '@crawlers/tradeinn/d
 import { crawlerSettings as barrabesSettings } from '@crawlers/barrabes/dist/infrastructure/crawler-settings';
 import { getSelectedCategories as getBikeDiscountCategories } from '@crawlers/bike-discount/dist/infrastructure/crawler-settings';
 import { crawlerSettings as tradeinnSettings } from '@crawlers/tradeinn/dist/infrastructure/crawler-settings';
+import { logger } from '@crawlers/base';
 
 const QUEUE_NAME = 'crawlers.category_scheduler';
 
@@ -83,9 +84,7 @@ const scheduleCategoryJobs = async (
  */
 export const categorySchedulerWorker = () => {
   const worker = createWorker(QUEUE_NAME, async ({ data }: Job<SchedulerJobData>) => {
-    console.log('========================================');
-    console.log('CATEGORY SCHEDULER STARTED', new Date());
-    console.log('========================================');
+    logger.info({ date: new Date() }, 'CATEGORY SCHEDULER STARTED');
 
     const allStats: SchedulerStats[] = [];
     const crawlerIds = data.crawlerId ? [data.crawlerId] : ['barrabes', 'bike-discount', 'tradeinn'];
@@ -94,35 +93,30 @@ export const categorySchedulerWorker = () => {
       // Check if crawler is enabled
       const enabled = await isCategoryCrawlerEnabled(crawlerId);
       if (!enabled) {
-        console.log(`Skipping ${crawlerId} (disabled)`);
+        logger.info({ crawlerId }, 'Skipping (disabled)');
         continue;
       }
 
-      console.log(`\n--- Processing ${crawlerId} ---`);
+      logger.info({ crawlerId }, '\n--- Processing ---');
 
       // Get categories from crawler-settings
       const categories = await getSelectedCategories(crawlerId);
 
       if (categories.length === 0) {
-        console.log(`No categories configured for ${crawlerId}`);
+        logger.info({ crawlerId }, 'No categories configured');
         continue;
       }
 
       // Schedule category jobs
       const stats = await scheduleCategoryJobs(crawlerId, categories);
       allStats.push(stats);
-      console.log(`Categories: ${stats.enqueued} enqueued (total: ${stats.total})`);
+      logger.info({ crawlerId, stats }, 'Categories enqueued');
     }
 
     // Summary
-    console.log('\n========================================');
-    console.log('CATEGORY SCHEDULER SUMMARY');
-    console.log('========================================');
     const totalCategories = allStats.reduce((sum, s) => sum + s.total, 0);
     const totalEnqueued = allStats.reduce((sum, s) => sum + s.enqueued, 0);
-    console.log(`Total Categories: ${totalCategories}`);
-    console.log(`Enqueued: ${totalEnqueued}`);
-    console.log('========================================');
+    logger.info({ totalCategories, totalEnqueued, date: new Date() }, 'Summary');
   });
 
   return worker;
@@ -148,7 +142,7 @@ export const startCategorySchedulerQueue = async () => {
     }
   );
 
-  console.log(`Category scheduler initialized (interval: ${SCHEDULER_INTERVAL_DAYS} days)`);
+  logger.info(`Category scheduler initialized (interval: ${SCHEDULER_INTERVAL_DAYS} days)`);
 };
 
 /**
@@ -158,9 +152,9 @@ export const startCategorySchedulerQueue = async () => {
 export const triggerCategoryScheduler = async (crawlerId?: string) => {
   categorySchedulerQueue();
 
-  console.log('Triggering category scheduler...');
+  logger.info('Triggering category scheduler...');
   if (crawlerId) {
-    console.log(`Scheduler triggered for ${crawlerId}`);
+    logger.info(`Scheduler triggered for ${crawlerId}`);
   }
 
   await queue.add(
@@ -169,5 +163,5 @@ export const triggerCategoryScheduler = async (crawlerId?: string) => {
     removeOptions
   );
 
-  console.log('Category scheduler job enqueued successfully');
+  logger.info('Category scheduler job enqueued successfully');
 };
