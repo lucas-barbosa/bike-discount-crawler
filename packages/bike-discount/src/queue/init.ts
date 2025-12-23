@@ -5,12 +5,15 @@ import { type ProductFoundCallback, startProductQueue, productQueue } from './pr
 import { type StockFoundCallback, startStockQueue, stockQueue } from './stock';
 import { type TranslationFoundCallback, startTranslationQueue, translationQueue } from './translate';
 
+export type RegisterProductCallback = (productUrl: string, metadata?: any) => Promise<void>;
+
 export interface QueueParams {
   onCategoriesFound: CategoriesFoundCallback
   onProductFound: ProductFoundCallback
   onStockFound: StockFoundCallback
   onOldStockFound: OldStockFoundCallback
   onTranslationFound: TranslationFoundCallback
+  registerProduct: RegisterProductCallback
 }
 
 export const initQueue = async ({
@@ -18,12 +21,13 @@ export const initQueue = async ({
   onProductFound,
   onStockFound,
   onOldStockFound,
-  onTranslationFound
+  onTranslationFound,
+  registerProduct
 }: QueueParams) => {
   await startCategoriesQueue(onCategoriesFound);
   startStockQueue(onStockFound);
   startOldStockQueue(onOldStockFound);
-  startProductQueue(onProductFound);
+  startProductQueue(onProductFound, registerProduct);
   startTranslationQueue(onTranslationFound);
   startCategoryQueue();
 };

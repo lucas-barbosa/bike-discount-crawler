@@ -8,6 +8,7 @@ import { handleTranslationFound } from '#callbacks/handleTranslationFound';
 import { handleOldStockFound } from '#callbacks/handleOldStockFound';
 import { handleProductImageFound } from '#callbacks/handleProductImageFound';
 import { handleAttributesFound } from '#callbacks/handleAttributesFound';
+import { registerProduct } from '../infrastructure/product-registry';
 
 export const initCrawlers = async () => {
   await initBarrabes({
@@ -16,7 +17,8 @@ export const initCrawlers = async () => {
     onStockFound: handleStockFound,
     onTranslationFound: handleTranslationFound,
     onProductImageFound: handleProductImageFound,
-    onAttributesFound: handleAttributesFound
+    onAttributesFound: handleAttributesFound,
+    registerProduct: (url: string, metadata?: any) => registerProduct('barrabes', url, 'stock', metadata)
   });
 
   await initBikeDiscount({
@@ -24,7 +26,8 @@ export const initCrawlers = async () => {
     onProductFound: handleProductFound,
     onStockFound: handleStockFound,
     onOldStockFound: handleOldStockFound,
-    onTranslationFound: handleTranslationFound
+    onTranslationFound: handleTranslationFound,
+    registerProduct: (url: string, metadata?: any) => registerProduct('bike-discount', url, 'stock', metadata)
   });
 
   await initTradeinn({
@@ -33,6 +36,7 @@ export const initCrawlers = async () => {
     onStockFound: handleStockFound,
     onTranslationFound: handleTranslationFound,
     onProductImageFound: handleProductImageFound,
-    onAttributesFound: handleAttributesFound
+    onAttributesFound: handleAttributesFound,
+    registerProduct: (url: string, metadata?: any) => registerProduct('tradeinn', url, 'stock', metadata)
   });
 };

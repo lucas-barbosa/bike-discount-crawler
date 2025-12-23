@@ -15,7 +15,7 @@
   },
   "scripts": {
     "build": "tsc && tsc-alias && cp -r ./src/api/views ./dist/src/api/views",
-    "cli": "node dist/src/cli",
+    "app:cli": "node dist/src/cli",
     "crawler": "node dist/src/cli crawler",
     "crawler:bb": "node dist/src/cli crawler barrabes",
     "crawler:bd": "node dist/src/cli crawler bike-discount",

@@ -1,7 +1,7 @@
 import { type Job, type Queue } from 'bullmq';
 import { fetchProduct } from '@usecases/fetch-product';
 import { validateProduct } from '@usecases/validate-product';
-import { enqueueStock } from './stock';
+import { type RegisterProductCallback } from './init';
 import { enqueueTranslation } from './translate';
 import { setProductSearched } from '@usecases/searched-products';
 import { createQueue, createWorker, removeOptions } from '@crawlers/base/dist/queue/client';
@@ -15,7 +15,7 @@ export const productQueue = () => {
   return queue;
 };
 
-export const productWorker = (onProductFound: ProductFoundCallback) => {
+export const productWorker = (onProductFound: ProductFoundCallback, registerProduct: RegisterProductCallback) => {
   const worker = createWorker(QUEUE_NAME, async ({ data }: Job<ProductQueueItem>) => {
     console.log('STARTED loading product', data);
     const result = await fetchProduct(data.url, data.categoryUrl, data.language);
@@ -28,7 +28,7 @@ export const productWorker = (onProductFound: ProductFoundCallback) => {
         if (data.language !== 'en') {
           await enqueueTranslation(data.url, 'en');
         }
-        await enqueueStock(data.url, result.metadata?.isPro);
+        await registerProduct(data.url, { isPro: result.metadata?.isPro });
         await onProductFound(result);
         await setProductSearched(data.url);
       }
@@ -53,7 +53,7 @@ export const enqueueProduct = async (productUrl: string, categoryUrl: string, la
   });
 };
 
-export const startProductQueue = (onProductFound: ProductFoundCallback) => {
+export const startProductQueue = (onProductFound: ProductFoundCallback, registerProduct: RegisterProductCallback) => {
   productQueue();
-  productWorker(onProductFound);
+  productWorker(onProductFound, registerProduct);
 };
