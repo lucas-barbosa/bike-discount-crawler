@@ -1,4 +1,5 @@
 import { Queue, Worker, WorkerOptions } from 'bullmq';
+import { logger } from '../utils/logger';
 
 const DEFAULT_MAX_QUEUE = 1;
 
@@ -24,13 +25,31 @@ export const createQueue = (queueName: string) => {
 };
 
 export const createWorker = (queueName: string, queueHandler: any, options: WorkerOptions | {} = {}) => {
-  return new Worker(queueName, queueHandler, {
+  const worker = new Worker(queueName, queueHandler, {
     ...queueConnection,
     lockDuration: DEFAULT_LOCK_DURATION,
     stalledInterval: DEFAULT_STALLED_INTERVAL,
     concurrency: DEFAULT_CONCURRENCY,
     ...options
   });
+
+  worker.on('completed', (job) => {
+    logger.debug({ jobId: job.id, queue: queueName }, 'Job completed');
+  });
+
+  worker.on('failed', (job, err) => {
+    logger.error({ jobId: job?.id, queue: queueName, err }, 'Job failed');
+  });
+
+  worker.on('error', (err) => {
+    logger.error({ queue: queueName, err }, 'Worker error');
+  });
+
+  worker.on('stalled', (jobId) => {
+    logger.warn({ jobId, queue: queueName }, 'Job stalled');
+  });
+
+  return worker;
 };
 
 export const removeOptions = {
