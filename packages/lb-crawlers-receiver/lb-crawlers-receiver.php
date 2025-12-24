@@ -34,7 +34,7 @@ define( 'LB_CRAWLERS_RECEIVER', plugin_basename( __FILE__ ) );
 define( 'LB_CRAWLERS_RECEIVER_DIR', plugin_dir_path( __FILE__ ) );
 define( 'LB_CRAWLERS_RECEIVER_FILE', __FILE__ );
 define( 'LB_CRAWLERS_RECEIVER_NAME', 'lb_crawlers_receiver' );
-define( 'LB_CRAWLERS_RECEIVER_VERSION', '1.0.1+beta3' );
+define( 'LB_CRAWLERS_RECEIVER_VERSION', '1.0.1+beta5' );
 
 function lb_crawlers_receiver_activate() { 
 	CrawlerBlockStorage::createTable();

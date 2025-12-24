@@ -186,10 +186,14 @@
         
         const [, firstId, secondId, thirdId] = match;
         
+        // Extract parentId from URL
+        const parentIdMatch = url.match(/parentId=(\d+)/);
+        const parentId = parentIdMatch ? parentIdMatch[1] : '1';
+        
         // Replace the URL format: keep first ID, replace the two last IDs with the new format
         const newUrl = url.replace(
           /categoryId=(\d+)\|(\d+)\|(\d+)/,
-          `categoryId=$1#fq=id_familia=1&sort=v30_sum;desc@tm1;asc&fe=&pf=id_subfamilia=$1@atributos=${secondId}_${thirdId}_1&start=0`
+          `categoryId=$1#fq=id_familia=${parentId}&sort=v30_sum;desc@tm1;asc&fe=&pf=id_subfamilia=$1@atributos=${secondId}_${thirdId}_1&start=0`
         );
         
         return newUrl;
