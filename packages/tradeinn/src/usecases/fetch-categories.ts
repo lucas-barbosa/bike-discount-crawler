@@ -5,6 +5,7 @@ import { saveCategories } from '@infrastructure/categories';
 import { generateCategoriesTree } from './generate-categories-tree';
 import { listAttributes } from '@crawler/actions/list-attributes';
 import { saveAttributes } from '@infrastructure/attributes';
+import { logger } from '@crawlers/base';
 
 const collectLastCategories = (node: TradeInnStore, storeId: string, parentId: string): Array<{ storeId: string, categoryId: string, parentId: string, url: string }> => {
   if (!node.childs || node.childs.length === 0) {
@@ -37,7 +38,7 @@ export const fetchCategories = async () => {
       lastCategories.map(category => listAttributes(category.storeId, category.parentId, category.categoryId, category.url)
         .then(x => ({ ...category, attributes: x }))
         .catch((err) => {
-          console.log(`Failed to load category [${category.categoryId}] - store [${category.parentId}] - err [${err?.message}]`);
+          logger.warn({ err }, `Failed to load category [${category.categoryId}] - store [${category.parentId}]`);
           return { ...category, attributes: [] };
         })));
 

@@ -143,7 +143,7 @@ export const getTradeinnCli = (
         let categories = await getCategories();
         let attributes = await getAttributes();
 
-        if (!categories && params.search) {
+        if (!categories || params.search) {
           logger.info('Loading from Site');
 
           const result = await fetchCategories();
