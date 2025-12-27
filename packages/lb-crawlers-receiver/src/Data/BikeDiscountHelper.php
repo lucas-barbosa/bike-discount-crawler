@@ -30,6 +30,14 @@ abstract class BikeDiscountHelper extends BaseProduct {
 		return SettingsData::getParentCategory();
 	}
 
+	protected function getCrawlerCode() {
+		return 'BD';
+	}
+
+	protected function getTermIdFromCache( $cache_key ) {
+		return BikeDiscountIdMapper::getTermId( $cache_key );
+	}
+
 	protected function addCategories($tradeinnCategories, $defaultParentId = null, $categoryUrl = '') {
 		throw new \BadMethodCallException('Method addCategories() is not implemented.');
 	}

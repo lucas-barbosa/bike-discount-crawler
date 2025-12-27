@@ -1,6 +1,7 @@
 import { type Product } from '@entities/Product';
 import { type ProductVariation } from '@entities/ProductVariation';
 import { convertDimensionToUnit, convertWeightToUnit } from '@utils/converters';
+import { logger } from '@utils/logger';
 
 type ValidateProductParams = {
   getDeniedBrands: () => Promise<string[]>;
@@ -31,6 +32,7 @@ export const useValidateProduct = (params: ValidateProductParams) => {
 
     const productBrand = product.brand.toLowerCase();
     if (deniedBrands.includes(productBrand)) {
+      logger.info(`[INVALID] Product ${product.sku} - Brand '${product.brand}' is denied`);
       product.setInvalid();
     }
   };
@@ -68,6 +70,7 @@ export const useValidateProduct = (params: ValidateProductParams) => {
       const isValid = await checkIsValid(product, weight.value, size.value, largestSide.value);
 
       if (!isValid) {
+        logger.info(`[INVALID] Product ${product.sku} - Failed dimension/weight/price validation`);
         product.setInvalid();
       }
 
@@ -80,6 +83,7 @@ export const useValidateProduct = (params: ValidateProductParams) => {
     for (const variation of variations) {
       const isValid = await checkIsValid(variation, weight.value, size.value, largestSide.value);
       if (!isValid) {
+        logger.info(`[INVALID] Variation ${variation.id} of product ${product.sku} - Failed validation`);
         variation.setInvalid();
       } else {
         valid = true;
@@ -87,6 +91,7 @@ export const useValidateProduct = (params: ValidateProductParams) => {
     }
 
     if (!valid) {
+      logger.info(`[INVALID] Product ${product.sku} - All variations are invalid`);
       product.setInvalid();
     }
   };
@@ -94,20 +99,25 @@ export const useValidateProduct = (params: ValidateProductParams) => {
   const checkIsValid = async (product: Product | ProductVariation, weight: number, size: number, largestSide: number) => {
     const price = product.price;
     const MAX_ALLOWED_SIDE = await params.getMaxAllowedSize();
+    const identifier = 'id' in product ? `variation ${product.id}` : `product ${(product as Product).sku}`;
 
     if (!price) {
+      logger.info(`[VALIDATION] ${identifier} - No price`);
       return false;
     }
 
     if (largestSide > MAX_ALLOWED_SIDE) {
+      logger.info(`[VALIDATION] ${identifier} - Largest side (${largestSide}cm) exceeds max allowed (${MAX_ALLOWED_SIDE}cm)`);
       return false;
     }
 
     if (!await validateMaxSize(size)) {
+      logger.info(`[VALIDATION] ${identifier} - Size (${size}cm) exceeds max allowed`);
       return false;
     }
 
     if (!await validateMinPrice(price)) {
+      logger.info(`[VALIDATION] ${identifier} - Price (${price}) below minimum allowed`);
       return false;
     }
 
@@ -116,10 +126,15 @@ export const useValidateProduct = (params: ValidateProductParams) => {
     }
 
     if (!await validateMaxWeight(weight)) {
+      logger.info(`[VALIDATION] ${identifier} - Weight (${weight}g) exceeds max allowed`);
       return false;
     }
 
-    return validateWeight(price, weight, size);
+    const weightValid = await validateWeight(price, weight, size);
+    if (!weightValid) {
+      logger.info(`[VALIDATION] ${identifier} - Failed weight rule validation (price: ${price}, weight: ${weight}g, size: ${size}cm)`);
+    }
+    return weightValid;
   };
 
   const validateMaxSize = async (productSize: number) => {

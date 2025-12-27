@@ -24,6 +24,14 @@ abstract class TradeInnHelper extends BaseProduct {
 		return SettingsData::getParentCategory();
 	}
 
+	protected function getCrawlerCode() {
+		return 'TT';
+	}
+
+	protected function getTermIdFromCache( $cache_key ) {
+		return TradeInnMapper::getTermId( $cache_key );
+	}
+
 	protected function addCategories($tradeinnCategories, $defaultParentId = null, $categoryUrl = '') {
 		throw new \BadMethodCallException('Method addCategories() is not implemented.');
 	}

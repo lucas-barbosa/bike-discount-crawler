@@ -10,21 +10,39 @@ use LucasBarbosa\LbCrawlersReceiver\Common\BaseProduct;
 abstract class BarrabesHelper extends BaseProduct {
   private array $taxonomies = [];
   protected string $stock = '';
-  
+  protected bool $is_pro = false;
+
+  private static function slugify($str) {
+    $str = mb_strtolower($str, 'UTF-8'); // minúsculas
+    $str = trim($str); // remove espaços extras
+    $str = preg_replace('/[^\w\s-]/u', '', $str); // remove caracteres não permitidos
+    $str = preg_replace('/[\s_-]+/', '-', $str); // substitui espaço/underscore repetido por "-"
+    $str = preg_replace('/^-+|-+$/', '', $str); // remove "-" do início/fim
+    return $str;
+  }
+
 	protected function loadParams( $stockName ) {
 		$this->stock = get_option( $stockName, '' );
 	}
 
 	protected function getOverrideCategoryId( $categoryUrl ) {
 		$overrideCategories = SettingsData::getOverrideCategories();
-		return $overrideCategories[$categoryUrl] ?? '';
+		return $overrideCategories[$categoryUrl] ?? $overrideCategories[$this->slugify($categoryUrl)] ?? '';
 	}
 
 	protected function getParentCategory() {
 		return SettingsData::getParentCategory();
 	}
 
-	protected function addCategories($tradeinnCategories, $defaultParentId = null, $categoryUrl = '', $is_pro = false) {
+	protected function getCrawlerCode() {
+		return 'BB';
+	}
+
+	protected function getTermIdFromCache( $cache_key ) {
+		return BarrabesMapper::getTermId( $cache_key );
+	}
+
+	protected function addCategories($tradeinnCategories, $defaultParentId = null, $categoryUrl = '', $is_pro = null) {
 		throw new \BadMethodCallException('Method addCategories() is not implemented.');
 	}
 
@@ -87,6 +105,20 @@ abstract class BarrabesHelper extends BaseProduct {
 
   protected function check_is_pro( $data ) {
     return is_array( $data['metadata'] ) && isset( $data['metadata']['isPro'] ) && !!$data['metadata']['isPro'];
+  }
+
+  /**
+   * Prepends Esportivo or Profissional to categories based on category URL
+   */
+  protected function prependCategoryPrefix( $crawlerCategories ) {
+    if ( ! is_array( $crawlerCategories ) ) {
+      return $crawlerCategories;
+    }
+
+    $prefix = $this->is_pro ? 'Profissional' : 'Esportivo';
+    
+    array_unshift( $crawlerCategories, $prefix );
+    return $crawlerCategories;
   }
 
   protected function deleteNonUsedVariations( $existentVariations, $newVariations ) {
@@ -295,4 +327,8 @@ abstract class BarrabesHelper extends BaseProduct {
 
 		return false;
 	}
+
+  protected function getCategorySkipCount() {
+    return 2; // Barrabes requires skipping the first two categories
+  }
 }

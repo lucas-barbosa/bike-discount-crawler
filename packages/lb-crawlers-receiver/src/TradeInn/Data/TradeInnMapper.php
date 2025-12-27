@@ -32,6 +32,14 @@ class TradeInnMapper {
   }
 
 	static function getTermId( $name ) {
+    // First try to find by term_id
+    $meta = CrawlerTermMetaData::getByMetaKey( '_tradeinn_term_id_' . $name );
+
+		if ( ! empty( $meta ) && isset( $meta['term_id'] ) ) {
+			return $meta['term_id'];
+		}
+
+    // Fallback to term_name
     $meta = CrawlerTermMetaData::getByMetaKey( '_tradeinn_term_name_' . $name );
 
 		if ( ! empty( $meta ) && isset( $meta['term_id'] ) ) {

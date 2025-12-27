@@ -28,7 +28,7 @@ class BarrabesProduct extends BarrabesHelper {
 			return;
 		}
 
-    $is_pro = $this->check_is_pro( $data );
+    $this->is_pro = $this->check_is_pro( $data );
     $price = $data['price'];
     $availability = $data['availability'];
 
@@ -37,7 +37,7 @@ class BarrabesProduct extends BarrabesHelper {
       $availability = $data['variations'][0]['availability'];
     }
 
-    $wc_product = $this->setRequiredData( $wc_product, $data, $is_pro, $price, $availability );
+    $wc_product = $this->setRequiredData( $wc_product, $data, $price, $availability );
 		
     parent::saveProduct( $wc_product, true, $price, $availability );
 		$this->setCustomMetaData( $wc_product, $data );
@@ -70,7 +70,7 @@ class BarrabesProduct extends BarrabesHelper {
 		}
 		
 		if ( !is_null( $is_pro ) ) {
-			array_unshift( $barrabesCategories, $is_pro ? 'Profissional' : 'Esportivo' );
+      $barrabesCategories = $this->prependCategoryPrefix( $barrabesCategories );
 		}
 		
 		$parentId = is_null( $defaultParentId ) 
@@ -108,7 +108,7 @@ class BarrabesProduct extends BarrabesHelper {
       }
 
       $translatedCategoryName = $categoryName;
-      if ( $is_pro && $i > 0 ) {
+      if ( $this->is_pro && $i > 0 ) {
         $translatedCategoryName = Utils::translate( $categoryName, 'es', 'pt-BR', false, 'term', 'title' );
       }
 
@@ -366,13 +366,13 @@ class BarrabesProduct extends BarrabesHelper {
     return $product;
   }
 
-  private function setRequiredData( $wc_product, $data, $is_pro, $price, $availability) {
+  private function setRequiredData( $wc_product, $data, $price, $availability) {
 		if ( empty( $wc_product->get_name() ) ) {
 			$title = $data['title'];
 			$wc_product->set_name( $title );
 		}
 
-		$categories = $this->addCategories( $data['categories'], null, $data['categoryUrl'], $is_pro );
+		$categories = $this->addCategories( $data['categories'], null, $data['categoryUrl'], $this->is_pro );
 		$originalCategories = $this->addOriginalCategories( $data['categories'], $data['categoryUrl'] );
 		$existentCategories = $wc_product->get_category_ids();
 		$wc_product->set_category_ids( array_merge( $categories, $existentCategories, $originalCategories ) );
