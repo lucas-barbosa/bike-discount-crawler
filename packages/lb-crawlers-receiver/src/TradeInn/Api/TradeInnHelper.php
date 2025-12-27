@@ -17,7 +17,7 @@ abstract class TradeInnHelper extends BaseProduct {
 
 	protected function getOverrideCategoryId( $categoryUrl ) {
 		$overrideCategories = SettingsData::getOverrideCategories();
-		return $overrideCategories[$categoryUrl] ?? '';
+    return $overrideCategories[$categoryUrl] ?? $overrideCategories[$this->slugify($categoryUrl)] ?? '';
 	}
 
 	protected function getParentCategory() {
