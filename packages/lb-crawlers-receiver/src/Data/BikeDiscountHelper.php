@@ -20,10 +20,18 @@ abstract class BikeDiscountHelper extends BaseProduct {
 		$this->stock = get_option( $stockName, '' );
 	}
 
+   private static function slugify($str) {
+    $str = mb_strtolower($str, 'UTF-8'); // minúsculas
+    $str = trim($str); // remove espaços extras
+    $str = preg_replace('/[^\w\s-]/u', '', $str); // remove caracteres não permitidos
+    $str = preg_replace('/[\s_-]+/', '-', $str); // substitui espaço/underscore repetido por "-"
+    $str = preg_replace('/^-+|-+$/', '', $str); // remove "-" do início/fim
+    return $str;
+  }
 	
 	protected function getOverrideCategoryId( $categoryUrl ) {
 		$overrideCategories = SettingsData::getOverrideCategories();
-		return $overrideCategories[$categoryUrl] ?? '';
+		return $overrideCategories[$categoryUrl] ?? $overrideCategories[$this->slugify($categoryUrl)] ?? '';
 	}
 
 	protected function getParentCategory() {

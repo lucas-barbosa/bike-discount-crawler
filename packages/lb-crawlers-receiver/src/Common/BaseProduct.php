@@ -11,6 +11,15 @@ abstract class BaseProduct {
   abstract protected function getCrawlerCode();
   abstract protected function getTermIdFromCache( $cache_key );
   
+  protected static function slugify($str) {
+    $str = mb_strtolower($str, 'UTF-8'); // minúsculas
+    $str = trim($str); // remove espaços extras
+    $str = preg_replace('/[^\w\s-]/u', '', $str); // remove caracteres não permitidos
+    $str = preg_replace('/[\s_-]+/', '-', $str); // substitui espaço/underscore repetido por "-"
+    $str = preg_replace('/^-+|-+$/', '', $str); // remove "-" do início/fim
+    return $str;
+  }
+
   /**
    * Prepends any crawler-specific prefix to categories (e.g., Esportivo/Profissional for Barrabes)
    * Default implementation returns categories as-is
@@ -70,9 +79,7 @@ abstract class BaseProduct {
 				if ( $source_term && ! is_wp_error( $source_term ) ) {
 					$name_to_use = $source_term->name;
 					$source_parent_id = $source_term_id; // Step deeper into source tree
-
 				} else {
-
 					$source_parent_id = 0;
 				}
 			} else {
@@ -124,6 +131,7 @@ abstract class BaseProduct {
 		if ( is_array( $mappedCategories ) ) {
 			return array_unique( $mappedCategories );
 		}
+
 		// 2. Verifica se existe categoria backfilled
 		$backfilled_category_id = CrawlerTermMetaData::getTermIdByMeta( '_backfill_source_url', $categoryUrl );
 		if ( $backfilled_category_id ) {
@@ -145,6 +153,7 @@ abstract class BaseProduct {
 
     // 5. Prepend crawler-specific prefix (e.g., Esportivo/Profissional for Barrabes)
 		$categoriesWithPrefix = $this->prependCategoryPrefix( $crawlerCategories );
+
 		// 6. Processa todas as categorias para buscar nomes atualizados (precisamos da hierarquia completa)
 		$processed_categories = $this->processcrawlerCategories( $categoriesWithPrefix );
 

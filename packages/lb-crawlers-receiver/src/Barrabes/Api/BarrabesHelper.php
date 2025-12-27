@@ -12,15 +12,6 @@ abstract class BarrabesHelper extends BaseProduct {
   protected string $stock = '';
   protected bool $is_pro = false;
 
-  private static function slugify($str) {
-    $str = mb_strtolower($str, 'UTF-8'); // minúsculas
-    $str = trim($str); // remove espaços extras
-    $str = preg_replace('/[^\w\s-]/u', '', $str); // remove caracteres não permitidos
-    $str = preg_replace('/[\s_-]+/', '-', $str); // substitui espaço/underscore repetido por "-"
-    $str = preg_replace('/^-+|-+$/', '', $str); // remove "-" do início/fim
-    return $str;
-  }
-
 	protected function loadParams( $stockName ) {
 		$this->stock = get_option( $stockName, '' );
 	}
