@@ -1,4 +1,5 @@
 import { getProductStock } from '@crawler/actions/get-product-stock';
+import { logger } from '@crawlers/base';
 import { type ProductStock } from '@crawlers/base/dist/types/ProductStock';
 
 export const fetchStock = async (productUrl: string) => {
@@ -6,7 +7,7 @@ export const fetchStock = async (productUrl: string) => {
     // Add timeout to avoid being detected by rate limit
     .then(res => new Promise<ProductStock>(resolve => setTimeout(resolve, Math.floor(Math.random() * (2000 - 1000 + 1)) + 1000, res.stock)))
     .catch(err => {
-      console.warn(err);
+      logger.warn({ err }, 'Error fetching stock');
       return null;
     });
 };

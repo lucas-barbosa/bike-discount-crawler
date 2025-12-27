@@ -22,7 +22,7 @@ const collectLastCategories = (node: TradeInnStore, storeId: string, parentId: s
 
 export const fetchCategories = async () => {
   const categories = await listCategories().catch(err => {
-    console.warn(err);
+    logger.warn({ err }, 'Error fetching categories');
     return null;
   });
 

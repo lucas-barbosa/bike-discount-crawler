@@ -3,22 +3,6 @@ import { getBrowserManager } from './browser-manager';
 
 const DEFAULT_NAVIGATION_TIMEOUT = 60000; // 60 seconds
 
-/**
- * Wrap a promise with a timeout
- */
-export const withTimeout = <T>(
-  promise: Promise<T>,
-  timeoutMs: number,
-  errorMessage = 'Operation timed out'
-): Promise<T> => {
-  return Promise.race([
-    promise,
-    new Promise<T>((_, reject) =>
-      setTimeout(() => reject(new Error(errorMessage)), timeoutMs)
-    )
-  ]);
-};
-
 export const disposeOnFail = async (callback: () => Promise<any>, page: Page, browser: Browser) => {
   try {
     const result = await callback();

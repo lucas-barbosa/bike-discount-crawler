@@ -1,4 +1,5 @@
 import { getProductStock } from '@crawler/actions/get-product-stock';
+import { logger } from '@crawlers/base';
 
 export const fetchStock = async (productUrl: string, isPro?: boolean) => {
   return await getProductStock(productUrl, true, 'es')
@@ -9,7 +10,7 @@ export const fetchStock = async (productUrl: string, isPro?: boolean) => {
       return res.stock;
     })
     .catch(err => {
-      console.warn(err);
+      logger.warn({ err }, 'Error fetching stock');
       return null;
     });
 };

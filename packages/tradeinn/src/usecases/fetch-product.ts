@@ -1,4 +1,5 @@
 import { getProduct } from '@crawler/actions/get-product';
+import { logger } from '@crawlers/base';
 import { uploadImages } from '@crawlers/base/dist/usecases/upload-images';
 
 export const fetchProduct = async (productUrl: string, categoryUrl: string, language?: string) => {
@@ -8,7 +9,7 @@ export const fetchProduct = async (productUrl: string, categoryUrl: string, lang
       return res;
     })
     .catch(err => {
-      console.warn(err);
+      logger.warn({ err }, 'Error fetching product');
       return null;
     });
 };

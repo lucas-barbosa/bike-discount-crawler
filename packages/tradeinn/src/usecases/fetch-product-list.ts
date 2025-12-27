@@ -1,4 +1,5 @@
 import { listProducts } from '@crawler/actions/list-products';
+import { logger } from '@crawlers/base';
 import { type CategorySearch } from '@crawlers/base/dist/types/CategorySearch';
 
 export const fetchProductList = async (categoryUrl: string, page: number = 1) => {
@@ -12,7 +13,7 @@ export const fetchProductList = async (categoryUrl: string, page: number = 1) =>
   // Add timeout to avoid being detected by rate limit
     .then(res => new Promise<CategorySearch>(resolve => setTimeout(resolve, Math.floor(Math.random() * (2000 - 1000 + 1)) + 1000, res)))
     .catch(err => {
-      console.warn(err);
+      logger.warn({ err }, 'Error fetching product list');
       return null;
     });
 };
