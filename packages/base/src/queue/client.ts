@@ -12,7 +12,15 @@ export const queueConnection = {
   connection: {
     host: process.env.QUEUE_HOST,
     hostport: process.env.QUEUE_HOST,
-    password: process.env.QUEUE_PASSWORD
+    password: process.env.QUEUE_PASSWORD,
+    
+    maxRetriesPerRequest: null, // BullMQ precisa disso
+    enableReadyCheck: false,
+    retryStrategy: (times: number) => {
+      const delay = Math.min(times * 50, 2000);
+      logger.warn({ attempt: times, delay }, 'Redis reconnecting...');
+      return delay;
+    },
   }
 };
 
