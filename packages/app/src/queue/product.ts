@@ -5,6 +5,7 @@ import { logger } from '@crawlers/base';
 import { publishProductChanges } from '#publishers/product';
 
 const QUEUE_NAME = 'crawlers.main.product';
+const PRODUCT_WORKER_CONCURRENCY = Number(process.env.PRODUCT_WORKER_CONCURRENCY) || 1;
 
 let queue: Queue;
 export const productQueue = () => {
@@ -17,6 +18,8 @@ export const productWorker = () => {
     logger.info({ productId: data.id }, 'STARTED PUBLISHING product');
     await publishProductChanges(data);
     logger.info({ productId: data.id }, 'FINISHED PUBLISHING product');
+  }, {
+    concurrency: PRODUCT_WORKER_CONCURRENCY
   });
   return worker;
 };

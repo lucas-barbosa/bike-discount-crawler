@@ -6,6 +6,7 @@ import { publishStockChanges } from '#publishers/stock';
 import { addStockToCache, hasStockChanged } from '#infrastructure/stock-cache';
 
 const QUEUE_NAME = 'crawlers.main.product_stock';
+const STOCK_WORKER_CONCURRENCY = Number(process.env.STOCK_WORKER_CONCURRENCY) || 1;
 
 let queue: Queue;
 export const stockQueue = () => {
@@ -24,6 +25,8 @@ export const stockWorker = () => {
       }
     }
     logger.info('FINISHED PUBLISHING stock');
+  }, {
+    concurrency: STOCK_WORKER_CONCURRENCY
   });
   return worker;
 };
