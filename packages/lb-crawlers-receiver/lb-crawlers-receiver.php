@@ -4,7 +4,7 @@
  * @wordpress-plugin
  * Plugin Name:       LB Crawlers Receiver
  * Description:       API to receive crawlers updates
- * Version:           1.0.1
+ * Version:           1.1.0
  * Author:            Lucas Barbosa
  * Author URI:        https://github.com/lucas-barbosa
  * License:           GPL-2.0+
@@ -34,7 +34,7 @@ define( 'LB_CRAWLERS_RECEIVER', plugin_basename( __FILE__ ) );
 define( 'LB_CRAWLERS_RECEIVER_DIR', plugin_dir_path( __FILE__ ) );
 define( 'LB_CRAWLERS_RECEIVER_FILE', __FILE__ );
 define( 'LB_CRAWLERS_RECEIVER_NAME', 'lb_crawlers_receiver' );
-define( 'LB_CRAWLERS_RECEIVER_VERSION', '1.0.1+beta6' );
+define( 'LB_CRAWLERS_RECEIVER_VERSION', '1.1.0' );
 
 function lb_crawlers_receiver_activate() { 
 	CrawlerBlockStorage::createTable();

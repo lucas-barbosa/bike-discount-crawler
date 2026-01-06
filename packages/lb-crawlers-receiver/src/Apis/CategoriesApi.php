@@ -43,20 +43,24 @@ class CategoriesApi {
   }
 
   function update_barrabes( $data ) {
-    if ( isset( $data['barrabes'] ) ) {
+    if ( isset( $data['barrabes'] ) && !empty( $data['barrabes'] ) ) {
       BarrabesSettings::saveCategories( $data['barrabes'], false );
     }
 
-    if ( isset( $data['pro'] ) ) {
+    if ( isset( $data['pro'] ) && !empty( $data['pro'] ) ) {
       BarrabesSettings::saveCategories( $data['pro'], true );
     }
   }
 
   function update_bd( $data ) {
-    update_option( '_lb_bike_discount_categories', $data, true );
+    if ( !empty( $data ) ) {
+      update_option( '_lb_bike_discount_categories', $data, true );
+    }
   }
 
   function update_tradeinn( $data ) {
-    TradeInnSettings::saveCategories( $data );
+    if ( !empty( $data ) ) {
+      TradeInnSettings::saveCategories( $data );
+    }
   }
 }
