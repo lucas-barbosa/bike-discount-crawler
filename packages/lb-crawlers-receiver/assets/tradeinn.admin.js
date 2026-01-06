@@ -318,13 +318,15 @@
       attributes.forEach(attr => {
         const attrLabel = attr.label;
         const attrValues = attr.values || [];
+        const attrNodeId = `${nodeId}-attr-${attr.id}`;
 
         const $attrBlock = $(`
           <li>
             <label class="lb-tradeinn-title">
               <strong>${attrLabel}</strong>
+              <button class="lb-tradeinn-toggle" type="button" data-node-id="${attrNodeId}">Exibir/Ocultar</button>
             </label>
-            <ul class="lb-tradeinn-attribute-values"></ul>
+            <ul class="lb-tradeinn-attribute-values" data-node-id="${attrNodeId}" style="display:none;"></ul>
           </li>
         `);
 
@@ -403,7 +405,7 @@
       const checkboxClass = isTitle ? ' class="lb-tradeinn-title"' : '';
       const checkedAttr = value && isSelected ? ' checked' : '';
 
-      const toggleButton = isTitle && hasChilds
+      const toggleButton = isTitle && (hasChilds || hasAttributes)
         ? `<button class="lb-tradeinn-toggle" type="button" data-node-id="${id}">Exibir/Ocultar</button>` 
         : '';
 
@@ -412,7 +414,7 @@
         : '';
 
       const leafExtras = !hasChilds
-        ? templates.weightDimensionInputs(value, weight, dimension, isOverride, isViewed, overrideName, overrideId)
+        ? `<div style="margin-top: 5px;">${templates.weightDimensionInputs(value, weight, dimension, isOverride, isViewed, overrideName, overrideId)}</div>`
         : '';
 
       const subitemsList = isTitle && hasChilds
@@ -420,7 +422,7 @@
         : '';
 
       const attributesList = hasAttributes
-        ? `<ul class="lb-tradeinn-attributes"></ul>`
+        ? `<ul class="lb-tradeinn-attributes" data-node-id="${id}" style="display:none;"></ul>`
         : '';
 
       const element = `
@@ -523,6 +525,8 @@
     function toggle() {
       const nodeId = $(this).data('node-id');
       const $subitems = $(`ul.lb-tradeinn-subitems[data-node-id="${nodeId}"]`);
+      const $attributes = $(`ul.lb-tradeinn-attributes[data-node-id="${nodeId}"]`);
+      const $attributeValues = $(`ul.lb-tradeinn-attribute-values[data-node-id="${nodeId}"]`);
       
       // Se ainda não foi expandido, renderiza os filhos agora (lazy loading)
       if (!state.expandedNodes.has(nodeId)) {
@@ -530,11 +534,31 @@
         state.expandedNodes.add(nodeId);
       }
       
-      // Toggle visibilidade
-      if ($subitems.is(':visible')) {
-        $subitems.hide();
-      } else {
-        $subitems.show();
+      // Toggle visibilidade para subitems
+      if ($subitems.length) {
+        if ($subitems.is(':visible')) {
+          $subitems.hide();
+        } else {
+          $subitems.show();
+        }
+      }
+      
+      // Toggle visibilidade para attributes
+      if ($attributes.length) {
+        if ($attributes.is(':visible')) {
+          $attributes.hide();
+        } else {
+          $attributes.show();
+        }
+      }
+      
+      // Toggle visibilidade para attribute values
+      if ($attributeValues.length) {
+        if ($attributeValues.is(':visible')) {
+          $attributeValues.hide();
+        } else {
+          $attributeValues.show();
+        }
       }
     }
 
