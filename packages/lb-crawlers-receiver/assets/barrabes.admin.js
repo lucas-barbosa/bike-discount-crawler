@@ -186,9 +186,13 @@
 
       // Determina se é categoria root (tem filhos)
       const isRootCategory = parent === '';
+      const isSelected = value && selectedCategories.includes(value);
+      const deleteBtn = (!hasChilds && isSelected)
+        ? `<button class="lb-delete-products" data-category="${value}" data-node-id="${id}" type="button" style="margin-left:10px;color:#fff;background:#d9534f;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;">Deletar produtos</button>`
+        : '';
 
       const element = `
-          <li>
+          <li data-node-id="${id}">
             <label id="lb-barrabes-item_${id}" class="lb-barrabes-title">
             <input
               type="checkbox"
@@ -197,6 +201,7 @@
               ${value && selectedCategories.includes(value) ? 'checked' : ''}
               ${isTitle ? `class="lb-barrabes-title"` : ''}
             >${hasChilds ? name : `<a href="${value}" target="blank">${name}</a>`}
+            ${deleteBtn}
 
             ${isRootCategory ? `
               <div style="display:inline-flex;gap:5px;align-items:center;">
@@ -447,8 +452,81 @@
       });
     }
 
+    // Helpers
+    const helpers = {
+      getCategoryPath: function(nodeId) {
+        const path = [];
+        let currentNode = $(`li[data-node-id="${nodeId}"]`);
+        
+        // Detecta se é categoria Pro ou Esportivo baseado no container pai
+        const isPro = currentNode.closest('#lb-barrabes-pro-available-categories').length > 0;
+        
+        while (currentNode.length) {
+          const label = currentNode.find('> label');
+          const checkbox = label.find('input[type="checkbox"]');
+          const nameEl = label.clone().children().remove().end();
+          let name = nameEl.text().trim();
+          
+          if (!name) {
+            const link = label.find('a');
+            name = link.length ? link.text().trim() : '';
+          }
+          
+          if (name) path.unshift(name);
+          
+          const parentLi = currentNode.parent().closest('li[data-node-id]');
+          currentNode = parentLi.length ? parentLi : [];
+        }
+        
+        // Adiciona o prefixo Profissional ou Esportivo no início
+        const prefix = isPro ? 'Profissional' : 'Esportivo';
+        path.unshift(prefix);
+        
+        return path;
+      }
+    };
+
+    // Handler para deletar produtos
+    function handleDeleteProductsClick(e) {
+      e.preventDefault();
+      const $btn = $(this);
+      const category = $btn.data('category');
+      const nodeId = $btn.data('node-id');
+      if (!category) return;
+      if (!confirm('Tem certeza que deseja deletar TODOS os produtos desta categoria?')) return;
+
+      const categoryPath = helpers.getCategoryPath(nodeId);
+
+      $btn.prop('disabled', true).text('Agendando...');
+      deleteProductsByCategory(category, categoryPath)
+        .always(function() {
+          $btn.prop('disabled', false).text('Deletar produtos');
+        });
+    }
+
+    function deleteProductsByCategory(category, categoryPath) {
+      return $.ajax({
+        type: 'POST',
+        url: lb_crawlers_receiver_barrabes.ajaxurl,
+        data: {
+          category,
+          category_path: categoryPath,
+          action: 'barrabes_delete_products_by_category',
+          nonce: lb_crawlers_receiver_barrabes.nonce
+        },
+        dataType: 'JSON'
+      })
+      .done(function() {
+        alert('A deleção dos produtos foi agendada. Aguarde o processamento.');
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+        alert('Erro ao agendar deleção dos produtos: ' + (errorThrown || textStatus));
+      });
+    }
+
     $(document).on('change', '.lb-barrabes-title', selectAll);
     $(document).on('click', '.lb-barrabes-toggle', toggle);
+    $(document).on('click', '.lb-delete-products', handleDeleteProductsClick);
     $(document).on('submit', '#lb-barrabes-available-categories-form', function (e) {
       e.preventDefault();
       $('#lb-barrabes-available-categories-form').prop('disabled', true);

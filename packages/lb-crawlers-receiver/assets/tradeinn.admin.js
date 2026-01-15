@@ -197,6 +197,19 @@
         );
         
         return newUrl;
+      },
+
+      getCategoryPath: (nodeId) => {
+        const path = [];
+        let current = state.categoryTree[nodeId];
+        
+        while (current) {
+          if (current.name) path.unshift(current.name);
+          if (!current.parent) break;
+          current = state.categoryTree[current.parent];
+        }
+        
+        return path;
       }
     };
 
@@ -414,7 +427,7 @@
         : '';
 
       const leafExtras = !hasChilds
-        ? `<div style="margin-top: 5px;">${templates.weightDimensionInputs(value, weight, dimension, isOverride, isViewed, overrideName, overrideId)}</div>`
+    ? `<div style="margin-top: 5px;">${templates.weightDimensionInputs(value, weight, dimension, isOverride, isViewed, overrideName, overrideId)}</div>`
         : '';
 
       const subitemsList = isTitle && hasChilds
@@ -425,11 +438,16 @@
         ? `<ul class="lb-tradeinn-attributes" data-node-id="${id}" style="display:none;"></ul>`
         : '';
 
+      const deleteBtn = (!hasChilds && isSelected)
+        ? `<button class="lb-delete-products" data-category="${value}" data-node-id="${id}" type="button" style="margin-left:10px;color:#fff;background:#d9534f;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;">Deletar produtos</button>`
+        : '';
+
       const element = `
         <li data-node-id="${id}">
           <label id="lb-tradeinn-item_${id}" class="lb-tradeinn-title">
             <input type="checkbox" name="sel_cat[]" value="${value}"${checkboxClass}${checkedAttr} data-node-id="${id}">
             ${categoryLink}
+            ${deleteBtn}
             ${rootExtras}
             ${toggleButton}
           </label>
@@ -449,6 +467,38 @@
       }
     }
 
+    // Handler para deletar produtos de uma categoria folha
+    function handleDeleteProductsClick(e) {
+      e.preventDefault();
+      const $btn = $(this);
+      const category = $btn.data('category');
+      const nodeId = $btn.data('node-id');
+      if (!category) return;
+      if (!confirm('Tem certeza que deseja deletar TODOS os produtos desta categoria?')) return;
+
+      // Buscar o caminho hierárquico das categorias
+      const categoryPath = helpers.getCategoryPath(nodeId);
+
+      $btn.prop('disabled', true).text('Agendando...');
+      deleteProductsByCategory(category, categoryPath)
+        .always(function() {
+          $btn.prop('disabled', false).text('Deletar produtos');
+        });
+    }
+
+    function deleteProductsByCategory(category, categoryPath) {
+      return ajaxRequest('tradeinn_delete_products_by_category', { 
+        category, 
+        category_path: categoryPath
+      })
+      .done(function() {
+        alert('A deleção dos produtos foi agendada. Aguarde o processamento.');
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+        alert('Erro ao agendar deleção dos produtos: ' + (errorThrown || textStatus));
+      });
+    }
+      
     // Renderiza filhos de um nó específico (lazy loading)
     function renderChildren(nodeId) {
       const node = state.categoryTree[nodeId];
@@ -656,7 +706,8 @@
     $document.on('click', '.lb-weight-delete', deleteRow);
     $document.on('change', '.lb-tradeinn-title', selectAll);
     $document.on('click', '.lb-tradeinn-toggle', toggle);
-    
+    $document.on('click', '.lb-delete-products', handleDeleteProductsClick);
+
     $document.on('submit', '#tradeinn-categories', function (e) {
       e.preventDefault();
       $categoriesForm.prop('disabled', true);

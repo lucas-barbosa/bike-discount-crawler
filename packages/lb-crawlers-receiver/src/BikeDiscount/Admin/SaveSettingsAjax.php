@@ -14,6 +14,7 @@ class SaveSettingsAjax {
     add_action('wp_ajax_bikediscount_process_override_categories', array($this, 'process_override_categories'));
     add_action('wp_ajax_bikediscount_process_viewed_categories', array($this, 'process_viewed_categories'));
     add_action('wp_ajax_bikediscount_process_override_weight_categories', array($this, 'process_override_weight_categories'));
+    add_action('wp_ajax_bikediscount_delete_products_by_category', array($this, 'handle_delete_products_by_category'));
   }
 
   public function process_selected_categories() {
@@ -152,6 +153,25 @@ class SaveSettingsAjax {
     do_action( 'lb_crawlers_settings_changed', 'BD', 'override_category_names', $overrideCategories );
     
     return true;
+  }
+
+  public function handle_delete_products_by_category() {
+    if ( ! $this->validate_permission() ) {
+      return false;
+    }
+
+    $category = isset($_POST['category']) ? sanitize_text_field($_POST['category']) : '';
+    $category_path = isset($_POST['category_path']) && is_array($_POST['category_path']) 
+      ? array_map('sanitize_text_field', $_POST['category_path']) 
+      : [];
+    
+    if (!$category) {
+      wp_send_json_error(['message' => 'Categoria não informada.'], 400);
+    }
+
+    do_action('lb_bikediscount_delete_products_by_category_async', $category, $category_path);
+
+    wp_send_json_success(['message' => 'A deleção foi agendada.']);
   }
 
   private function validate_permission() {

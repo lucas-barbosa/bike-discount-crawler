@@ -186,9 +186,13 @@
 
       // Determina se é categoria root (tem filhos)
       const isRootCategory = parent === '';
+      const isSelected = value && selectedCategories.includes(value);
+      const deleteBtn = (!hasChilds && isSelected)
+        ? `<button class="lb-delete-products" data-category="${value}" data-node-id="${id}" type="button" style="margin-left:10px;color:#fff;background:#d9534f;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;">Deletar produtos</button>`
+        : '';
 
       const element = `
-        <li>
+        <li data-node-id="${id}">
           <label id="lb-bike-discount-item_${id}" class="lb-bike-discount-title">
             <input
               type="checkbox"
@@ -197,6 +201,7 @@
               ${value && selectedCategories.includes(value) ? 'checked' : ''}
               ${title ? `class="lb-bike-discount-title"` : ''}
             >${hasChilds ? name : `<a href="${value}" target="blank">${name}</a>`}
+            ${deleteBtn}
 
             ${isRootCategory ? `
               <div style="display:inline-flex;gap:5px;align-items:center;">
@@ -452,8 +457,74 @@
       });
     }
 
+    // Helpers
+    const helpers = {
+      getCategoryPath: function(nodeId) {
+        const path = [];
+        let currentNode = $(`li[data-node-id="${nodeId}"]`);
+        
+        while (currentNode.length) {
+          const label = currentNode.find('> label');
+          const checkbox = label.find('input[type="checkbox"]');
+          const nameEl = label.clone().children().remove().end();
+          let name = nameEl.text().trim();
+          
+          if (!name) {
+            const link = label.find('a');
+            name = link.length ? link.text().trim() : '';
+          }
+          
+          if (name) path.unshift(name);
+          
+          const parentLi = currentNode.parent().closest('li[data-node-id]');
+          currentNode = parentLi.length ? parentLi : [];
+        }
+        
+        return path;
+      }
+    };
+
+    // Handler para deletar produtos
+    function handleDeleteProductsClick(e) {
+      e.preventDefault();
+      const $btn = $(this);
+      const category = $btn.data('category');
+      const nodeId = $btn.data('node-id');
+      if (!category) return;
+      if (!confirm('Tem certeza que deseja deletar TODOS os produtos desta categoria?')) return;
+
+      const categoryPath = helpers.getCategoryPath(nodeId);
+
+      $btn.prop('disabled', true).text('Agendando...');
+      deleteProductsByCategory(category, categoryPath)
+        .always(function() {
+          $btn.prop('disabled', false).text('Deletar produtos');
+        });
+    }
+
+    function deleteProductsByCategory(category, categoryPath) {
+      return $.ajax({
+        type: 'POST',
+        url: lb_crawlers_receiver_bike_discount.ajaxurl,
+        data: {
+          category,
+          category_path: categoryPath,
+          action: 'bikediscount_delete_products_by_category',
+          nonce: lb_crawlers_receiver_bike_discount.nonce
+        },
+        dataType: 'JSON'
+      })
+      .done(function() {
+        alert('A deleção dos produtos foi agendada. Aguarde o processamento.');
+      })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+        alert('Erro ao agendar deleção dos produtos: ' + (errorThrown || textStatus));
+      });
+    }
+
     $(document).on('change', '.lb-bike-discount-title', selectAll);
     $(document).on('click', '.lb-bike-discount-toggle', toggle);
+    $(document).on('click', '.lb-delete-products', handleDeleteProductsClick);
     $(document).on('submit', '#lb-bike-discount-categories', function (e) {
       e.preventDefault();
       $('#lb-bike-discount-categories').prop('disabled', true);
