@@ -15,6 +15,7 @@ class ParentCategoryBackfill {
 
     protected static $batch_size = 20;
     protected static $hook_name = 'lb_crawler_parent_category_backfill';
+    protected static $hook_name_wp = 'lb_crawler_parent_category_backfill_from_wp';
 
     /**
      * Dispara o job inicial com categoria pai externa, categoria WooCommerce pai e código do crawler
@@ -29,10 +30,23 @@ class ParentCategoryBackfill {
     }
 
     /**
+     * Dispara o job usando WordPress como fonte (busca folhas do WordPress ao invés de categorias externas)
+     */
+    public static function dispatchFromWordPress(string $parent_external_cat_name, int $wc_parent_term_id, string $crawler_code) {
+      $args = [$parent_external_cat_name, $wc_parent_term_id, $crawler_code];
+      $existing = as_next_scheduled_action(self::$hook_name_wp, $args, 'lb-crawler');
+
+      if (!$existing) {
+        as_schedule_single_action(time() + 5, self::$hook_name_wp, $args, 'lb-crawler');
+      }
+    }
+
+    /**
      * Registra o hook para processar a fila
      */
     public static function register() {
       add_action(self::$hook_name, [__CLASS__, 'handle'], 10, 3);
+      add_action(self::$hook_name_wp, [__CLASS__, 'handleFromWordPress'], 10, 3);
       add_action(self::$hook_name . '_leaf', [__CLASS__, 'handleLeafJob'], 10, 7);
     }
 
@@ -82,20 +96,64 @@ class ParentCategoryBackfill {
     }
 
     /**
-     * Job que processa uma folha/categoria específica
+     * Processa categorias do WordPress (novo comportamento)
+     * Busca folhas no WordPress a partir da categoria pai e recria a hierarquia
+     *
+     * @param string $parent_external_cat_name Nome da categoria pai externa
+     * @param int    $wc_parent_term_id         ID da categoria pai WooCommerce
+     * @param string $crawler_code              Código do crawler ('BB', 'TT', 'BD')
      */
-    public static function handleLeafJob(string $parent_external_cat_name, int $wc_parent_term_id, string $crawler_code, string $leaf_url, array $hierarchy, int $offset = 0, array $cached_terms = []) {
+    public static function handleFromWordPress(string $parent_external_cat_name, int $wc_parent_term_id, string $crawler_code ) {
+      // Find the source parent term ID in WordPress from the external category name
+      $source_parent_term_id = self::getSourceParentTermId($parent_external_cat_name, $crawler_code);
+      
+      if (!$source_parent_term_id) {
+        // Parent category not found in WordPress
+        return;
+      }
+
+      // Get all leaf (deepest) children of this parent in WordPress
+      $leaf_categories = self::getWordPressLeafCategories($source_parent_term_id);
+
+      if (empty($leaf_categories)) {
+        // No leaf categories found under parent
+        return;
+      }
+
+      foreach ($leaf_categories as $leaf) {
+        $leaf_term_id = $leaf['term_id'];
+        $hierarchy = $leaf['hierarchy']; // Array of term names from source parent to leaf
+
+        // Schedule job to recreate this leaf under the new parent
+        $args = [$parent_external_cat_name, $wc_parent_term_id, $crawler_code, $leaf_term_id, $hierarchy, 0, []];
+        as_schedule_single_action(time() + 5, self::$hook_name . '_leaf', $args, 'lb-crawler');
+      }
+    }
+
+    /**
+     * Job que processa uma folha/categoria específica
+     * @param string|int $leaf_url_or_id Can be either a URL string (from handle) or term_id int (from handleFromWordPress)
+     */
+    public static function handleLeafJob(string $parent_external_cat_name, int $wc_parent_term_id, string $crawler_code, $leaf_url_or_id, array $hierarchy, int $offset = 0, array $cached_terms = []) {
       global $wpdb;
 
+      // Determine if we received URL or term_id
+      $is_term_id = is_int($leaf_url_or_id);
+      
       // Cria hierarquia de categorias WooCommerce e obtém todos term_ids para associação
       $term_ids = empty( $cached_terms )
-        ? self::createWcCategoryFullHierarchy($hierarchy, $wc_parent_term_id, $crawler_code, $leaf_url)
+        ? self::createWcCategoryFullHierarchy($hierarchy, $wc_parent_term_id, $crawler_code, $leaf_url_or_id)
         : $cached_terms;
 
       if (empty($term_ids)) return;
 
-      // Pega o term_id da categoria no WooCommerce pelo meta
-      $term_id = CrawlerTermMetaData::getTermIdByMeta('_category_url', $leaf_url);
+      // Get term_id based on what was passed
+      if ($is_term_id) {
+        $term_id = $leaf_url_or_id;
+      } else {
+        $term_id = CrawlerTermMetaData::getTermIdByMeta('_category_url', $leaf_url_or_id);
+      }
+      
       if (!$term_id) return;
 
       // Busca produtos da categoria com LIMIT + OFFSET
@@ -119,8 +177,132 @@ class ParentCategoryBackfill {
       if (count($product_ids) === self::$batch_size) {
         $offset += self::$batch_size;
         $cached_terms = $term_ids; 
-        as_schedule_single_action(time() + 5, self::$hook_name . '_leaf', [$parent_external_cat_name, $wc_parent_term_id, $crawler_code, $leaf_url, $hierarchy, $offset, $cached_terms], 'lb-crawler');
+        as_schedule_single_action(time() + 5, self::$hook_name . '_leaf', [$parent_external_cat_name, $wc_parent_term_id, $crawler_code, $leaf_url_or_id, $hierarchy, $offset, $cached_terms], 'lb-crawler');
       }
+    }
+
+    /**
+     * Finds the WordPress term ID for the source parent category from external category name
+     */
+    protected static function getSourceParentTermId(string $parent_external_cat_name, string $crawler_code) {
+      $base_parent_id = self::getCrawlerBaseParent($crawler_code);
+      
+      // Convert slug to actual category name
+      $actual_category_name = self::getCategoryNameFromSlug($parent_external_cat_name, $crawler_code);
+      if (!$actual_category_name) {
+        $actual_category_name = $parent_external_cat_name; // Fallback to slug
+      }
+      
+      if ($crawler_code === 'BB') {
+        // For Barrabes, try Esportivo first
+        $esportivo_term_id = self::getTermIdFromCache($crawler_code, $base_parent_id . '-Esportivo');
+
+        if ($esportivo_term_id) {
+          $term_id = self::getTermIdFromCache($crawler_code, $esportivo_term_id . '-' . $actual_category_name);
+          if ($term_id) return $term_id;
+        }
+        
+        // If not found, try Profissional
+        $profissional_term_id = self::getTermIdFromCache($crawler_code, $base_parent_id . '-Profissional');
+
+        if ($profissional_term_id) {
+          $term_id = self::getTermIdFromCache($crawler_code, $profissional_term_id . '-' . $actual_category_name);
+          if ($term_id) return $term_id;
+        }
+        
+        return false;
+      } else {
+        // For other crawlers, simple lookup
+        $prefix = $base_parent_id !== 0 ? "$base_parent_id-" : '';
+        $cache_key = $prefix . $actual_category_name;
+        return self::getTermIdFromCache($crawler_code, $cache_key);
+      }
+    }
+
+    /**
+     * Converts a slugified category name back to the actual category name
+     * by searching through external categories
+     */
+    protected static function getCategoryNameFromSlug(string $slug, string $crawler_code) {
+      $all_categories = self::getExternalCategoriesByCrawlerCode($crawler_code);
+      
+      $find_in_tree = function($categories, $target_slug) use (&$find_in_tree) {
+        foreach ($categories as $cat) {
+          if (self::slugify($cat['name']) === $target_slug) {
+            return $cat['name'];
+          }
+          if (!empty($cat['childs'])) {
+            $result = $find_in_tree($cat['childs'], $target_slug);
+            if ($result) return $result;
+          }
+        }
+        return null;
+      };
+      
+      // Search in all categories
+      return $find_in_tree($all_categories['all'] ?? [], $slug);
+    }
+
+    /**
+     * Gets all leaf (deepest) categories under a parent term with their full hierarchy
+     * Returns array of ['term_id' => int, 'hierarchy' => array of names from parent to leaf]
+     */
+    protected static function getWordPressLeafCategories(int $parent_term_id) {
+      $leaves = [];
+      
+      $traverse = function($term_id, $path) use (&$traverse, &$leaves) {
+        $term = get_term($term_id, 'product_cat');
+        if (!$term || is_wp_error($term)) {
+          return;
+        }
+        
+        $current_path = array_merge($path, [$term->name]);
+        
+        // Get direct children
+        $children = get_terms([
+          'taxonomy' => 'product_cat',
+          'hide_empty' => false,
+          'parent' => $term_id,
+          'fields' => 'ids',
+        ]);
+        
+        if (empty($children) || is_wp_error($children)) {
+          // This is a leaf category
+          $leaves[] = [
+            'term_id' => $term_id,
+            'hierarchy' => $current_path,
+          ];
+          return;
+        }
+        
+        // Recursively process children
+        foreach ($children as $child_id) {
+          $traverse($child_id, $current_path);
+        }
+      };
+      
+      // Start traversal from parent's direct children
+      $parent_term = get_term($parent_term_id, 'product_cat');
+      if (!$parent_term || is_wp_error($parent_term)) {
+        return [];
+      }
+      
+      $initial_children = get_terms([
+        'taxonomy' => 'product_cat',
+        'hide_empty' => false,
+        'parent' => $parent_term_id,
+        'fields' => 'ids',
+      ]);
+      
+      if (empty($initial_children) || is_wp_error($initial_children)) {
+        return [];
+      }
+      
+      foreach ($initial_children as $child_id) {
+        $traverse($child_id, []);
+      }
+      
+      return $leaves;
     }
 
 
@@ -240,63 +422,91 @@ class ParentCategoryBackfill {
     /**
      * Cria a hierarquia completa WooCommerce e retorna array com todos os term_ids
      */
-    protected static function createWcCategoryFullHierarchy(array $hierarchy, int $wc_parent_term_id, string $crawler_code, string $leaf_url = '') {
+    protected static function createWcCategoryFullHierarchy(array $hierarchy, int $wc_parent_term_id, string $crawler_code, $leaf_url_or_id = '') {
       $ancestor_ids = self::getAncestorIds($wc_parent_term_id);
       $term_ids = array_merge($ancestor_ids, []);
       
       $target_parent_id = $wc_parent_term_id;
-      $source_parent_id = self::findSourceParentFromHierarchy($hierarchy, $crawler_code);
-      $skip_count = $crawler_code === 'BB' ? 2 : 1;
+      $is_term_id = is_int($leaf_url_or_id);
+      
+      // For term_id based approach (from WordPress), use simple name matching
+      if ($is_term_id) {
+        foreach ($hierarchy as $cat_name) {
+          $existing_terms = get_terms([
+            'taxonomy' => 'product_cat',
+            'hide_empty' => false,
+            'parent' => $target_parent_id,
+            'name' => $cat_name,
+            'fields' => 'all',
+          ]);
 
-      // Skip root items in hierarchy since they already exist as $wc_parent_term_id
-      foreach (array_slice($hierarchy, $skip_count) as $cat_original_name) {
-        // Construct the cache key to find the "source" term in the original crawler tree
-        $prefix = $source_parent_id !== 0 ? "$source_parent_id-" : '';
-        $cache_key = $prefix . $cat_original_name;
-        // 1. Try to find the original source term and its current namec
-        $name_to_use = $cat_original_name;
-        $source_term_id = self::getTermIdFromCache($crawler_code, $cache_key);
-        
-        if ($source_term_id) {
-            $source_term = get_term($source_term_id, 'product_cat');
-            if ($source_term && !is_wp_error($source_term)) {
-                $name_to_use = $source_term->name;
-                $source_parent_id = $source_term_id; // Step deeper into source tree
+          $target_term = (is_array($existing_terms) && count($existing_terms)) ? $existing_terms[0] : null;
+
+          if (!$target_term) {
+            $new_term = wp_insert_term($cat_name, 'product_cat', ['parent' => $target_parent_id]);
+            if (is_wp_error($new_term)) {
+              continue;
             }
-        } else {
-            // If we can't find it in cache, we lose the "source" trail for children
-            $source_parent_id = 0; 
-        }
-
-        // 2. Find or create the term in the NEW hierarchy using $name_to_use
-        $existing_terms = get_terms([
-          'taxonomy' => 'product_cat',
-          'hide_empty' => false,
-          'parent' => $target_parent_id,
-          'name' => $name_to_use,
-          'fields' => 'all',
-        ]);
-
-        $target_term = (is_array($existing_terms) && count($existing_terms)) ? $existing_terms[0] : null;
-
-        if (!$target_term) {
-          $new_term = wp_insert_term($name_to_use, 'product_cat', ['parent' => $target_parent_id]);
-          if (is_wp_error($new_term)) {
-            continue;
+            $target_parent_id = $new_term['term_id'];
+          } else {
+            $target_parent_id = $target_term->term_id;
           }
 
-          $target_parent_id = $new_term['term_id'];
-        } else {
-          $target_parent_id = $target_term->term_id;
+          $term_ids[] = $target_parent_id;
         }
+        
+        if (!empty($term_ids) && $leaf_url_or_id > 0) {
+          $new_leaf_term_id = end($term_ids);
+          CrawlerTermMetaData::insert($new_leaf_term_id, '_backfill_source_term_id', $leaf_url_or_id);
+        }
+      } else {
+        // Original URL-based approach with cache lookups
+        $source_parent_id = self::findSourceParentFromHierarchy($hierarchy, $crawler_code);
+        $skip_count = $crawler_code === 'BB' ? 2 : 1;
 
-        $term_ids[] = $target_parent_id;
-      }
+        foreach (array_slice($hierarchy, $skip_count) as $cat_original_name) {
+          $prefix = $source_parent_id !== 0 ? "$source_parent_id-" : '';
+          $cache_key = $prefix . $cat_original_name;
+          $name_to_use = $cat_original_name;
+          $source_term_id = self::getTermIdFromCache($crawler_code, $cache_key);
+          
+          if ($source_term_id) {
+              $source_term = get_term($source_term_id, 'product_cat');
+              if ($source_term && !is_wp_error($source_term)) {
+                  $name_to_use = $source_term->name;
+                  $source_parent_id = $source_term_id;
+              }
+          } else {
+              $source_parent_id = 0; 
+          }
 
-      // Add metadata to the final leaf category to mark it as a backfilled category
-      if (!empty($term_ids) && !empty($leaf_url)) {
-        $leaf_term_id = end($term_ids);
-        CrawlerTermMetaData::insert($leaf_term_id, '_backfill_source_url', $leaf_url);
+          $existing_terms = get_terms([
+            'taxonomy' => 'product_cat',
+            'hide_empty' => false,
+            'parent' => $target_parent_id,
+            'name' => $name_to_use,
+            'fields' => 'all',
+          ]);
+
+          $target_term = (is_array($existing_terms) && count($existing_terms)) ? $existing_terms[0] : null;
+
+          if (!$target_term) {
+            $new_term = wp_insert_term($name_to_use, 'product_cat', ['parent' => $target_parent_id]);
+            if (is_wp_error($new_term)) {
+              continue;
+            }
+            $target_parent_id = $new_term['term_id'];
+          } else {
+            $target_parent_id = $target_term->term_id;
+          }
+
+          $term_ids[] = $target_parent_id;
+        }
+        
+        if (!empty($term_ids) && !empty($leaf_url_or_id)) {
+          $leaf_term_id = end($term_ids);
+          CrawlerTermMetaData::insert($leaf_term_id, '_backfill_source_url', $leaf_url_or_id);
+        }
       }
 
       return $term_ids;
