@@ -142,7 +142,7 @@ class SaveSettingsAjax {
       foreach ( $newCategories as $url => $termId ) {
         if ( strpos( $termId, '|root' ) !== false ) {
           $newTermId = str_replace( '|root', '', $termId );
-          ParentCategoryBackfill::dispatch( $url, $newTermId, 'BB' );
+          // ParentCategoryBackfill::dispatch( $url, $newTermId, 'BB' );
           ParentCategoryBackfill::dispatchFromWordPress( $url, $newTermId, 'BB' );
         } else {
           CategoryBackfill::dispatch( $url, $termId );
