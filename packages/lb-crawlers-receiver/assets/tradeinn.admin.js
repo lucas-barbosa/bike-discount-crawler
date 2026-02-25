@@ -13,7 +13,11 @@
       categoryTree: {}, // Árvore completa de categorias
       renderedNodes: new Set(), // IDs já renderizados
       expandedNodes: new Set(), // Nodes expandidos
-      selectedStates: {} // Estado de seleção (incluindo não renderizados)
+      selectedStates: {}, // Estado de seleção (incluindo não renderizados)
+      weightsState: {}, // { categoryUrl: weightGrams }
+      dimensionsState: {}, // { categoryUrl: dimensionCm }
+      overrideWeightState: new Set(), // category URLs with "Usar Peso?" checked
+      viewedState: new Set() // category URLs with "viewed" checked
     };
 
     // Templates para evitar concatenação repetida
@@ -94,6 +98,11 @@
     cachedData.selectedCategories.forEach(val => {
       state.selectedStates[val] = true;
     });
+
+    state.weightsState = Object.assign({}, cachedData.categoriesWeight);
+    state.dimensionsState = Object.assign({}, cachedData.categoriesDimension);
+    cachedData.overrideWeight.forEach(val => state.overrideWeightState.add(val));
+    cachedData.viewedCategories.forEach(val => state.viewedState.add(val));
 
     // Funções auxiliares otimizadas
     const helpers = {
@@ -572,6 +581,38 @@
       state.selectedStates[value] = isChecked;
     });
 
+    // Sync weight inputs
+    $document.on('input', 'input[name^="lt_wei["]', function () {
+      const match = /\[([^\]]+)\]/.exec($(this).attr('name'));
+      if (!match) return;
+      const val = $(this).val();
+      if (val) state.weightsState[match[1]] = val;
+      else delete state.weightsState[match[1]];
+    });
+
+    // Sync dimension inputs
+    $document.on('input', 'input[name^="lt_dim["]', function () {
+      const match = /\[([^\]]+)\]/.exec($(this).attr('name'));
+      if (!match) return;
+      const val = $(this).val();
+      if (val) state.dimensionsState[match[1]] = val;
+      else delete state.dimensionsState[match[1]];
+    });
+
+    // Sync override-weight checkboxes
+    $document.on('change', 'input[name="ow_cat[]"], input[name="ow_attr[]"]', function () {
+      const value = $(this).val();
+      if ($(this).prop('checked')) state.overrideWeightState.add(value);
+      else state.overrideWeightState.delete(value);
+    });
+
+    // Sync viewed checkboxes
+    $document.on('change', 'input[name="vw_cat[]"], input[name="vw_attr[]"]', function () {
+      const value = $(this).val();
+      if ($(this).prop('checked')) state.viewedState.add(value);
+      else state.viewedState.delete(value);
+    });
+
     function toggle() {
       const nodeId = $(this).data('node-id');
       const $subitems = $(`ul.lb-tradeinn-subitems[data-node-id="${nodeId}"]`);
@@ -643,47 +684,27 @@
     }
 
     function processViewedCategories() {
-      const viewed = helpers.getValues('input[name="vw_cat[]"]:checked');
-      const viewedAttrs = helpers.getValues('input[name="vw_attr[]"]:checked');
-      const allViewed = [...viewed, ...viewedAttrs];
-      
+      const allViewed = Array.from(state.viewedState);
       ajaxRequest('tradeinn_process_viewed_categories', { viewed: allViewed })
         .then(() => processOverrideCategoriesWeight())
         .catch((jqXHR, textStatus, errorThrown) => handleError(errorThrown));
     }
 
     function processOverrideCategoriesWeight() {
-      const overrides = helpers.getValues('input[name="ow_cat[]"]:checked');
-      const overridesAttrs = helpers.getValues('input[name="ow_attr[]"]:checked');
-      const allOverrides = [...overrides, ...overridesAttrs];
-      
+      const allOverrides = Array.from(state.overrideWeightState);
       ajaxRequest('tradeinn_process_override_weight_categories', { overrides: allOverrides })
         .then(() => processCategoriesDimension())
         .catch((jqXHR, textStatus, errorThrown) => handleError(errorThrown));
     }
 
     function processCategoriesDimension() {
-      const dimensions = {};
-      $('input[name^="lt_dim["]').each(function () {
-        const match = /\[([^[\]]+)\]/.exec($(this).attr('name'));
-        const value = $(this).val();
-        if (match && value) dimensions[match[1]] = value;
-      });
-
-      ajaxRequest('tradeinn_process_categories_dimension', { dimensions })
+      ajaxRequest('tradeinn_process_categories_dimension', { dimensions: state.dimensionsState })
         .then(() => processCategoriesWeight())
         .catch((jqXHR, textStatus, errorThrown) => handleError(errorThrown));
     }
 
     function processCategoriesWeight() {
-      const weights = {};
-      $('input[name^="lt_wei["]').each(function () {
-        const match = /\[([^[\]]+)\]/.exec($(this).attr('name'));
-        const value = $(this).val();
-        if (match && value) weights[match[1]] = value;
-      });
-
-      ajaxRequest('tradeinn_process_categories_weight', { weights })
+      ajaxRequest('tradeinn_process_categories_weight', { weights: state.weightsState })
         .then(() => processOverrideCategories())
         .catch((jqXHR, textStatus, errorThrown) => handleError(errorThrown));
     }
