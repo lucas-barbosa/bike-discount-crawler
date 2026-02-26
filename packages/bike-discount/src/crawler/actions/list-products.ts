@@ -16,8 +16,8 @@ export const listProducts = async (categoryUrl: string, pageNumber: number = 1):
     await loginIfRequired(page);
 
     const [products, nextPageButton] = await Promise.all([
-      page.$$('xpath/.//div[contains(@class, "listing")]/div[contains(@class, "product--box")]//div[contains(@class, "product--info")]/a[contains(@class, "product--title")]'),
-      page.$$('xpath/.//div[contains(@class, "listing--paging")]//a[contains(@class, "paging--next") and @title = "Next page"]')
+      page.$$('xpath/.//div[contains(@class, "cms-element-product-listing")]//div[contains(@class, "card-body")]//div[contains(@class, "product-info")]/div[contains(@class, "product-title")]/a'),
+      page.$$('xpath/.//ul[contains(@class, "pagination")]//li[contains(@class, "page-next") and not(contains(@class, "disabled"))]/a[@aria-label = "Next page"]')
     ]);
 
     const hasNextPage = nextPageButton.length > 0;

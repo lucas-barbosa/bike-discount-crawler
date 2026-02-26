@@ -18,6 +18,7 @@ import { fetchTranslation } from '@usecases/fetch-translation';
 import { fetchOldStocks } from '@usecases/fetch-old-stocks';
 import { enqueueSelectedCategories } from '@usecases/enqueue-selected-categories';
 import { type ProductStock } from '@crawlers/base/dist/types/ProductStock';
+import { fetchProductList } from '@usecases/fetch-product-list';
 
 export const getBikeDiscountCli = (
   publishStock: (stock: ProductStock) => Promise<any>,
@@ -250,6 +251,8 @@ export const getBikeDiscountCli = (
     .description('Crawler Category')
     .option('-u, --url <url>', 'Product Url')
     .option('-e, --enqueue', 'Enqueue job', false)
+    .option('-r, --run', 'Run job', false)
+    .option('-p, --page <page>', 'Page number', '1')
     .option('-s, --selected', 'Enqueue selected categories', false)
     .action(async (params) => {
       logger.info('Crawler Category');
@@ -258,6 +261,10 @@ export const getBikeDiscountCli = (
           categoryUrl: params.url
         });
         logger.info('Category enqueued');
+      }
+      if (params.run) {
+        const result = await fetchProductList(params.url, parseInt(params.page, 10));
+        logger.info(result, 'Result');
       }
       if (params.selected) {
         logger.info('Enqueuing selected-categories');

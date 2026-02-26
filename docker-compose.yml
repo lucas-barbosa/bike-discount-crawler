@@ -25,7 +25,3 @@ services:
       - AUTH_SECRET=test_auth_secret
     depends_on:
       - redis
-networks:
-  default:
-    name: wp-plugins_default
-    external: true
