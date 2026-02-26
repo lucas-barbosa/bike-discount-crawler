@@ -17,7 +17,8 @@
       weightsState: {}, // { categoryUrl: weightGrams }
       dimensionsState: {}, // { categoryUrl: dimensionCm }
       overrideWeightState: new Set(), // category URLs with "Usar Peso?" checked
-      viewedState: new Set() // category URLs with "viewed" checked
+      viewedState: new Set(), // category URLs with "viewed" checked
+      overrideCategoriesState: {} // { categoryUrl: "termId" or "termId|root" }
     };
 
     // Templates para evitar concatenação repetida
@@ -103,14 +104,15 @@
     state.dimensionsState = Object.assign({}, cachedData.categoriesDimension);
     cachedData.overrideWeight.forEach(val => state.overrideWeightState.add(val));
     cachedData.viewedCategories.forEach(val => state.viewedState.add(val));
+    state.overrideCategoriesState = Object.assign({}, cachedData.overrideCategories);
 
     // Funções auxiliares otimizadas
     const helpers = {
-      getCategoryWeight: (category) => cachedData.categoriesWeight[category] || '',
+      getCategoryWeight: (category) => state.weightsState[category] || '',
+
+      getCategoryDimension: (category) => state.dimensionsState[category] || '',
       
-      getCategoryDimension: (category) => cachedData.categoriesDimension[category] || '',
-      
-      getOverrideCategoryId: (category) => cachedData.overrideCategories[category] || '',
+      getOverrideCategoryId: (category) => state.overrideCategoriesState[category] || '',
       
       getOverrideCategoryName: (category) => {
         const overrideCatId = helpers.getOverrideCategoryId(category).split('|')[0];
@@ -287,6 +289,13 @@
       $input.val($item.data('name'));
       $hidden.val($item.data('id') + (root ? '|root' : ''));
       $item.parent().hide();
+
+      const match = /\[([^\]]+)\]/.exec($hidden.attr('name'));
+      if (match) {
+        const val = $hidden.val();
+        if (val) state.overrideCategoriesState[match[1]] = val;
+        else delete state.overrideCategoriesState[match[1]];
+      }
     });
 
     $document.on('click', function (e) {
@@ -360,9 +369,9 @@
           
           const weight = helpers.getCategoryWeight(composedValue);
           const dimension = helpers.getCategoryDimension(composedValue);
-          const isSelected = cachedData.selectedCategories.includes(composedValue);
-          const isViewed = cachedData.viewedCategories.includes(composedValue);
-          const isOverride = cachedData.overrideWeight.includes(composedValue);
+          const isSelected = !!state.selectedStates[composedValue];
+          const isViewed = state.viewedState.has(composedValue);
+          const isOverride = state.overrideWeightState.has(composedValue);
           const overrideName = helpers.getOverrideCategoryName(composedValue);
           const overrideId = helpers.getOverrideCategoryId(composedValue);
 
@@ -413,9 +422,9 @@
       const overrideId = helpers.getOverrideCategoryId(value);
       const weight = helpers.getCategoryWeight(value);
       const dimension = helpers.getCategoryDimension(value);
-      const isSelected = cachedData.selectedCategories.includes(value) || state.selectedStates[value];
-      const isViewed = cachedData.viewedCategories.includes(value);
-      const isOverride = cachedData.overrideWeight.includes(value);
+      const isSelected = !!state.selectedStates[value];
+      const isViewed = state.viewedState.has(value);
+      const isOverride = state.overrideWeightState.has(value);
 
       // Determina se é título (tem filhos OU tem atributos)
       const isTitle = Boolean(hasChilds || hasAttributes);
@@ -710,14 +719,7 @@
     }
 
     function processOverrideCategories() {
-      const categories = {};
-      $('input[name^="wp_cat_id["]').each(function () {
-        const match = /\[([^[\]]+)\]/.exec($(this).attr('name'));
-        const value = $(this).val();
-        if (match && value) categories[match[1]] = value;
-      });
-
-      ajaxRequest('tradeinn_process_override_categories', { categories })
+      ajaxRequest('tradeinn_process_override_categories', { categories: state.overrideCategoriesState })
         .then(() => location.reload())
         .catch((jqXHR, textStatus, errorThrown) => handleError(errorThrown));
     }
