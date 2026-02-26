@@ -17,6 +17,7 @@ listenerCli.command('add')
     logger.info('Registering a new listener');
     const result = await addListener(params.name, params.url, params.authentication);
     logger.info({ result }, 'Listener registered');
+    process.exit(0);
   });
 
 listenerCli.command('rm')
@@ -26,6 +27,7 @@ listenerCli.command('rm')
     logger.info('Deleting an existing listener');
     const result = await deleteListener(params.id);
     logger.info({ result }, 'Listener deleted');
+    process.exit(0);
   });
 
 listenerCli.command('update')
@@ -38,6 +40,7 @@ listenerCli.command('update')
     logger.info('Updating an existing listener');
     const result = await updateListener(params.id, params.name, params.url, params.authentication);
     logger.info({ result }, 'Listener updated');
+    process.exit(0);
   });
 
 export { listenerCli };

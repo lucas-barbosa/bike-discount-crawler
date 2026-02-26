@@ -14,6 +14,7 @@ categorySchedulerCli.command('trigger')
   .option('--crawler-id <crawlerId>', 'Trigger for specific crawler only')
   .action(async (options) => {
     await triggerCategoryScheduler(options.crawlerId);
+    process.exit(0);
   });
 
 // Enable crawler
@@ -22,6 +23,7 @@ categorySchedulerCli.command('enable')
   .argument('<crawlerId>', 'Crawler ID (barrabes, bike-discount, tradeinn)')
   .action(async (crawlerId) => {
     await enableCategoryCrawler(crawlerId);
+    process.exit(0);
   });
 
 // Disable crawler
@@ -30,6 +32,7 @@ categorySchedulerCli.command('disable')
   .argument('<crawlerId>', 'Crawler ID (barrabes, bike-discount, tradeinn)')
   .action(async (crawlerId) => {
     await disableCategoryCrawler(crawlerId);
+    process.exit(0);
   });
 
 export { categorySchedulerCli };

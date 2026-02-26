@@ -108,6 +108,7 @@ export const getBikeDiscountCli = (
       }
 
       logger.info('Finished');
+      process.exit(0);
     });
 
   bikeDiscountCli.command('remove-cache')
@@ -122,6 +123,7 @@ export const getBikeDiscountCli = (
           await deleteStockCache(id, 'BD');
         }
       }
+      process.exit(0);
     });
 
   bikeDiscountCli.command('stock')
@@ -152,6 +154,7 @@ export const getBikeDiscountCli = (
         }
         console.timeEnd('Processing CSV');
       }
+      process.exit(0);
     });
 
   bikeDiscountCli.command('old-stock')
@@ -168,7 +171,7 @@ export const getBikeDiscountCli = (
 
       if (!ids.length || ids.length !== variations.length) {
         logger.warn('Forneça a mesma quantidade de ids e variações!');
-        return;
+        process.exit(1);
       }
 
       const products = ids.map((id: string, index: number) => ({ productId: id, variationName: variations[index] }));
@@ -180,6 +183,7 @@ export const getBikeDiscountCli = (
       }
 
       logger.info(result);
+      process.exit(0);
     });
 
   bikeDiscountCli.command('product')
@@ -202,6 +206,7 @@ export const getBikeDiscountCli = (
       }
 
       logger.info(result, 'Result');
+      process.exit(0);
     });
 
   bikeDiscountCli.command('translate')
@@ -217,6 +222,7 @@ export const getBikeDiscountCli = (
         await publishTranslation(result);
       }
       logger.info(result, 'Result');
+      process.exit(0);
     });
 
   bikeDiscountCli.command('categories')
@@ -245,6 +251,7 @@ export const getBikeDiscountCli = (
         await enqueueCategories();
         logger.info('Categories enqueued');
       }
+      process.exit(0);
     });
 
   bikeDiscountCli.command('category')
@@ -271,6 +278,7 @@ export const getBikeDiscountCli = (
         await enqueueSelectedCategories();
         logger.info('Selected-categories enqueued');
       }
+      process.exit(0);
     });
 
   bikeDiscountCli.command('categories-tree')
@@ -279,6 +287,7 @@ export const getBikeDiscountCli = (
       logger.info('Generating Categories Tree');
       await generateCategoriesTree();
       logger.info('Finished');
+      process.exit(0);
     });
 
   return bikeDiscountCli;

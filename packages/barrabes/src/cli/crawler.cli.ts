@@ -48,7 +48,7 @@ export const getBarrabesCli = (
 
       if (!result) {
         logger.info('No result');
-        return;
+        process.exit(1);
       }
 
       if (publishStock && params.publish) {
@@ -57,6 +57,7 @@ export const getBarrabesCli = (
       }
 
       logger.info(result);
+      process.exit(0);
     });
 
   barrabesCli.command('import')
@@ -87,6 +88,7 @@ export const getBarrabesCli = (
       }
 
       logger.info('Finished');
+      process.exit(0);
     });
 
   barrabesCli.command('product')
@@ -109,6 +111,7 @@ export const getBarrabesCli = (
       }
 
       logger.info(result);
+      process.exit(0);
     });
 
   barrabesCli.command('translate')
@@ -126,6 +129,7 @@ export const getBarrabesCli = (
       }
 
       logger.info(result);
+      process.exit(0);
     });
 
   barrabesCli.command('categories')
@@ -157,6 +161,7 @@ export const getBarrabesCli = (
         await enqueueCategories();
         logger.info('Categories enqueued');
       }
+      process.exit(0);
     });
 
   barrabesCli.command('category')
@@ -185,6 +190,7 @@ export const getBarrabesCli = (
         await enqueueSelectedCategories();
         logger.info('Selected-categories enqueued');
       }
+      process.exit(0);
     });
 
   barrabesCli.command('categories-tree')
@@ -193,6 +199,7 @@ export const getBarrabesCli = (
       logger.info('Generating Categories Tree');
       await generateCategoriesTree();
       logger.info('Finished');
+      process.exit(0);
     });
 
   return barrabesCli;

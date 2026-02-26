@@ -51,7 +51,7 @@ export const getTradeinnCli = (
 
       if (!result) {
         logger.info('No result');
-        return;
+        process.exit(1);
       }
 
       if (publishStock && params.publish) {
@@ -60,6 +60,7 @@ export const getTradeinnCli = (
       }
 
       logger.info(result);
+      process.exit(0);
     });
 
   tradeinnCli.command('import')
@@ -89,6 +90,7 @@ export const getTradeinnCli = (
       }
 
       logger.info('Finished');
+      process.exit(0);
     });
 
   tradeinnCli.command('product')
@@ -111,6 +113,7 @@ export const getTradeinnCli = (
       }
 
       logger.info(result);
+      process.exit(0);
     });
 
   tradeinnCli.command('translate')
@@ -128,6 +131,7 @@ export const getTradeinnCli = (
       }
 
       logger.info(result);
+      process.exit(0);
     });
 
   tradeinnCli.command('categories')
@@ -173,6 +177,7 @@ export const getTradeinnCli = (
         await enqueueCategories();
         logger.info('Categories enqueued');
       }
+      process.exit(0);
     });
 
   tradeinnCli.command('category')
@@ -201,6 +206,7 @@ export const getTradeinnCli = (
         await enqueueSelectedCategories();
         logger.info('Selected-categories enqueued');
       }
+      process.exit(0);
     });
 
   tradeinnCli.command('categories-tree')
@@ -209,6 +215,7 @@ export const getTradeinnCli = (
       logger.info('Generating Categories Tree');
       await generateCategoriesTree();
       logger.info('Finished');
+      process.exit(0);
     });
 
   return tradeinnCli;
