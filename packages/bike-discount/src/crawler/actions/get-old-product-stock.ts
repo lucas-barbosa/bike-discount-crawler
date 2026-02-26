@@ -35,17 +35,39 @@ export const getOldProductStock = async (productUrl: string, products: OldProduc
 };
 
 const getVariationByAttribute = async (page: Page, attributeName: string) => {
-  const elements = await page.$$(`xpath/.//input[@title="${attributeName}"]`);
-  if (!elements || elements.length !== 1) {
-    return {
-      price: 0,
-      availability: 'outofstock'
-    };
+  const notFound = { price: 0, availability: 'outofstock' };
+
+  const el = await page.$('[data-nele-variant-data]');
+  if (!el) return notFound;
+
+  const raw = await page.evaluate(e => e.getAttribute('data-nele-variant-data'), el);
+  if (!raw) return notFound;
+
+  let data: any;
+  try { data = JSON.parse(raw); } catch { return notFound; }
+
+  // Build map: option name → sibling id
+  const optionToSiblingId = new Map<string, string>();
+  for (const group of data.configuratorSettings ?? []) {
+    for (const option of group.options ?? []) {
+      const name: string = option.name ?? '';
+      // each sibling has optionIds; find which sibling includes this option
+      for (const sibling of data.siblings ?? []) {
+        if ((sibling.optionIds ?? []).includes(option.id)) {
+          optionToSiblingId.set(name.toLowerCase(), sibling.id);
+        }
+      }
+    }
   }
-  const price = (await page.evaluate(x => x.getAttribute('price'), elements[0]))?.trim() ?? 0;
-  const stock = (await page.evaluate(x => x.getAttribute('max'), elements[0]))?.trim() ?? 0;
+
+  const siblingId = optionToSiblingId.get(attributeName.toLowerCase());
+  if (!siblingId) return notFound;
+
+  const sibling = (data.siblings ?? []).find((s: any) => s.id === siblingId);
+  if (!sibling) return notFound;
+
   return {
-    price,
-    availability: Number(stock) > 0 ? 'instock' : 'outofstock'
+    price: sibling.calculatedPrice?.unitPrice ?? 0,
+    availability: (sibling.availableStock ?? 0) > 0 ? 'instock' : 'outofstock'
   };
 };
