@@ -1,4 +1,4 @@
-import { getBrowserManager } from '@crawlers/base/dist/crawler/browser-manager';
+import { getBrowserPool } from '@crawlers/base/dist/crawler/browser-pool';
 import { closeRedis } from '@crawlers/base/dist/infrastructure/redis';
 import { logger } from '@crawlers/base';
 import { api } from './api';
@@ -15,8 +15,7 @@ const init = async () => {
 
 const gracefulShutdown = () => {
   logger.info('Shutting down gracefully...');
-  const browserPool = getBrowserManager();
-  void browserPool.cleanUp().catch(() => { });
+  void getBrowserPool().drain().catch(() => { });
   void closeRedis().catch(() => { });
 };
 

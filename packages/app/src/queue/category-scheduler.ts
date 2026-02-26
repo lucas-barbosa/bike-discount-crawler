@@ -56,26 +56,20 @@ const scheduleCategoryJobs = async (
   crawlerId: string,
   categories: string[]
 ): Promise<SchedulerStats> => {
-  const stats: SchedulerStats = {
-    crawlerId,
-    total: categories.length,
-    enqueued: 0
+  const enqueueOne = (categoryUrl: string): Promise<void> => {
+    if (crawlerId === 'barrabes') return enqueueBarrabesCategory({ categoryUrl, page: 1 });
+    if (crawlerId === 'bike-discount') return enqueueBikeDiscountCategory({ categoryUrl, page: 1 });
+    if (crawlerId === 'tradeinn') return enqueueTradeinnCategory({ categoryUrl, page: 1 });
+    return Promise.resolve();
   };
 
-  for (const categoryUrl of categories) {
-    // Enqueue to appropriate crawler queue
-    if (crawlerId === 'barrabes') {
-      await enqueueBarrabesCategory({ categoryUrl, page: 1 });
-    } else if (crawlerId === 'bike-discount') {
-      await enqueueBikeDiscountCategory({ categoryUrl, page: 1 });
-    } else if (crawlerId === 'tradeinn') {
-      await enqueueTradeinnCategory({ categoryUrl, page: 1 });
-    }
+  await Promise.all(categories.map(enqueueOne));
 
-    stats.enqueued++;
-  }
-
-  return stats;
+  return {
+    crawlerId,
+    total: categories.length,
+    enqueued: categories.length
+  };
 };
 
 /**
