@@ -9,6 +9,8 @@ export const getProductStock = async (productUrl: string, dispose?: boolean, lan
   const { page, browser } = await navigate(productUrl, language);
 
   return disposeOnFail(async () => {
+    const variantData = await getVariantData(page);
+
     const [
       availability,
       id,
@@ -16,11 +18,11 @@ export const getProductStock = async (productUrl: string, dispose?: boolean, lan
       sku,
       variations
     ] = await Promise.all([
-      getAvailability(page),
-      getId(page),
+      getAvailability(page, variantData),
+      getId(page, variantData),
       getPrice(page),
       getSku(page),
-      getVariations(page)
+      getVariations(page, variantData)
     ]);
 
     const stock = new ProductStock(
@@ -76,8 +78,7 @@ const getVariantData = async (page: Page): Promise<VariantData | null> => {
   try { return JSON.parse(raw) as VariantData; } catch { return null; }
 };
 
-const getAvailability = async (page: Page) => {
-  const data = await getVariantData(page);
+const getAvailability = async (page: Page, data: VariantData | null = null) => {
   if (data) {
     const currentId = data.currentVariantId;
     const buyable = data.buyableStatus?.[currentId];
@@ -88,7 +89,8 @@ const getAvailability = async (page: Page) => {
   return el ? 'instock' : 'outofstock';
 };
 
-export const getId = async (page: Page) => {
+export const getId = async (page: Page, data: VariantData | null = null) => {
+  if (data?.parentId) return data.parentId;
   const el = await page.$('[data-nele-parent-id]');
   if (el) {
     const id = await page.evaluate(e => e.getAttribute('data-nele-parent-id'), el);
@@ -115,8 +117,7 @@ export const getSku = async (page: Page) => {
   return '';
 };
 
-const getVariations = async (page: Page): Promise<ProductVariation[]> => {
-  const data = await getVariantData(page);
+const getVariations = async (page: Page, data: VariantData | null = null): Promise<ProductVariation[]> => {
   if (!data?.siblings?.length) return [];
 
   // Build a map from optionId → option name
