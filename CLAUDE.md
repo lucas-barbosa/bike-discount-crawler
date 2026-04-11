@@ -87,6 +87,16 @@ The PHP plugin lives in `packages/lb-crawlers-receiver/src/`:
 - `Jobs/` — WP background jobs (e.g., category backfill, delete-by-category)
 - `Data/` — Data access layer
 
+Each product handler has a static `$IS_RUNNING` flag (e.g. `BikeDiscountProduct::$IS_RUNNING`) set during processing.
+
+### Category Backfill Jobs
+
+`CategoryBackfill` and `ParentCategoryBackfill` (in `Jobs/`) reassign products to new categories using `wp_set_object_terms()`. After each assignment, they enqueue a multistore sync via Action Scheduler with priority 5 (`PRIORITY_CATEGORY_JOB` from lb-multistore). This ensures child stores receive the category changes.
+
+### Integration with lb-multistore
+
+The crawler creates/updates WooCommerce products via `$product->save()`, which fires `woocommerce_new_product` or `woocommerce_update_product`. The lb-multistore plugin hooks into these to sync products to child stores. The multistore plugin detects the REST API context (`REST_REQUEST` constant) to assign crawler-specific priority (3) vs manual UI priority (7) for RabbitMQ message ordering.
+
 ### Environment Variables
 
 Key env vars (see `@crawlers/base/src/config.ts` and `docker-compose.yml`):

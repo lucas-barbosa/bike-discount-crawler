@@ -12,6 +12,7 @@ import queueUi from './queue-ui';
 import authRouter from './auth';
 import { setupPassportAuth } from './passport';
 import { AUTH } from '../config';
+import { logger } from '@crawlers/base';
 
 setupPassportAuth();
 const app = express();
@@ -30,5 +31,10 @@ app.use('/barrabes', barrabesRoutes);
 app.use('/bike-discount', bikeDiscountRoutes);
 app.use('/tradeinn', tradeinnRoutes);
 app.use('/admin/queues', ensureLoggedIn({ redirectTo: '/admin/login' }), queueUi);
+
+app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  logger.error({ err }, 'Unhandled error');
+  res.status(500).json({ error: 'Internal server error' });
+});
 
 export { app as api };

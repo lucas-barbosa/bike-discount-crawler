@@ -24,7 +24,7 @@ export class BrowserPool {
     }, {
       max: 4, // Número máximo de browsers no pool
       min: 1, // Número mínimo de browsers no pool
-      idleTimeoutMillis: 3000000000, // Tempo de espera antes de destruir um browser ocioso
+      idleTimeoutMillis: 1800000, // 30 minutos antes de destruir um browser ocioso
       acquireTimeoutMillis: 10000, // Tempo de espera para adquirir um browser do pool
     });
   }

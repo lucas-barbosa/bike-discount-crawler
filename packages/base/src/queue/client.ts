@@ -11,7 +11,7 @@ const DEFAULT_CONCURRENCY = Number(process.env.WORKER_CONCURRENCY) || 1;
 export const queueConnection = {
   connection: {
     host: process.env.QUEUE_HOST,
-    hostport: process.env.QUEUE_HOST,
+    port: Number(process.env.QUEUE_PORT) || 6379,
     password: process.env.QUEUE_PASSWORD,
     
     maxRetriesPerRequest: null, // BullMQ precisa disso
