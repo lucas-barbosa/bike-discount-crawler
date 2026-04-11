@@ -70,12 +70,24 @@ class CategoryBackfill {
 
     foreach ( $product_ids as $product_id ) {
       wp_set_object_terms( $product_id, $extra_categories, 'product_cat', true );
+      self::enqueue_multistore_sync( $product_id );
     }
 
     // Se ainda há mais produtos, reagenda o próximo batch
     if ( count( $product_ids ) === self::$batch_size ) {
       $args = [ $url, $new_term_id, $offset + self::$batch_size, $term_id ];
       as_schedule_single_action( time() + 5, self::$hook_name, $args, 'lb-crawler' );
+    }
+  }
+
+  private static function enqueue_multistore_sync( $product_id ) {
+    if ( ! function_exists( 'as_enqueue_async_action' ) ) return;
+
+    $priority = 5; // PRIORITY_CATEGORY_JOB
+    $args = [ $product_id, null, $priority ];
+
+    if ( ! as_next_scheduled_action( 'lb_woo_multistore_sync_product', $args, 'lb-child-sync-v2' ) ) {
+      as_enqueue_async_action( 'lb_woo_multistore_sync_product', $args, 'lb-child-sync-v2' );
     }
   }
 

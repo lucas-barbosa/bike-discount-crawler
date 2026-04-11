@@ -171,6 +171,7 @@ class ParentCategoryBackfill {
       // Associa produtos à hierarquia
       foreach ($product_ids as $product_id) {
         wp_set_object_terms($product_id, $term_ids, 'product_cat', true);
+        self::enqueue_multistore_sync($product_id);
       }
 
       // Se ainda há mais produtos, agenda próximo batch mantendo args
@@ -593,6 +594,17 @@ class ParentCategoryBackfill {
                 return 0;
         }
     }
+
+  private static function enqueue_multistore_sync( $product_id ) {
+    if ( ! function_exists( 'as_enqueue_async_action' ) ) return;
+
+    $priority = 5; // PRIORITY_CATEGORY_JOB
+    $args = [ $product_id, null, $priority ];
+
+    if ( ! as_next_scheduled_action( 'lb_woo_multistore_sync_product', $args, 'lb-child-sync-v2' ) ) {
+      as_enqueue_async_action( 'lb_woo_multistore_sync_product', $args, 'lb-child-sync-v2' );
+    }
+  }
 
   private static function slugify($str) {
     $str = mb_strtolower($str, 'UTF-8'); // minúsculas
