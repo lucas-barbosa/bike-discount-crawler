@@ -17,12 +17,16 @@ class TradeInnStock extends TradeInnHelper {
     }
 
     parent::loadParams();
+    parent::suppress_sync_hooks();
 
     if ($product->is_type('simple')) {
       $this->syncSimpleProduct( $product, $data );
     } else {
       $this->syncVariableProduct( $product, $data );
     }
+
+    parent::restore_sync_hooks();
+    wc_delete_product_transients( $productId );
   }
 
   private function syncSimpleProduct( $product, $data ) {

@@ -16,8 +16,13 @@ abstract class BikeDiscountHelper extends BaseProduct {
   //   add_action( 'lb_bike_discount_crawler_product_loaded', array( $this, 'execute' ) );
   // }
 
+	private static $cachedStock = [];
+
 	protected function loadParams( $stockName ) {
-		$this->stock = get_option( $stockName, '' );
+		if ( ! isset( self::$cachedStock[$stockName] ) ) {
+			self::$cachedStock[$stockName] = get_option( $stockName, '' );
+		}
+		$this->stock = self::$cachedStock[$stockName];
 	}
 
 	
@@ -503,11 +508,36 @@ abstract class BikeDiscountHelper extends BaseProduct {
   }
 
   protected function saveProduct( $product, bool $changed, $price, $availability ) {
-    do_action( 'lb_multi_inventory_remove_stock_hooks' );
-
-		if ( $changed ) $product->save();
-
+		if ( ! $changed ) return;
+		$product->save();
 		$this->setMultinventoryData( $product, $price, $availability );
+  }
+
+  private $suppressed_hooks = [];
+
+  protected function suppress_sync_hooks() {
+		do_action( 'lb_multi_inventory_remove_stock_hooks' );
+
+		if ( has_action( 'woocommerce_update_product', 'wc_update_product_lookup_tables_column' ) ) {
+			remove_action( 'woocommerce_update_product', 'wc_update_product_lookup_tables_column' );
+			$this->suppressed_hooks[] = 'wc_update_product_lookup_tables_column';
+		}
+
+		remove_action( 'woocommerce_product_set_stock', 'wc_delete_product_transients' );
+		remove_action( 'woocommerce_product_set_visibility', 'wc_delete_product_transients' );
+		wp_suspend_cache_invalidation( true );
+  }
+
+  protected function restore_sync_hooks() {
+		wp_suspend_cache_invalidation( false );
+
+		if ( in_array( 'wc_update_product_lookup_tables_column', $this->suppressed_hooks ) ) {
+			add_action( 'woocommerce_update_product', 'wc_update_product_lookup_tables_column' );
+		}
+
+		add_action( 'woocommerce_product_set_stock', 'wc_delete_product_transients' );
+		add_action( 'woocommerce_product_set_visibility', 'wc_delete_product_transients' );
+		$this->suppressed_hooks = [];
 
 		do_action( 'lb_multi_inventory_add_stock_hooks' );
   }

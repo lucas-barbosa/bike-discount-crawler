@@ -28,13 +28,16 @@ class BikeDiscountStock extends BikeDiscountHelper {
     }
 
     parent::loadParams('_lb_bike_discount_stock');
+    parent::suppress_sync_hooks();
 
     if ($product->is_type('simple')) {
       $this->syncSimpleProduct( $product, $data );
-      return;
+    } else {
+      $this->syncVariableProduct( $product, $data );
     }
 
-    $this->syncVariableProduct( $product, $data );
+    parent::restore_sync_hooks();
+    wc_delete_product_transients( $productId );
   }
 
   private function syncSimpleProduct( $product, $data ) {

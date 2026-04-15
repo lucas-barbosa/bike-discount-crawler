@@ -17,6 +17,7 @@ class BarrabesStock extends BarrabesHelper {
     }
 
     parent::loadParams('lb_barrabes_stock');
+    parent::suppress_sync_hooks();
 
     if ($product->is_type('simple')) {
       $this->syncSimpleProduct( $product, $data );
@@ -26,6 +27,9 @@ class BarrabesStock extends BarrabesHelper {
 
     // After Barrabes changed the site version, we need to update the SKU to match the new version
     $this->update_sku( $product, $data );
+
+    parent::restore_sync_hooks();
+    wc_delete_product_transients( $productId );
   }
 
   private function syncSimpleProduct( $product, $data ) {

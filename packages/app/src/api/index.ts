@@ -20,12 +20,18 @@ const app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-app.use(session({ secret: AUTH.secret, saveUninitialized: true, resave: true }));
+app.use(session({
+  secret: AUTH.secret,
+  saveUninitialized: false,
+  resave: false,
+  cookie: { maxAge: 24 * 60 * 60 * 1000 } // 24h — prevents unbounded session accumulation
+}));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false }));
 app.use(passport.authenticate('session'));
 
 app.get('/', (req, res) => res.send('Main Api running'));
+app.get('/health', (req, res) => res.json({ status: 'ok', uptime: process.uptime(), memory: process.memoryUsage().rss }));
 app.use('/', authRouter);
 app.use('/barrabes', barrabesRoutes);
 app.use('/bike-discount', bikeDiscountRoutes);
