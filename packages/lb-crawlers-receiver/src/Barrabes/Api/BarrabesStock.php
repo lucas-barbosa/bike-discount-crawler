@@ -7,13 +7,13 @@ class BarrabesStock extends BarrabesHelper {
     $productId = $this->getProductId($data['url'], $data['sku']);
 
     if (!$productId) {
-      return;
+      return false;
     }
 
     $product = wc_get_product($productId);
 
     if (!$product) {
-      return;
+      return false;
     }
 
     parent::loadParams('lb_barrabes_stock');
@@ -30,6 +30,8 @@ class BarrabesStock extends BarrabesHelper {
 
     parent::restore_sync_hooks();
     wc_delete_product_transients( $productId );
+
+    return true;
   }
 
   private function syncSimpleProduct( $product, $data ) {

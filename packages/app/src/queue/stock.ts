@@ -3,7 +3,9 @@ import { createQueue, createWorker, removeOptions } from '@crawlers/base/dist/qu
 import { type ProductStock } from '@crawlers/base/dist/types/ProductStock';
 import { logger } from '@crawlers/base';
 import { publishStockChanges } from '#publishers/stock';
+import { isProductGone } from '#publishers/base';
 import { addStockToCache, hasStockChanged } from '#infrastructure/stock-cache';
+import { removeProduct } from '#infrastructure/product-registry';
 
 const QUEUE_NAME = 'crawlers.main.product_stock';
 const STOCK_WORKER_CONCURRENCY = Number(process.env.STOCK_WORKER_CONCURRENCY) || 1;
@@ -19,6 +21,19 @@ export const stockWorker = () => {
     logger.info({ ...data }, 'START PUBLISHING stock');
     if (await hasStockChanged(data)) {
       const results = await publishStockChanges(data);
+
+      if (isProductGone(results)) {
+        if (data.url) {
+          await removeProduct(data.crawlerId, data.url, 'stock').catch((err) => {
+            logger.error({ err, productId: data.id, url: data.url }, 'Failed to remove gone product from registry');
+          });
+          logger.info({ productId: data.id, url: data.url, crawlerId: data.crawlerId }, 'Product gone on all listeners — removed from registry');
+        } else {
+          logger.warn({ productId: data.id, crawlerId: data.crawlerId }, 'Product gone but no URL available to unregister');
+        }
+        return;
+      }
+
       const allFulfilled = results.every(result => result.status === 'fulfilled');
       if (allFulfilled) {
         await addStockToCache(data);

@@ -14,17 +14,17 @@ class BikeDiscountStock extends BikeDiscountHelper {
     $productId = $this->getProductId($data['id'], $data['sku'], $data['url']);
 
     if (!$productId) {
-      return;
+      return false;
     }
 
     $product = wc_get_product($productId);
 
     if (!$product) {
-      return;
+      return false;
     }
 
     if ( ! empty( CrawlerPostMetaData::get( $productId, '_lb_bike_discount_attributes' ) ) ) {
-      return;
+      return true;
     }
 
     parent::loadParams('_lb_bike_discount_stock');
@@ -38,6 +38,8 @@ class BikeDiscountStock extends BikeDiscountHelper {
 
     parent::restore_sync_hooks();
     wc_delete_product_transients( $productId );
+
+    return true;
   }
 
   private function syncSimpleProduct( $product, $data ) {

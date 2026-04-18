@@ -7,13 +7,13 @@ class TradeInnStock extends TradeInnHelper {
     $productId = $this->getProductId( $data['id'], $data['sku'] );
 
     if (!$productId) {
-      return;
+      return false;
     }
 
     $product = wc_get_product($productId);
 
     if (!$product) {
-      return;
+      return false;
     }
 
     parent::loadParams();
@@ -27,6 +27,8 @@ class TradeInnStock extends TradeInnHelper {
 
     parent::restore_sync_hooks();
     wc_delete_product_transients( $productId );
+
+    return true;
   }
 
   private function syncSimpleProduct( $product, $data ) {

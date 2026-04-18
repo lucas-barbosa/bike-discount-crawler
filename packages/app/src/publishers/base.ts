@@ -34,3 +34,16 @@ export const publish = async (path: string, data: any) => {
 
   return await Promise.allSettled(promises);
 };
+
+/**
+ * Returns true when ALL listeners responded with 410 Gone (product was
+ * deleted on every target store). When listeners disagree, returns false —
+ * keep tracking since some stores still have the product.
+ */
+export const isProductGone = (results: Array<PromiseSettledResult<any>>): boolean => {
+  if (results.length === 0) return false;
+  return results.every((r) => {
+    if (r.status !== 'rejected') return false;
+    return r.reason?.response?.status === 410;
+  });
+};

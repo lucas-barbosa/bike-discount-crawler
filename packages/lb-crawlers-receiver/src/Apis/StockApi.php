@@ -33,30 +33,37 @@ class StockApi {
     $body = $request->get_json_params();
 
     if ( ! isset( $body['data'] ) ) {
-      return false;
+      return new \WP_REST_Response( [ 'status' => 'invalid' ], 400 );
     }
 
     $data = $body['data'];
-    if ($data['crawlerId'] === 'BD') $this->update_bd_stock( $data );
-    else if ($data['crawlerId'] === 'BB') $this->update_bb_stock( $data );
-    else if ($data['crawlerId'] === 'TT') $this->update_tt_stock( $data );
+    $found = true;
+    if ($data['crawlerId'] === 'BD') $found = $this->update_bd_stock( $data );
+    else if ($data['crawlerId'] === 'BB') $found = $this->update_bb_stock( $data );
+    else if ($data['crawlerId'] === 'TT') $found = $this->update_tt_stock( $data );
+
+    if ( $found === false ) {
+      return new \WP_REST_Response( [ 'status' => 'not_found' ], 410 );
+    }
+
+    return new \WP_REST_Response( [ 'status' => 'ok' ], 200 );
   }
 
   function update_bd_stock( $data ) {
-    if ( empty( $data['id'] ) && empty( $data['url'] ) ) return;
+    if ( empty( $data['id'] ) && empty( $data['url'] ) ) return true;
     $bd = new BikeDiscountStock();
-    $bd->handleUpdateStock( $data );
+    return $bd->handleUpdateStock( $data );
   }
 
   function update_bb_stock( $data ) {
-    if ( empty( $data['id'] ) && empty( $data['url'] ) ) return;
+    if ( empty( $data['id'] ) && empty( $data['url'] ) ) return true;
     $bd = new BarrabesStock();
-    $bd->handleUpdateStock( $data );
+    return $bd->handleUpdateStock( $data );
   }
 
   function update_tt_stock( $data ) {
-    if ( empty( $data['id'] ) ) return;
+    if ( empty( $data['id'] ) ) return true;
     $bd = new TradeInnStock();
-    $bd->handleUpdateStock( $data );
+    return $bd->handleUpdateStock( $data );
   }
 }
