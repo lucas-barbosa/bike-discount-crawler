@@ -1,5 +1,6 @@
 import { getBrowserManager } from '@crawlers/base/dist/crawler/browser-manager';
 import { closeRedis } from '@crawlers/base/dist/infrastructure/redis';
+import { closeQueueClients } from '@crawlers/base/dist/queue/client';
 import { logger } from '@crawlers/base';
 import { api } from './api';
 import { initCrawlers } from './crawlers';
@@ -22,6 +23,9 @@ const gracefulShutdown = async () => {
     if (server) {
       await new Promise<void>((resolve) => server.close(() => resolve()));
     }
+    // Close workers first so active jobs release locks and return to the
+    // queue instead of being stuck "active" until lockDuration expires.
+    await closeQueueClients().catch((err) => { logger.error({ err }, 'Error closing queue clients'); });
     await getBrowserManager().cleanUp().catch(() => { });
     await closeRedis().catch(() => { });
   } catch (err) {

@@ -3,6 +3,9 @@ import { logger } from '../utils/logger';
 
 const DEFAULT_MAX_QUEUE = 1;
 
+const workers: Worker[] = [];
+const queues: Queue[] = [];
+
 // Timeout and concurrency configurations
 const DEFAULT_LOCK_DURATION = Number(process.env.JOB_LOCK_DURATION) || 5 * 60 * 1000; // 5 minutes
 const DEFAULT_STALLED_INTERVAL = 30000; // Check for stalled jobs every 30 seconds
@@ -29,6 +32,7 @@ export const createQueue = (queueName: string) => {
     ...queueConnection,
   });
   queue.setGlobalConcurrency(isNaN(Number(process.env.MAX_QUEUE)) ? DEFAULT_MAX_QUEUE : Number(process.env.MAX_QUEUE));
+  queues.push(queue);
   return queue;
 };
 
@@ -57,7 +61,77 @@ export const createWorker = (queueName: string, queueHandler: any, options: Work
     logger.warn({ jobId, queue: queueName }, 'Job stalled');
   });
 
+  workers.push(worker);
   return worker;
+};
+
+const DEFAULT_CLOSE_TIMEOUT_MS = Number(process.env.WORKER_CLOSE_TIMEOUT) || 8000;
+
+/**
+ * Gracefully close all workers and queues.
+ *
+ * Strategy:
+ *  1. Try graceful `worker.close(false)` — lets the current job finish cleanly.
+ *  2. If it doesn't finish within `timeoutMs`, fall back to force close
+ *     (`worker.close(true)`) which abandons the job.
+ *  3. After workers are closed, any job still sitting in `active` is requeued
+ *     back to `wait` via direct Redis manipulation, so the next boot picks it
+ *     up immediately instead of waiting up to `lockDuration` for the lock to
+ *     expire and the stalled detector to recover it.
+ */
+export const closeQueueClients = async (timeoutMs = DEFAULT_CLOSE_TIMEOUT_MS) => {
+  await Promise.all(
+    workers.map(async (worker) => {
+      let timer: NodeJS.Timeout | undefined;
+      try {
+        await Promise.race([
+          worker.close(false),
+          new Promise<never>((_, reject) => {
+            timer = setTimeout(() => reject(new Error('worker-close-timeout')), timeoutMs);
+          })
+        ]);
+      } catch (err) {
+        logger.warn({ err }, 'Worker graceful close timed out or failed — forcing close');
+        await worker.close(true).catch((e) => logger.error({ err: e }, 'Force close failed'));
+      } finally {
+        if (timer) clearTimeout(timer);
+      }
+    })
+  );
+
+  await Promise.all(
+    queues.map(async (queue) => {
+      try {
+        const active = await queue.getActive();
+        if (active.length > 0) {
+          logger.info({ queue: queue.name, count: active.length }, 'Requeuing abandoned active jobs');
+          const client = await queue.client;
+          const prefix = queue.opts.prefix || 'bull';
+          const base = `${prefix}:${queue.name}`;
+          for (const job of active) {
+            if (!job.id) continue;
+            try {
+              const multi = client.multi();
+              multi.lrem(`${base}:active`, 0, job.id);
+              multi.rpush(`${base}:wait`, job.id);
+              multi.del(`${base}:${job.id}:lock`);
+              await multi.exec();
+            } catch (err) {
+              logger.error({ err, jobId: job.id, queue: queue.name }, 'Error requeuing active job');
+            }
+          }
+        }
+      } catch (err) {
+        logger.error({ err, queue: queue.name }, 'Error inspecting active jobs');
+      }
+
+      try {
+        await queue.close();
+      } catch (err) {
+        logger.error({ err, queue: queue.name }, 'Error closing queue');
+      }
+    })
+  );
 };
 
 export const removeOptions = {
