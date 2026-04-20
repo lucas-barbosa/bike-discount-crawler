@@ -1,5 +1,5 @@
 import { listProducts } from '@crawler/actions/list-products';
-import { logger } from '@crawlers/base';
+import { captureSwallowed } from '@crawlers/base';
 import { type CategorySearch } from '@crawlers/base/dist/types/CategorySearch';
 
 export const fetchProductList = async (categoryUrl: string, page: number = 1) => {
@@ -12,10 +12,10 @@ export const fetchProductList = async (categoryUrl: string, page: number = 1) =>
   return listProducts(params.parentId, params.categoryId, categoryUrl, params.attributeId, page)
   // Add timeout to avoid being detected by rate limit
     .then(res => new Promise<CategorySearch>(resolve => setTimeout(resolve, Math.floor(Math.random() * (2000 - 1000 + 1)) + 1000, res)))
-    .catch(err => {
-      logger.warn({ err }, 'Error fetching product list');
-      return null;
-    });
+    .catch(err => captureSwallowed(err, 'Error fetching product list', {
+      tags: { store: 'tradeinn', usecase: 'fetch-product-list' },
+      extra: { categoryUrl, page, ...params }
+    }));
 };
 
 const getParamsFromUrl = (url: string) => {

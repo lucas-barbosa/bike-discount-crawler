@@ -5,7 +5,7 @@ import { saveCategories } from '@infrastructure/categories';
 import { generateCategoriesTree } from './generate-categories-tree';
 import { listAttributes } from '@crawler/actions/list-attributes';
 import { saveAttributes } from '@infrastructure/attributes';
-import { logger } from '@crawlers/base';
+import { captureSwallowed } from '@crawlers/base';
 
 const collectLastCategories = (node: TradeInnStore, storeId: string, parentId: string): Array<{ storeId: string, categoryId: string, parentId: string, url: string }> => {
   if (!node.childs || node.childs.length === 0) {
@@ -21,10 +21,9 @@ const collectLastCategories = (node: TradeInnStore, storeId: string, parentId: s
 };
 
 export const fetchCategories = async () => {
-  const categories = await listCategories().catch(err => {
-    logger.warn({ err }, 'Error fetching categories');
-    return null;
-  });
+  const categories = await listCategories().catch(err => captureSwallowed(err, 'Error fetching categories', {
+    tags: { store: 'tradeinn', usecase: 'fetch-categories' }
+  }));
 
   if (categories) {
     await saveCategories(categories);
@@ -37,10 +36,11 @@ export const fetchCategories = async () => {
     const allAttributes = await Promise.all(
       lastCategories.map(category => listAttributes(category.storeId, category.parentId, category.categoryId, category.url)
         .then(x => ({ ...category, attributes: x }))
-        .catch((err) => {
-          logger.warn({ err }, `Failed to load category [${category.categoryId}] - store [${category.parentId}]`);
-          return { ...category, attributes: [] };
-        })));
+        .catch((err) => captureSwallowed(err, `Failed to load category [${category.categoryId}] - store [${category.parentId}]`, {
+          tags: { store: 'tradeinn', usecase: 'fetch-categories', kind: 'attributes' },
+          extra: { categoryId: category.categoryId, parentId: category.parentId, url: category.url },
+          fallback: { ...category, attributes: [] }
+        }))));
 
     attributes = allAttributes.filter(x => !!x && x.attributes.length > 0);
   }

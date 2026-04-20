@@ -1,5 +1,5 @@
 import { getProduct } from '@crawler/actions/get-product';
-import { logger } from '@crawlers/base';
+import { captureSwallowed } from '@crawlers/base';
 import { uploadImages } from '@crawlers/base/dist/usecases/upload-images';
 
 export const fetchProduct = async (productUrl: string, categoryUrl: string, language?: string) => {
@@ -8,8 +8,8 @@ export const fetchProduct = async (productUrl: string, categoryUrl: string, lang
       res.images = await uploadImages(res.images);
       return res;
     })
-    .catch(err => {
-      logger.warn({ err }, 'Error fetching product');
-      return null;
-    });
+    .catch(err => captureSwallowed(err, 'Error fetching product', {
+      tags: { store: 'tradeinn', usecase: 'fetch-product' },
+      extra: { productUrl, categoryUrl, language }
+    }));
 };

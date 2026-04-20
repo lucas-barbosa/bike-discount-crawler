@@ -1,5 +1,6 @@
 import { Queue, Worker, WorkerOptions } from 'bullmq';
 import { logger } from '../utils/logger';
+import { captureException } from '../infrastructure/sentry';
 
 const DEFAULT_MAX_QUEUE = 1;
 
@@ -51,10 +52,23 @@ export const createWorker = (queueName: string, queueHandler: any, options: Work
 
   worker.on('failed', (job, err) => {
     logger.error({ jobId: job?.id, queue: queueName, err }, 'Job failed');
+    // Only alert once retries are exhausted — intermediate failures are
+    // expected and would flood Sentry.
+    const maxAttempts = job?.opts?.attempts ?? 1;
+    if (job && job.attemptsMade >= maxAttempts) {
+      captureException(err, {
+        queue: queueName,
+        jobId: job.id,
+        jobName: job.name,
+        attemptsMade: job.attemptsMade,
+        data: job.data
+      });
+    }
   });
 
   worker.on('error', (err) => {
     logger.error({ queue: queueName, err }, 'Worker error');
+    captureException(err, { queue: queueName, kind: 'worker-error' });
   });
 
   worker.on('stalled', (jobId) => {
