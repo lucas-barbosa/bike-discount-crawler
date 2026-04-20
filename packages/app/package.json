@@ -24,7 +24,8 @@
     "lint": "eslint ./**/*.ts --quiet",
     "cleanup:repeatable-jobs": "tsx src/scripts/cleanup-repeatable-jobs.ts",
     "cleanup:category-repeatable-jobs": "tsx src/scripts/cleanup-category-repeatable-jobs.ts",
-    "cleanup:stuck-jobs": "tsx src/scripts/cleanup-stuck-jobs.ts"
+    "cleanup:stuck-jobs": "tsx src/scripts/cleanup-stuck-jobs.ts",
+    "cleanup:queue-bloat": "tsx src/scripts/cleanup-queue-bloat.ts"
   },
   "devDependencies": {
     "@types/axios": "^0.14.0",
