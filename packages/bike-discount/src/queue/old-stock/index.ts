@@ -40,6 +40,7 @@ export const enqueueOldStock = async (productUrl: string, variations: OldProduct
     url: productUrl,
     variations
   }, {
+    jobId: `old-stock:${productUrl}`,
     ...removeOptions
   }).catch(err => { logger.error({ err }, 'Failed to enqueue old-stock'); });
 };

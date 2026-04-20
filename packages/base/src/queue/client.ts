@@ -161,3 +161,23 @@ export const removeOptions = {
     delay: 5000
   }
 };
+
+// Aligns completed/failed retention with the stock scheduler cadence so that
+// jobId-based dedup blocks duplicate enqueues *within* a cycle but lets the
+// next scheduled run re-enqueue the same product once the cycle completes.
+const STOCK_SCHEDULER_INTERVAL_DAYS = parseInt(process.env.STOCK_SCHEDULER_INTERVAL_DAYS ?? '2', 10);
+const STOCK_SCHEDULER_INTERVAL_SECONDS = STOCK_SCHEDULER_INTERVAL_DAYS * 24 * 3600;
+
+export const stockRemoveOptions = {
+  removeOnComplete: {
+    age: STOCK_SCHEDULER_INTERVAL_SECONDS
+  },
+  removeOnFail: {
+    age: STOCK_SCHEDULER_INTERVAL_SECONDS
+  },
+  attempts: 3,
+  backoff: {
+    type: 'exponential' as const,
+    delay: 5000
+  }
+};

@@ -171,7 +171,10 @@ export const triggerScheduler = async (crawlerId?: string) => {
   await queue.add(
     `stock-scheduler-manual-${Date.now()}`,
     { crawlerId },
-    removeOptions
+    {
+      jobId: `stock-scheduler-manual:${crawlerId ?? 'all'}:${Date.now()}`,
+      ...removeOptions
+    }
   );
   logger.info({ crawlerId: crawlerId ?? 'all' }, 'Scheduler triggered');
 };

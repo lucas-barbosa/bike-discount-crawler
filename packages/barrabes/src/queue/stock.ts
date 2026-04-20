@@ -1,6 +1,6 @@
 import { type Job, type Queue } from 'bullmq';
 import { fetchStock } from '@usecases/fetch-stock';
-import { createQueue, createWorker, removeOptions } from '@crawlers/base/dist/queue/client';
+import { createQueue, createWorker, stockRemoveOptions } from '@crawlers/base/dist/queue/client';
 import { type StockFoundCallback, type StockQueueItem } from '@crawlers/base/dist/types/Queue';
 import { logger } from '@crawlers/base';
 
@@ -35,7 +35,8 @@ export const enqueueStock = async (productUrl: string, isPro?: boolean) => {
     isPro,
     url: productUrl
   }, {
-    ...removeOptions
+    jobId: `stock:${productUrl}`,
+    ...stockRemoveOptions
   }).catch(err => { logger.error({ err }, 'Failed to enqueue stock'); });
 };
 
