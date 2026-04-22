@@ -2,22 +2,40 @@
 
 namespace LucasBarbosa\LbCrawlersReceiver\Barrabes\Api;
 
+use LucasBarbosa\LbCrawlersReceiver\Utils\CrawlerLogger;
+
 class BarrabesStock extends BarrabesHelper {
   function handleUpdateStock($data) {
     $productId = $this->getProductId($data['url'], $data['sku']);
 
+    CrawlerLogger::debug( 'stock.BB', 'resolved productId', array(
+      'sku' => $data['sku'] ?? null,
+      'url' => $data['url'] ?? null,
+      'productId' => $productId,
+    ) );
+
     if (!$productId) {
+      CrawlerLogger::warn( 'stock.BB', 'product not found (will respond 410)', array(
+        'sku' => $data['sku'] ?? null, 'url' => $data['url'] ?? null,
+      ) );
       return false;
     }
 
     $product = wc_get_product($productId);
 
     if (!$product) {
+      CrawlerLogger::warn( 'stock.BB', 'wc_get_product returned null', array( 'productId' => $productId ) );
       return false;
     }
 
     parent::loadParams('lb_barrabes_stock');
     parent::suppress_sync_hooks();
+
+    CrawlerLogger::debug( 'stock.BB', 'syncing', array(
+      'productId' => $productId,
+      'type' => $product->is_type('simple') ? 'simple' : $product->get_type(),
+      'multiInventory' => ! empty( $this->stock ),
+    ) );
 
     if ($product->is_type('simple')) {
       $this->syncSimpleProduct( $product, $data );
@@ -31,6 +49,7 @@ class BarrabesStock extends BarrabesHelper {
     parent::restore_sync_hooks();
     wc_delete_product_transients( $productId );
 
+    CrawlerLogger::debug( 'stock.BB', 'done', array( 'productId' => $productId ) );
     return true;
   }
 
@@ -44,6 +63,9 @@ class BarrabesStock extends BarrabesHelper {
     }
 
     $changed = parent::setPriceAndStock($product, $price, $availability);
+    CrawlerLogger::debug( 'stock.BB', 'simple: setPriceAndStock', array(
+      'productId' => $product->get_id(), 'price' => $price, 'availability' => $availability, 'changed' => $changed,
+    ) );
     parent::saveProduct($product, $changed, $price, $availability);
   }
 
@@ -62,7 +84,14 @@ class BarrabesStock extends BarrabesHelper {
       if ( empty( $variationId ) ) {
         // Appened only new variations with stock
         if ( $variation['availability'] !== 'outofstock') {
+          CrawlerLogger::debug( 'stock.BB', 'variation: not found, appending', array(
+            'productId' => $product->get_id(), 'variationSourceId' => $variation['id'] ?? null,
+          ) );
           $this->appendVariation( $i, $product, $variation );
+        } else {
+          CrawlerLogger::debug( 'stock.BB', 'variation: not found, skipped (out-of-stock)', array(
+            'productId' => $product->get_id(), 'variationSourceId' => $variation['id'] ?? null,
+          ) );
         }
         continue;
       }
@@ -71,6 +100,7 @@ class BarrabesStock extends BarrabesHelper {
       $variationProduct = wc_get_product($variationId);
 
       if (!$variationProduct) {
+        CrawlerLogger::warn( 'stock.BB', 'variation: wc_get_product null', array( 'variationId' => $variationId ) );
         continue;
       }
 
@@ -78,6 +108,10 @@ class BarrabesStock extends BarrabesHelper {
       $availability = $variation['availability'];
 
       $changed = parent::setPriceAndStock($variationProduct, $price, $availability);
+      CrawlerLogger::debug( 'stock.BB', 'variation: setPriceAndStock', array(
+        'productId' => $product->get_id(), 'variationId' => $variationId,
+        'price' => $price, 'availability' => $availability, 'changed' => $changed,
+      ) );
       parent::saveProduct($variationProduct, $changed, $price, $availability);
     }
 

@@ -3,6 +3,7 @@
 namespace LucasBarbosa\LbCrawlersReceiver\Data;
 
 use LucasBarbosa\LbCrawlersReceiver\Data\CrawlerPostMetaData;
+use LucasBarbosa\LbCrawlersReceiver\Utils\CrawlerLogger;
 use LucasBarbosa\LbCrawlersReceiver\Utils\Utils;
 
 class BikeDiscountStock extends BikeDiscountHelper {
@@ -13,22 +14,40 @@ class BikeDiscountStock extends BikeDiscountHelper {
 
     $productId = $this->getProductId($data['id'], $data['sku'], $data['url']);
 
+    CrawlerLogger::debug( 'stock.BD', 'resolved productId', array(
+      'id' => $data['id'] ?? null,
+      'sku' => $data['sku'] ?? null,
+      'url' => $data['url'] ?? null,
+      'productId' => $productId,
+    ) );
+
     if (!$productId) {
+      CrawlerLogger::warn( 'stock.BD', 'product not found (will respond 410)', array(
+        'id' => $data['id'] ?? null, 'sku' => $data['sku'] ?? null, 'url' => $data['url'] ?? null,
+      ) );
       return false;
     }
 
     $product = wc_get_product($productId);
 
     if (!$product) {
+      CrawlerLogger::warn( 'stock.BD', 'wc_get_product returned null', array( 'productId' => $productId ) );
       return false;
     }
 
     if ( ! empty( CrawlerPostMetaData::get( $productId, '_lb_bike_discount_attributes' ) ) ) {
+      CrawlerLogger::debug( 'stock.BD', 'skipped: _lb_bike_discount_attributes meta present (manual product)', array( 'productId' => $productId ) );
       return true;
     }
 
     parent::loadParams('_lb_bike_discount_stock');
     parent::suppress_sync_hooks();
+
+    CrawlerLogger::debug( 'stock.BD', 'syncing', array(
+      'productId' => $productId,
+      'type' => $product->is_type('simple') ? 'simple' : $product->get_type(),
+      'multiInventory' => ! empty( $this->stock ),
+    ) );
 
     if ($product->is_type('simple')) {
       $this->syncSimpleProduct( $product, $data );
@@ -39,6 +58,7 @@ class BikeDiscountStock extends BikeDiscountHelper {
     parent::restore_sync_hooks();
     wc_delete_product_transients( $productId );
 
+    CrawlerLogger::debug( 'stock.BD', 'done', array( 'productId' => $productId ) );
     return true;
   }
 
@@ -47,6 +67,9 @@ class BikeDiscountStock extends BikeDiscountHelper {
     $availability = $data['availability'];
 
     $changed = parent::setPriceAndStock($product, $price, $availability);
+    CrawlerLogger::debug( 'stock.BD', 'simple: setPriceAndStock', array(
+      'productId' => $product->get_id(), 'price' => $price, 'availability' => $availability, 'changed' => $changed,
+    ) );
     parent::saveProduct($product, $changed, $price, $availability);
   }
 
@@ -63,6 +86,9 @@ class BikeDiscountStock extends BikeDiscountHelper {
       $variationId = $this->getVariationId( $variation['id'], $attributes, $product );
 
       if ( empty( $variationId ) ) {
+        CrawlerLogger::debug( 'stock.BD', 'variation: not found, appending', array(
+          'productId' => $product->get_id(), 'variationSourceId' => $variation['id'] ?? null,
+        ) );
         $this->appendVariation( $i, $product, $variation );
         continue;
       }
@@ -71,6 +97,7 @@ class BikeDiscountStock extends BikeDiscountHelper {
       $variationProduct = wc_get_product($variationId);
 
       if (!$variationProduct) {
+        CrawlerLogger::warn( 'stock.BD', 'variation: wc_get_product null', array( 'variationId' => $variationId ) );
         continue;
       }
 
@@ -78,6 +105,10 @@ class BikeDiscountStock extends BikeDiscountHelper {
       $availability = $variation['availability'];
 
       $changed = parent::setPriceAndStock($variationProduct, $price, $availability);
+      CrawlerLogger::debug( 'stock.BD', 'variation: setPriceAndStock', array(
+        'productId' => $product->get_id(), 'variationId' => $variationId,
+        'price' => $price, 'availability' => $availability, 'changed' => $changed,
+      ) );
       parent::saveProduct($variationProduct, $changed, $price, $availability);
     }
 

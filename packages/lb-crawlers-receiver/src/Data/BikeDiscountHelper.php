@@ -508,8 +508,14 @@ abstract class BikeDiscountHelper extends BaseProduct {
   }
 
   protected function saveProduct( $product, bool $changed, $price, $availability ) {
-		if ( ! $changed ) return;
-		$product->save();
+		// $product->save() is expensive; only run it when WC-side fields changed.
+		// setMultinventoryData must run regardless: in multi-inventory mode,
+		// $changed is always false (setPriceAndStock short-circuits) and the
+		// real stock write happens via the lb_multi_inventory_set_stock hook.
+		// The listener does its own diff, so re-firing on unchanged data is cheap.
+		if ( $changed ) {
+			$product->save();
+		}
 		$this->setMultinventoryData( $product, $price, $availability );
   }
 
