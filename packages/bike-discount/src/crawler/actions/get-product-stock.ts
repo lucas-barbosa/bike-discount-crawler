@@ -64,7 +64,8 @@ interface VariantData {
   currentVariantId: string
   parentId: string
   buyableStatus: Record<string, boolean>
-  configuratorSettings: Array<{
+  optionNames?: Record<string, string>
+  configuratorSettings?: Array<{
     id: string
     options: Array<{ id: string, name: string }>
   }>
@@ -122,9 +123,15 @@ const getVariations = async (page: Page, data: VariantData | null = null): Promi
 
   // Build a map from optionId → option name
   const optionNameMap = new Map<string, string>();
-  for (const group of data.configuratorSettings ?? []) {
-    for (const option of group.options ?? []) {
-      optionNameMap.set(option.id, option.name);
+  if (data.optionNames) {
+    for (const [id, name] of Object.entries(data.optionNames)) {
+      optionNameMap.set(id, name);
+    }
+  } else {
+    for (const group of data.configuratorSettings ?? []) {
+      for (const option of group.options ?? []) {
+        optionNameMap.set(option.id, option.name);
+      }
     }
   }
 
